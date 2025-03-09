@@ -33,6 +33,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
@@ -129,4 +130,29 @@ fun genMyCockpitButton(text: String, modifier: Modifier){
 
         Text(text, color = colorResource(R.color.choosen), fontSize = 28.sp)
     }
+}
+
+@Composable
+fun PannelBG(modifier: Modifier){
+     Box(){
+         GeneralImage(img = R.drawable.bg_pannel,modifier=modifier, height = 1286.dp, width = 284.75.dp)
+//         GeneralImage(img = )
+     }
+}
+
+
+@Composable
+fun GeneralImage(@DrawableRes img:Int,
+                 ds:String="",
+                 contentScale: ContentScale=ContentScale.Crop,
+                 width:Dp,
+                 height:Dp,
+                 modifier: Modifier){
+    Image(contentDescription = ds,
+        painter = painterResource(img),
+        contentScale =contentScale,
+        modifier = modifier.fillMaxSize().
+        size(width = width, height = height)
+    )
+
 }
