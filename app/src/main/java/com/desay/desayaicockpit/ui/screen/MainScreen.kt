@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,22 +25,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+//import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 
-
+inline val Int.dp: Dp get() = Dp(this.toFloat())
 @Composable
 fun MainRun(modifier: Modifier){
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         // 前景内容
-//        SLEChooser(modifier )
+        SLEChooser(modifier )
     }
 }
 
@@ -108,4 +111,22 @@ fun SLEChooserItem_( ){
     SLEChooserItem("光",true,{},Modifier)
 }
 
+@Preview(showBackground = true,backgroundColor = 0xff000000)
+@Composable
+fun genMyCockpitButton_(){
+    genMyCockpitButton("生成我的座舱",Modifier)
+}
 
+@Composable
+fun genMyCockpitButton(text: String, modifier: Modifier){
+    Box(modifier=modifier.size(
+        height = 80.dp,
+        width = 340.dp
+    ), contentAlignment = Alignment.Center){
+        Image(contentDescription = "",
+            painter = painterResource(R.drawable.gen_b)
+            , contentScale = ContentScale.Crop, modifier = modifier.fillMaxSize())
+
+        Text(text, color = colorResource(R.color.choosen), fontSize = 28.sp)
+    }
+}
