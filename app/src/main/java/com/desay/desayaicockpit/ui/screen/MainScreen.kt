@@ -1,0 +1,111 @@
+package com.desay.desayaicockpit.ui.screen
+
+import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.desay.desayaicockpit.R
+
+
+@Composable
+fun MainRun(modifier: Modifier){
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        // 前景内容
+//        SLEChooser(modifier )
+    }
+}
+
+private data class SLEItem(
+    val id: Int,
+    val text: String
+)
+
+@Composable
+fun SLEChooser(modifier: Modifier){
+    val tags= listOf("声","光","电")
+    var choosenId by rememberSaveable { mutableIntStateOf(0) }
+
+    Column {
+
+        SLEChooserItem(tags[0],choosenId==0,{
+            choosenId=0
+            Log.d("Test", "SLEChooser: 0")
+        },modifier)
+        SLEChooserItem(tags[1],choosenId==1,{
+            choosenId=1
+            Log.d("Test", "SLEChooser: 0")
+        },modifier)
+        SLEChooserItem(tags[2],choosenId==2,{
+            choosenId=2
+            Log.d("Test", "SLEChooser: 0")
+        },modifier)
+    }
+}
+
+@Preview(showBackground = true,backgroundColor = 0xff000000)
+@Composable
+fun SLEChooser_(){
+    SLEChooser(Modifier)
+}
+
+
+@Composable
+fun SLEChooserItem( tag:String,choosen:Boolean,onChoose:()->Unit,
+    modifier: Modifier){
+    Box(modifier=modifier.size(
+        height = 120.dp,
+        width = 284.dp,
+    ).background(Color.Transparent)) {
+        if (choosen) {
+            Image(contentDescription = "", painter = painterResource(R.drawable.choosen)
+            , contentScale = ContentScale.FillBounds, modifier = modifier.fillMaxSize())
+        }
+
+        Text(
+            text =tag,
+            fontSize = 24.sp,
+            color = if (choosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
+            modifier = modifier
+                .padding(top = 44.dp, start = 212.dp)
+                .clickable {
+                    onChoose()
+                }
+        )
+    }
+}
+
+@Preview(showBackground = true,backgroundColor = 0xff000000)
+@Composable
+fun SLEChooserItem_( ){
+    SLEChooserItem("光",true,{},Modifier)
+}
+
+
