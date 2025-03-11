@@ -4,16 +4,23 @@ package com.desay.desayaicockpit.ui.screen
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
@@ -43,21 +51,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.ui.theme.Orange
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlin.math.roundToInt
+
 @Composable
 fun MainRun(modifier: Modifier){
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
@@ -119,11 +137,11 @@ fun VerticalColorSlider() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewVerticalColorSlider() {
-    VerticalColorSlider()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewVerticalColorSlider() {
+//    VerticalColorSlider()
+//}
 
 @Preview(showBackground = true)
 @Composable
@@ -199,3 +217,148 @@ private fun buildFullHueColors(): List<Color> {
     ).map { hue -> Color.hsv(hue, 1f, 1f) }
 }
 
+
+//@Composable
+//fun HorizontalSaturationPicker(
+//    currentHue: Float,
+//    currentSaturation: Float,
+//    onSaturationChanged: (Float) -> Unit
+//) {
+//    val trackHeight = 200.dp
+//    val indicatorRadius = 12.dp
+//    val indicatorDiameter = indicatorRadius * 2
+//    val indicatorBorderWidth = 3.dp
+//
+//    // 添加尺寸跟踪
+//    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+//    val density = LocalDensity.current
+//
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(trackHeight)
+//            .background(
+//                brush = Brush.horizontalGradient(
+//                    colors = listOf(
+//                        Color.hsv(currentHue, 0f, 1f),
+//                        Color.hsv(currentHue, 1f, 1f)
+//                    )
+//                ),
+//                shape = RoundedCornerShape(8.dp)
+//            )
+//            .onSizeChanged { containerSize = it } // 捕获容器尺寸
+//            .pointerInput(Unit) {
+//                detectTapGestures { offset ->
+//                    handleDrag(offset.x,onSaturationChanged)
+//                }
+//                detectDragGestures { change, _ ->
+//                    handleDrag(change.position.x,onSaturationChanged)
+//                }
+//
+//            }
+//    ) {
+//        // 转换Dp为像素（需在density作用域内）
+//        val indicatorRadiusPx = with(density) { indicatorRadius.toPx() }
+//
+//        Box(
+//            modifier = Modifier
+//                .offset {
+//                    val containerWidth = containerSize.width.toFloat()
+//                    val containerHeight = containerSize.height.toFloat()
+//
+//                    val x = (containerWidth * currentSaturation - indicatorRadiusPx).roundToInt()
+//                    val y = (containerHeight / 2 - indicatorRadiusPx).roundToInt()
+//                    IntOffset(x, y)
+//                }
+//                .size(indicatorDiameter)
+//                .border(
+//                    width = indicatorBorderWidth,
+//                    color = Color.White,
+//                    shape = CircleShape
+//                )
+//        )
+//    }
+//}
+//
+//private fun PointerInputScope.handleDrag(x: Float,onSaturationChanged: (Float) -> Unit) {
+//    val saturation = (x / size.width).coerceIn(0f, 1f)
+//    onSaturationChanged(saturation)
+//}
+//@Preview
+//@Composable
+//fun PreviewRedSaturation() {
+////    HorizontalSaturationPicker(Modifier,0f,0.7f,{})
+//    HorizontalSaturationPicker(0.3f,0.7f,{})
+//}
+
+@Composable
+fun HorizontalSaturationPicker(
+    currentHue: Float,
+    currentSaturation: Float,
+    onSaturationChanged: (Float) -> Unit
+) {
+    val trackHeight = 200.dp
+    val indicatorSize = 24.dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(trackHeight)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        Color.hsv(currentHue, 0f, 1f),
+                        Color.hsv(currentHue, 1f, 1f)
+                    )
+                ),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .pointerInput(Unit) {
+                var containerWidth by remember { mutableStateOf(0f) }
+
+                // 拖动手势处理
+                detectDragGestures { change, _ ->
+                    containerWidth = size.width
+                    if (containerWidth > 0) {
+                        val x = change.position.x.coerceIn(0f, containerWidth)
+                        onSaturationChanged(x / containerWidth)
+                    }
+                }
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                // 点击处理（需要计算点击位置）
+                val offset = LocalPointerInputService.current
+                    ?.getPointerPosition()
+                    ?.getOrNull()
+                offset?.let {
+                    val containerWidth = size.width
+                    if (containerWidth > 0) {
+                        val x = it.x.coerceIn(0f, containerWidth)
+                        onSaturationChanged(x / containerWidth)
+                    }
+                }
+            }
+    ) {
+        // 环形指示器
+        Box(
+            modifier = Modifier
+                .offset {
+                    val containerWidth = size.width
+                    val x = if (containerWidth > 0) {
+                        (containerWidth * currentSaturation - indicatorSize.toPx() / 2).roundToInt()
+                    } else 0
+                    IntOffset(x, (size.height / 2 - indicatorSize.toPx() / 2).roundToInt())
+                }
+                .size(indicatorSize)
+                .border(
+                    width = 3.dp,
+                    color = Color.White,
+                    shape = CircleShape
+                )
+                .shadow(4.dp, CircleShape)
+        )
+    }
+}
