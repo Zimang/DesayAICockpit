@@ -39,13 +39,13 @@ import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 
 inline val Int.dp: Dp get() = Dp(this.toFloat())
-@Composable
-fun MainRun(modifier: Modifier){
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        // 前景内容
-        SLEChooser(modifier )
-    }
-}
+//@Composable
+//fun MainRun(modifier: Modifier){
+//    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+//        // 前景内容
+//        SLEChooser(modifier )
+//    }
+//}
 
 private data class SLEItem(
     val id: Int,

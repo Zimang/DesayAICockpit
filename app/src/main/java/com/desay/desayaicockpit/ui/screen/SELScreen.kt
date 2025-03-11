@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -57,6 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.ui.theme.Orange
+@Composable
+fun MainRun(modifier: Modifier){
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        // 前景内容
+        FullHueVerticalSlider_()
+    }
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,12 +125,19 @@ fun PreviewVerticalColorSlider() {
     VerticalColorSlider()
 }
 
+@Preview(showBackground = true)
+@Composable
+fun FullHueVerticalSlider_() {
+    FullHueVerticalSlider(Modifier,{})
+}
+
 @Composable
 fun FullHueVerticalSlider(
     modifier: Modifier = Modifier,
     onHueChanged: (Float) -> Unit
 ) {
-    val trackHeight = 300.dp
+    val trackHeight = 480.dp
+    val allHeight = 500.dp
     var progress by remember { mutableFloatStateOf(0f) }
 
     // 计算色相（0°-360°）
@@ -135,31 +150,38 @@ fun FullHueVerticalSlider(
     LaunchedEffect(hue) {
         onHueChanged(hue)
     }
-
     Box(
-        modifier = modifier
-            .width(64.dp)
-            .height(trackHeight)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = buildFullHueColors() // 生成完整色相渐变色
-                )
-            )
+        modifier = modifier.height(allHeight)
+            .width(80.dp)
+            .padding(2.dp)
             .pointerInput(Unit) {
                 detectVerticalDragGestures { change, _ ->
                     val y = change.position.y.coerceIn(0f, size.height.toFloat())
                     progress = y / size.height // 直接映射 Y 轴位置到 0-1
                 }
             }
-    ) {
+    ){
+
+        Box(
+            modifier = modifier
+                .width(40.dp)
+                .height(trackHeight)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = buildFullHueColors() // 生成完整色相渐变色
+                    )
+                )
+                .border(width = 20.dp, color = Transparent)
+                .align(Alignment.Center)
+        )
         // 可拖动的滑块指示器
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
                 .offset(y = trackHeight * progress - 12.dp)
-                .size(48.dp, 24.dp)
+                .size(80.dp, 40.dp)
                 .background(currentColor, RoundedCornerShape(8.dp))
-                .border(2.dp, Color.White, RoundedCornerShape(8.dp))
+//                    .border(6.dp, Color.White, RoundedCornerShape(8.dp))
+                .border(6.dp, Color.White)
         )
     }
 }
