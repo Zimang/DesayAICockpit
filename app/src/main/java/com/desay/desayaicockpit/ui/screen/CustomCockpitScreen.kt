@@ -46,7 +46,7 @@ import com.desay.desayaicockpit.utils.pxToDpNum
  *  AI座舱屏幕
  *  TODO 仪表盘&生成我的座舱按钮
  *  TODO 声
- *  TODO 声- 图像列表
+ *  声- 图像列表
  *  TODO 声- 移动跑马灯
  *  TODO 光
  *  TODO 光- 颜色滑块
@@ -272,6 +272,7 @@ fun ElectricityList_(){
 //                , bottom = 128.pxToDp()
 //                , start = 2324.pxToDp()))
     }
+    Text(1286.pxToDpNum().toString(), color = Color.White) //468
 //    Text(1516.pxToDpNum().toString()) //423
 //    Text(720.pxToDpNum().toString()) //262
 //    Text(3840.pxToDpNum().toString()) //1396
@@ -397,4 +398,71 @@ fun LightColorPicker(){
 @Composable
 fun FinalScreen(){
 
+}
+@Composable
+fun BigPanel(
+    modifier: Modifier=Modifier){
+    Box(modifier.size(
+        1286.pxToDp(),720.pxToDp()
+    )){
+        Image(painter = painterResource(R.drawable.bg_pannel),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+            modifier =  modifier
+                .padding(top = 202.3f.pxToDp())
+        )
+        Image(painter = painterResource(R.drawable.main_1),
+            contentDescription = "",
+            modifier =  modifier
+                .padding(top = 233.75f.pxToDp(), start =462.96f.pxToDp() )
+                .size(374.55f.pxToDp(),70.23f.pxToDp())
+        )
+
+        Image(painter = painterResource(R.drawable.p_head),
+            contentDescription = "",
+            modifier =  modifier
+                .padding(start = 361.pxToDp(), top=158.pxToDp() )
+                .size(608.pxToDp(),43.pxToDp())
+        )
+
+    }
+    Image(painter = painterResource(R.drawable.p_text),
+        contentDescription = "",
+        contentScale = ContentScale.FillBounds,
+        modifier =  modifier
+            .padding(top =72.86f.pxToDp() ,
+                start = 379.18f.pxToDp(),
+                end = 883.68f.pxToDp(),
+                bottom = 612.pxToDp()
+            )
+//            .size(23.pxToDp(),35.pxToDp())
+//            .size(23.14f.pxToDp(),35.14f.pxToDp())
+
+    )
+    Text(23.14f.pxToDp().toString(), color = Color.White)
+//    Image(painter = painterResource(R.drawable.main_1),
+//        contentDescription = "",
+//        modifier =  modifier
+//            .padding(top = 233.75f.pxToDp(), start =462.96f.pxToDp() )
+//            .size(374.55f.pxToDp(),70.23f.pxToDp())
+//    )
+//
+//    Image(painter = painterResource(R.drawable.p_head),
+//        contentDescription = "",
+//        modifier =  modifier
+//            .padding(start = 361.pxToDp(), top=158.pxToDp() )
+//            .size(608.pxToDp(),43.pxToDp())
+//    )
+}
+
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 468,
+    heightDp = 262
+)
+@Composable
+fun BigPanel_(){
+    BigPanel()
 }
