@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.desay.desayaicockpit.ui.screen.MainRun
 import com.desay.desayaicockpit.ui.theme.DesayAICockpitTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DesayAICockpitTheme {
 
-                MainRun(Modifier)
+//                MainRun(Modifier)
             }
         }
     }
