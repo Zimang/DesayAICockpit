@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,15 +38,10 @@ import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
+import com.desay.desayaicockpit.utils.pxToDp
 
-inline val Int.dp: Dp get() = Dp(this.toFloat())
-//@Composable
-//fun MainRun(modifier: Modifier){
-//    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-//        // 前景内容
-//        SLEChooser(modifier )
-//    }
-//}
+val deltaFontWeight=-24
+
 
 private data class SLEItem(
     val id: Int,
@@ -85,8 +81,8 @@ fun SLEChooser_(){
 fun SLEChooserItem( tag:String,choosen:Boolean,onChoose:()->Unit,
     modifier: Modifier){
     Box(modifier=modifier.size(
-        height = 120.dp,
-        width = 284.dp,
+        height = 120.pxToDp(),
+        width = 284.pxToDp(),
     ).background(Color.Transparent)) {
         if (choosen) {
             Image(contentDescription = "", painter = painterResource(R.drawable.choosen)
@@ -95,10 +91,11 @@ fun SLEChooserItem( tag:String,choosen:Boolean,onChoose:()->Unit,
 
         Text(
             text =tag,
-            fontSize = 24.sp,
+            fontSize = (32+ deltaFontWeight).sp  ,
             color = if (choosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
             modifier = modifier
-                .padding(top = 44.dp, start = 212.dp)
+                .padding(top = (44.06f).pxToDp(), start = 212.pxToDp())
+                .size(width = 29.66f.pxToDp(), height = 28.83f.pxToDp())
                 .clickable {
                     onChoose()
                 }
@@ -121,8 +118,8 @@ fun genMyCockpitButton_(){
 @Composable
 fun genMyCockpitButton(text: String, modifier: Modifier){
     Box(modifier=modifier.size(
-        height = 80.dp,
-        width = 340.dp
+        height = 80.pxToDp(),
+        width = 340.pxToDp()
     ), contentAlignment = Alignment.Center){
         Image(contentDescription = "",
             painter = painterResource(R.drawable.gen_b)
@@ -135,7 +132,7 @@ fun genMyCockpitButton(text: String, modifier: Modifier){
 @Composable
 fun PannelBG(modifier: Modifier){
      Box(){
-         GeneralImage(img = R.drawable.bg_pannel,modifier=modifier, height = 1286.dp, width = 284.75.dp)
+         GeneralImage(img = R.drawable.bg_pannel,modifier=modifier, height = 1286.pxToDp(), width = (284.75f).pxToDp())
 //         GeneralImage(img = )
      }
 }
