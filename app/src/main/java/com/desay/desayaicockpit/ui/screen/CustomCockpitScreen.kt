@@ -32,9 +32,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.data.ElectricityItemData
+import com.desay.desayaicockpit.data.SoundItemData
+import com.desay.desayaicockpit.ui.screen.base.PicWithText
 import com.desay.desayaicockpit.utils.pxToDp
 import com.desay.desayaicockpit.utils.pxToDpNum
 
@@ -75,6 +78,16 @@ val electricityItemDataList = List(tElectricityPics.size) { index ->
         imageName = tElectricityPics[index],
         themeName = tElectricityName[index],
         imgId = tElectricityImgId[index]
+    )
+}
+val tSoundPics= listOf("b_1_h.png","b_2_h.png","b_3_h.png","b_4_h.png")
+val tSoundName= listOf("布谷鸟","梦幻XXX","梦幻XXX","梦幻XXX")
+val tSoundImgId= listOf(R.drawable.b_1_h,R.drawable.b_2_h,R.drawable.b_3_h,R.drawable.b_4_h)
+val soundItemDataList = List(tSoundPics.size) { index ->
+    SoundItemData(
+        imageName = tSoundPics[index],
+        soundName = tSoundName[index],
+        imgId = tSoundImgId[index]
     )
 }
 /**
@@ -243,12 +256,12 @@ fun ElectricityList(
 @Preview(
     showBackground = true,
     backgroundColor = 0xff000000,
-    widthDp = 1396,
+    widthDp = 595,
      heightDp = 262
 )
 @Composable
 fun ElectricityList_(){
-    Box(Modifier.fillMaxSize()
+    Box(Modifier.fillMaxSize().padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
         ElectricityList({},
@@ -261,7 +274,8 @@ fun ElectricityList_(){
     }
 //    Text(1516.pxToDpNum().toString()) //423
 //    Text(720.pxToDpNum().toString()) //262
-    Text(3840.pxToDpNum().toString()) //1396
+//    Text(3840.pxToDpNum().toString()) //1396
+//    Text(1636.pxToDpNum().toString()) //595
 }
 
 
@@ -269,15 +283,72 @@ fun ElectricityList_(){
  * SoundItem
  */
 @Composable
-fun SoundItem(){
+fun SoundItem(
+    soundItemData: SoundItemData,
+    modifier: Modifier
+){
+    PicWithText(
+        imgPath =  soundItemData.imgId,
+        text =  soundItemData.soundName,
+        tStyle = TextStyle(
+            fontSize = 30.getSP().sp,
+            color = Color.White
+        ),
+        pSize =  Pair(342.pxToDp(),456.pxToDp()),
+        tPadding = Pair(24.72f.pxToDp(),407.77f.pxToDp()),
+        modifier = modifier
 
+    )
+}
+/**
+ * SoundItem
+ */
+@Preview(showBackground = true,
+    backgroundColor = 0xff000000
+)
+@Composable
+fun SoundItem_( ){
+    SoundItem(soundItemDataList[0],Modifier)
 }
 /**
  * SoundList
  */
 @Composable
-fun SoundList(){
+fun SoundList(
+    soundItemDataList: List<SoundItemData>,
+    onThemeChosen:(Int)->Unit,
+    modifier: Modifier){
 
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(120.pxToDp()),
+        modifier = modifier
+//            .size(1516.pxToDp(),472.pxToDp()) //1044+472=1516
+//            .padding(start = 2324.pxToDp(),top=120.pxToDp())
+    ) {
+        itemsIndexed(soundItemDataList){ index, electItem->
+            SoundItem(electItem
+                ,modifier=modifier.clickable {
+                    onThemeChosen(index)
+                }
+            )
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 595,
+    heightDp = 262
+)
+@Composable
+fun SoundList_(){
+
+    Box(Modifier.fillMaxSize().padding(start = 120.pxToDp(), top = 120.pxToDp())
+//        ,contentAlignment = Alignment.TopStart
+    ){
+        SoundList(soundItemDataList,{},Modifier)
+    }
 }
 
 /**
@@ -311,5 +382,19 @@ fun LightColorSlider(){
  */
 @Composable
 fun LightColorPicker(){
+
+}
+
+/**
+ * final screen
+ */
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 1396,
+    heightDp = 262
+)
+@Composable
+fun FinalScreen(){
 
 }
