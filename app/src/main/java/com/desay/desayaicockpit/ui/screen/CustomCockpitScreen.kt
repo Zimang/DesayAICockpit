@@ -818,7 +818,7 @@ fun BigPanel_(){
 
 
 @Composable
-fun BackButton(){
+fun BackButton(onExit: () -> Unit){
     Box(modifier = Modifier.size(
         284f.pxToDp(),120f.pxToDp()
     )){
@@ -849,7 +849,7 @@ fun BackButton(){
 
 @Composable
 fun BackButton_(){
-    BackButton()
+    BackButton({})
 }
 
 @Composable
@@ -899,10 +899,11 @@ fun ThemeChangeButton(
 fun ThemeChangeButtons(
     chosenTag: ScreenTag,
     modifier: Modifier=Modifier,
-    onChange:(ScreenTag)->Unit={}
+    onChange:(ScreenTag)->Unit={},
+    onExit:()->Unit={}
 ){
     Column(modifier=modifier) {
-        BackButton_()
+        BackButton(onExit)
         ThemeChangeButton(chosenTag==ScreenTag.CUS,
             ScreenTag.CUS,Modifier.padding(top = 24f.pxToDp()),84.58f,onChange)
         ThemeChangeButton(chosenTag==ScreenTag.INS,

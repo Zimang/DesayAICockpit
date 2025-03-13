@@ -8,6 +8,7 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2025.02.00"
+navigationCompose = "2.8.9"
 #composeBom = "2024.04.01"
 
 [libraries]
@@ -31,6 +32,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version = "2.6.1" }
 livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version = "2.6.1" }
 viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version = "2.6.1" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
