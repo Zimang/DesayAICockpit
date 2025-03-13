@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.data.ElectricityItemData
 import com.desay.desayaicockpit.ui.theme.Orange
+import com.desay.desayaicockpit.utils.pxToDp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlin.math.roundToInt
@@ -138,80 +139,6 @@ fun VerticalColorSlider() {
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FullHueVerticalSlider_() {
-    FullHueVerticalSlider(Modifier,{})
-}
-
-@Composable
-fun FullHueVerticalSlider(
-    modifier: Modifier = Modifier,
-    onHueChanged: (Float) -> Unit
-) {
-    val trackHeight = 480.dp
-    val allHeight = 500.dp
-    var progress by remember { mutableFloatStateOf(0f) }
-
-    // 计算色相（0°-360°）
-    val hue = (progress * 360f).coerceIn(0f, 360f)
-
-    // HSV 转颜色（饱和度=1，明度=1）
-    val currentColor = Color.hsv(hue, 1f, 1f)
-
-    // 实时回调色相变化
-    LaunchedEffect(hue) {
-        onHueChanged(hue)
-    }
-    Box(
-        modifier = modifier.height(allHeight)
-            .width(80.dp)
-            .padding(2.dp)
-            .pointerInput(Unit) {
-                detectVerticalDragGestures { change, _ ->
-                    val y = change.position.y.coerceIn(0f, size.height.toFloat())
-                    progress = y / size.height // 直接映射 Y 轴位置到 0-1
-                }
-            }
-    ){
-
-        Box(
-            modifier = modifier
-                .width(40.dp)
-                .height(trackHeight)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = buildFullHueColors() // 生成完整色相渐变色
-                    )
-                )
-                .border(width = 20.dp, color = Transparent)
-                .align(Alignment.Center)
-        )
-        // 可拖动的滑块指示器
-        Box(
-            modifier = Modifier
-                .offset(y = trackHeight * progress - 12.dp)
-                .size(80.dp, 40.dp)
-                .background(currentColor, RoundedCornerShape(8.dp))
-//                    .border(6.dp, Color.White, RoundedCornerShape(8.dp))
-                .border(6.dp, Color.White)
-        )
-    }
-}
-
-// 生成完整色相环颜色（每 60° 一个关键帧）
-private fun buildFullHueColors(): List<Color> {
-    return listOf(
-        0f,   // 红
-        60f,  // 黄
-        120f, // 绿
-        180f, // 青
-        240f, // 蓝
-        300f, // 紫
-        360f  // 红（闭环）
-    ).map { hue -> Color.hsv(hue, 1f, 1f) }
 }
 
 private val buffer = 1 // load more when scroll reaches last n item, where n >= 1

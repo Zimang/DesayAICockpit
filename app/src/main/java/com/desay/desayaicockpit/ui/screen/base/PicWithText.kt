@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.ui.screen.getSP
@@ -54,4 +58,42 @@ fun PicWithText(
             )
         )
     }
+}
+@Composable
+fun PicWithPic(
+    @DrawableRes imgPath:Int,
+    @DrawableRes bgImgPath:Int,
+    pSize:Pair<Dp,Dp>,
+    bgSize:Pair<Dp,Dp>,
+    pPadding:Pair<Dp,Dp> = Pair(0.dp,0.dp),
+    modifier: Modifier=Modifier,
+){
+    val center=pPadding.first==0.dp&&pPadding.second==0.dp
+    Box(modifier = modifier.size(bgSize.first,bgSize.second),
+        contentAlignment = if (center) Alignment.Center else Alignment.TopStart
+    ){
+        Image(painter = painterResource(bgImgPath),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+            modifier =  Modifier
+        )
+        Image(painter = painterResource(imgPath),
+            contentDescription = "",
+            modifier = if (center) Modifier else Modifier.size(pSize.first,pSize.second)
+//                .padding(start = pPadding.first, top =  pPadding.second)
+        )
+
+    }
+}
+@Preview
+@Composable
+fun PicWithPic_(){
+    PicWithPic(
+        R.drawable.gen_cockpit_text,
+        R.drawable.gen_b,
+        Pair(189.28f.pxToDp(),29.79f.pxToDp()),
+        Pair(340f.pxToDp(),80f.pxToDp()),
+        Pair(0.pxToDp(),0.pxToDp()),
+
+    )
 }

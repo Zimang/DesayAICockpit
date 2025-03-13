@@ -1,31 +1,49 @@
 package com.desay.desayaicockpit.ui.screen
 
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
 import com.desay.desayaicockpit.data.ElectricityItemData
 import com.desay.desayaicockpit.data.SoundItemData
+import com.desay.desayaicockpit.ui.screen.base.PicWithPic
 import com.desay.desayaicockpit.ui.screen.base.PicWithText
 import com.desay.desayaicockpit.utils.pxToDp
 import com.desay.desayaicockpit.utils.pxToDpNum
@@ -261,7 +280,9 @@ fun ElectricityList(
 )
 @Composable
 fun ElectricityList_(){
-    Box(Modifier.fillMaxSize().padding(start = 120.pxToDp(), top = 120.pxToDp())
+    Box(Modifier
+        .fillMaxSize()
+        .padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
         ElectricityList({},
@@ -345,7 +366,9 @@ fun SoundList(
 @Composable
 fun SoundList_(){
 
-    Box(Modifier.fillMaxSize().padding(start = 120.pxToDp(), top = 120.pxToDp())
+    Box(Modifier
+        .fillMaxSize()
+        .padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
         SoundList(soundItemDataList,{},Modifier)
@@ -373,11 +396,164 @@ fun ElectricityListWithMarqueeEffect(){
  * LightColorSlider
  */
 @Composable
-fun LightColorSlider(){
+fun LightColorSlider(
+    modifier: Modifier = Modifier,
+    onHueChanged: (Float) -> Unit){
+    FullHueVerticalSlider(modifier,onHueChanged)
 
 }
 
+@Preview(showBackground = true,
+    heightDp = 200
+)
+@Composable
+fun FullHueVerticalSlider_() {
+    FullHueVerticalSlider(Modifier.padding(top = 20f.pxToDp()),{})
+}
 
+@Composable
+fun FullHueVerticalSlider(
+    modifier: Modifier = Modifier,
+    onHueChanged: (Float) -> Unit
+) {
+    val trackHeight = 480f.pxToDp()
+    val allHeight = 500.pxToDp()
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    // 计算色相（0°-360°）
+    val hue = (progress * 360f).coerceIn(0f, 360f)
+
+    // HSV 转颜色（饱和度=1，明度=1）
+    val currentColor = Color.hsv(hue, 1f, 1f)
+
+    // 实时回调色相变化
+    LaunchedEffect(hue) {
+        onHueChanged(hue)
+    }
+    Box(
+        modifier = modifier
+            .height(allHeight)
+            .width(80.pxToDp())
+            .padding(2f.pxToDp())
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { change, _ ->
+                    val y = change.position.y.coerceIn(0f, size.height.toFloat())
+                    progress = y / size.height // 直接映射 Y 轴位置到 0-1
+                }
+            }
+    ){
+
+        Box(
+            modifier = modifier
+                .width(40.pxToDp())
+                .height(trackHeight)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = buildFullHueColors() // 生成完整色相渐变色
+                    )
+                )
+                .align(Alignment.TopCenter)
+        )
+        // 可拖动的滑块指示器
+        Box(
+            modifier = Modifier
+                .offset(y = trackHeight * progress - 12.pxToDp())
+                .size(80.pxToDp(), 40.pxToDp())
+                .background(currentColor)
+//                    .border(6.dp, Color.White, RoundedCornerShape(8.dp))
+                .border(8.pxToDp(), Color.White)
+        )
+    }
+}
+
+// 生成完整色相环颜色（每 60° 一个关键帧）
+private fun buildFullHueColors(): List<Color> {
+    return listOf(
+        0f,   // 红
+        60f,  // 黄
+        120f, // 绿
+        180f, // 青
+        240f, // 蓝
+        300f, // 紫
+        360f  // 红（闭环）
+    ).map { hue -> Color.hsv(hue, 1f, 1f) }
+}
+
+@Composable
+fun SaturationSelector(
+//    color:Color,
+    hue: Float,
+    modifier: Modifier = Modifier,
+    onSaturationSelected: (Float) -> Unit = {}
+) {
+    var containerWidth by remember { mutableStateOf(0f) }
+    var selectedSaturation by remember { mutableStateOf(0.5f) }
+
+    Canvas(
+        modifier = modifier
+            .size(992f.pxToDp(),480f.pxToDp())
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    selectedSaturation = (offset.x / containerWidth).coerceIn(0f, 1f)
+                    onSaturationSelected(selectedSaturation)
+                }
+            }
+            .onSizeChanged { size ->
+                containerWidth = size.width.toFloat()
+            }
+    ) {
+        // 绘制饱和度渐变背景
+        drawRect(
+            brush = Brush.horizontalGradient(
+                colors = List(101) { i ->
+                    Color.hsv(hue, i / 100f, 1f)
+                }
+            ),
+            size = size
+        )
+
+        // 绘制选择环
+        val xPos = selectedSaturation * containerWidth
+        val ringRadius = 25
+        val innerRadius =22
+
+        // 外环（白色描边）
+        drawCircle(
+            color = Color.White,
+            radius = ringRadius - 1.dp.toPx(),
+            center = Offset(xPos, center.y),
+            style = Stroke(1.dp.toPx())
+        )
+
+        // 内圆（当前颜色）
+        drawCircle(
+            color = Color.hsv(hue, selectedSaturation, 1f),
+            radius = innerRadius.pxToDp().toPx(),
+            center = Offset(xPos, center.y)
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewSaturationSelector() {
+    var hue by remember { mutableStateOf(0f) }
+    var selectedSaturation by remember { mutableStateOf(0.5f) }
+
+    Column {
+        SaturationSelector(
+            hue = hue,
+            onSaturationSelected = { selectedSaturation = it }
+        )
+
+        // 色相控制滑块（用于演示）
+        Slider(
+            value = hue,
+            onValueChange = { hue = it },
+            valueRange = 0f..360f
+        )
+    }
+}
 /**
  * LightColorPicker
  */
@@ -399,12 +575,26 @@ fun LightColorPicker(){
 fun FinalScreen(){
 
 }
+
+
 @Composable
 fun BigPanel(
     modifier: Modifier=Modifier){
     Box(modifier.size(
         1286.pxToDp(),720.pxToDp()
     )){
+        PicWithPic(
+            R.drawable.gen_cockpit_text,
+            R.drawable.gen_cockpit_bg,
+            Pair(189.28f.pxToDp(), 29.79f.pxToDp()),
+            Pair(340f.pxToDp(), 80f.pxToDp()),
+            Pair(0.dp,0.dp),
+            modifier.padding(
+                start = 473f.pxToDp(),
+                bottom = 72f.pxToDp(),
+                top = 568f.pxToDp()
+            )
+        )
         Image(painter = painterResource(R.drawable.bg_pannel),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
@@ -414,31 +604,50 @@ fun BigPanel(
         Image(painter = painterResource(R.drawable.main_1),
             contentDescription = "",
             modifier =  modifier
-                .padding(top = 233.75f.pxToDp(), start =462.96f.pxToDp() )
-                .size(374.55f.pxToDp(),70.23f.pxToDp())
+                .padding(top = 233.75f.pxToDp(), start = 462.96f.pxToDp())
+                .size(374.55f.pxToDp(), 70.23f.pxToDp())
         )
 
         Image(painter = painterResource(R.drawable.p_head),
             contentDescription = "",
             modifier =  modifier
-                .padding(start = 361.pxToDp(), top=158.pxToDp() )
-                .size(608.pxToDp(),43.pxToDp())
+                .padding(start = 361.pxToDp(), top = 158.pxToDp())
+                .size(608.pxToDp(), 43.pxToDp())
+        )
+
+        Image(painter = painterResource(R.drawable.p_text),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+            modifier =  modifier
+                .padding(top =72.86f.pxToDp() ,
+                    start = 379.18f.pxToDp(),
+                    end = 883.68f.pxToDp(),
+                    bottom = 612.pxToDp()
+                ))
+        Image(painter = painterResource(R.drawable.zero_1),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+            modifier =  modifier
+                .padding(top =72.24f.pxToDp() ,
+                    start = 461.01f.pxToDp(),
+                    end = 802.19f.pxToDp(),
+                    bottom = 611.47f.pxToDp()
+                ))
+        Image(painter = painterResource(R.drawable.km_h),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+            modifier =  modifier
+                .padding(top =92.44f.pxToDp() ,
+                    start = 499.05f.pxToDp(),
+                    end = 742.94f.pxToDp(),
+                    bottom = 612.34f.pxToDp()
+                )
         )
 
     }
-    Image(painter = painterResource(R.drawable.p_text),
-        contentDescription = "",
-        contentScale = ContentScale.FillBounds,
-        modifier =  modifier
-            .padding(top =72.86f.pxToDp() ,
-                start = 379.18f.pxToDp(),
-                end = 883.68f.pxToDp(),
-                bottom = 612.pxToDp()
-            )
 //            .size(23.pxToDp(),35.pxToDp())
 //            .size(23.14f.pxToDp(),35.14f.pxToDp())
 
-    )
     Text(23.14f.pxToDp().toString(), color = Color.White)
 //    Image(painter = painterResource(R.drawable.main_1),
 //        contentDescription = "",
