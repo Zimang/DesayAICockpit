@@ -211,6 +211,26 @@ fun InspiratonScreen(){
 }
 
 /**
+ * 灵感屏幕
+ */
+@Composable
+fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
+    var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
+    Row(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
+            ThemeChangeButtons(ScreenTag.INS, onChange =onChange)
+        }
+        Box(modifier = Modifier
+            .size(width = (207+1286+143+284+1636).pxToDp(), height = 720f.pxToDp())){
+            Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 200f.pxToDp())){
+//                BigPanel(modifier = Modifier)
+                ThemeCards_()
+            }
+        }
+    }
+}
+
+/**
  * final screen
  */
 @Preview(

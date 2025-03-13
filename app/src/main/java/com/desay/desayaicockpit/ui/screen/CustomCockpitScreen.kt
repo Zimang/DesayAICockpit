@@ -300,7 +300,8 @@ fun ElectricityList_(){
 //                , bottom = 128.pxToDp()
 //                , start = 2324.pxToDp()))
     }
-    Text(1286.pxToDpNum().toString(), color = Color.White) //468
+//    Text(1286.pxToDpNum().toString(), color = Color.White) //468
+    Text(1236.pxToDpNum().toString(), color = Color.White) //468
 //    Text(1516.pxToDpNum().toString()) //423
 //    Text(720.pxToDpNum().toString()) //262
 //    Text(3840.pxToDpNum().toString()) //1396
@@ -684,11 +685,11 @@ fun FinalScreen(){
  * 自定义座舱屏幕
  */
 @Composable
-fun CustomScreen(){
+fun CustomScreen(onChange: (ScreenTag) -> Unit={}){
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
-            ThemeChangeButtons_()
+            ThemeChangeButtons_(onChange=onChange)
         }
         Box(modifier = Modifier
             .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())){
@@ -865,7 +866,8 @@ fun ThemeChangeButton(
             height = 120.pxToDp(),
             width = 284.pxToDp(),
         )
-        .background(Color.Transparent)) {
+        .background(Color.Transparent)
+        .clickable(onClick = {onClick(tag)})) {
         if (chosen) {
             Image(
                 contentDescription = "",
@@ -920,6 +922,10 @@ fun ThemeChangeButtons(
 @Composable
 fun ThemeChangeButtons_(){
     ThemeChangeButtons(ScreenTag.CUS)
+}
+@Composable
+fun ThemeChangeButtons_(onChange: (ScreenTag) -> Unit){
+    ThemeChangeButtons(ScreenTag.CUS, onChange = onChange)
 }
 
 @Preview(
