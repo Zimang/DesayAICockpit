@@ -39,17 +39,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.desay.desayaicockpit.R
@@ -81,14 +84,18 @@ import com.desay.desayaicockpit.utils.pxToDpNum
 
 val mDeltaFontWeight=22
 
-fun Int.getSP():Int{
-    return this-mDeltaFontWeight
+fun Int.getSP():TextUnit{
+    return (this-mDeltaFontWeight).sp
 }
 
 enum class SoundLightElectricityTag{
     SOUND,LIGHT,ELECTRICITY
 }
+enum class ScreenTag{
+    INS,CUS,SAVE
+}
 val tags= listOf("声","光","电")
+val screenTags= listOf("灵感","个性化座舱","保存")
 val tElectricityPics= listOf("el_1.png","el_2.png","el_2.png")
 val tElectricityName= listOf("默认主题","梦幻XXX","梦幻XXX")
 val tElectricityImgId= listOf(R.drawable.el_1,R.drawable.el_2,R.drawable.el_3)
@@ -134,7 +141,7 @@ fun SoundLightElectricitySelectionButton(
         Text(
             text = tags[tag.ordinal],
             style = TextStyle(
-                fontSize = 32.getSP().sp,
+                fontSize = 32.getSP(),
                 baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的
                 textAlign = TextAlign.Center
             ),
@@ -167,17 +174,17 @@ fun SoundLightElectricitySelectionButtons(
     modifier: Modifier
 ){
 
-    Column {
+    Column(modifier=modifier) {
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.SOUND,
-            SoundLightElectricityTag.SOUND==chosenTag,modifier.clickable {
+            SoundLightElectricityTag.SOUND==chosenTag,Modifier.clickable {
             onTagChosen(SoundLightElectricityTag.SOUND)
         })
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.LIGHT,
-            SoundLightElectricityTag.LIGHT==chosenTag,modifier.clickable {
+            SoundLightElectricityTag.LIGHT==chosenTag,Modifier.clickable {
             onTagChosen(SoundLightElectricityTag.LIGHT)
         })
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.ELECTRICITY,
-            SoundLightElectricityTag.ELECTRICITY==chosenTag,modifier.clickable {
+            SoundLightElectricityTag.ELECTRICITY==chosenTag,Modifier.clickable {
             onTagChosen(SoundLightElectricityTag.ELECTRICITY)
         })
 
@@ -216,7 +223,7 @@ fun ElectricityItem(
         Text(
             text = themeName,
             style=TextStyle(
-                fontSize = 32.getSP().sp
+                fontSize = 32.getSP()
             ),
             color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
             modifier=modifier.padding(
@@ -313,7 +320,7 @@ fun SoundItem(
         imgPath =  soundItemData.imgId,
         text =  soundItemData.soundName,
         tStyle = TextStyle(
-            fontSize = 30.getSP().sp,
+            fontSize = 30.getSP(),
             color = Color.White
         ),
         pSize =  Pair(342.pxToDp(),456.pxToDp()),
@@ -481,7 +488,6 @@ private fun buildFullHueColors(): List<Color> {
 
 @Composable
 fun SaturationSelector(
-//    color:Color,
     hue: Float,
     modifier: Modifier = Modifier,
     onSaturationSelected: (Float) -> Unit = {}
@@ -489,20 +495,37 @@ fun SaturationSelector(
     var containerWidth by remember { mutableStateOf(0f) }
     var selectedSaturation by remember { mutableStateOf(0.5f) }
 
+    val density = LocalDensity.current
+    // 计算环半径（像素）
+    val ringRadius = with(density) {480f.pxToDp().toPx() }
+    val ringRadius_s = with(density) {16.pxToDp().toPx() }
+    val innerRadius = with(density) {12.pxToDp().toPx() }
+    val onePx = with(density) {1.pxToDp().toPx() }
+    val twoPx = with(density) {1.pxToDp().toPx() }
     Canvas(
         modifier = modifier
-            .size(992f.pxToDp(),480f.pxToDp())
+            .height(480f.pxToDp())
+            .fillMaxWidth()
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    selectedSaturation = (offset.x / containerWidth).coerceIn(0f, 1f)
-                    onSaturationSelected(selectedSaturation)
+                    if (containerWidth > 0) {
+
+                        // 限制点击位置在有效区域
+                        val maxX = containerWidth - ringRadius
+                        val adjustedX = offset.x.coerceIn(ringRadius, maxX)
+
+                        // 计算实际饱和度值
+                        selectedSaturation = (adjustedX - ringRadius) /
+                                (containerWidth - 2 * ringRadius)
+                        onSaturationSelected(selectedSaturation)
+                    }
                 }
             }
             .onSizeChanged { size ->
                 containerWidth = size.width.toFloat()
             }
     ) {
-        // 绘制饱和度渐变背景
+        // 绘制渐变背景（保持不变）
         drawRect(
             brush = Brush.horizontalGradient(
                 colors = List(101) { i ->
@@ -512,48 +535,128 @@ fun SaturationSelector(
             size = size
         )
 
-        // 绘制选择环
-        val xPos = selectedSaturation * containerWidth
-        val ringRadius = 25
-        val innerRadius =22
+        // 计算环位置
+        val effectiveWidth = containerWidth - 2 * ringRadius_s
+        val xPos = ringRadius_s + selectedSaturation * effectiveWidth
+
+        // 外环（黑色描边）
+        drawCircle(
+            color = Color.Black,
+            radius = ringRadius_s,
+            center = Offset(xPos, center.y),
+            style = Stroke(twoPx)
+        )
 
         // 外环（白色描边）
         drawCircle(
             color = Color.White,
-            radius = ringRadius - 1.dp.toPx(),
+            radius = ringRadius_s -onePx,
             center = Offset(xPos, center.y),
-            style = Stroke(1.dp.toPx())
+            style = Stroke(onePx)
         )
 
         // 内圆（当前颜色）
         drawCircle(
             color = Color.hsv(hue, selectedSaturation, 1f),
-            radius = innerRadius.pxToDp().toPx(),
+            radius = innerRadius,
             center = Offset(xPos, center.y)
         )
     }
 }
+//@Preview
+//@Composable
+//fun PreviewSaturationSelector(modifier: Modifier) {
+//    var hue by remember { mutableStateOf(0f) }
+//    var selectedSaturation by remember { mutableStateOf(0.5f) }
+//
+//    Row(modifier = modifier.padding(top = 120f.pxToDp(), bottom = 120f.pxToDp())) {
+//        FullHueVerticalSlider(onHueChanged = {hue=it})
+//        SaturationSelector(
+//            hue = hue,
+//            onSaturationSelected = { selectedSaturation = it },
+//            modifier = Modifier.padding(start = 80f.pxToDp())
+//                .size(992f.pxToDp(),480f.pxToDp())
+//        )
+//        Column(verticalArrangement = Arrangement.spacedBy(24f.pxToDp()),
+//            modifier = Modifier.padding(start = 24f.pxToDp())) {
+//            Box(modifier = Modifier.background(colorResource(R.color.cp_red),
+//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
+//
+//            Box(modifier = Modifier.background(colorResource(R.color.cp_blue),
+//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
+//
+//            Box(modifier = Modifier.background(colorResource(R.color.cp_green),
+//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
+//
+//            Box(modifier = Modifier.background(colorResource(R.color.cp_white),
+//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
+//        }
+//    }
+//}
 
-@Preview
 @Composable
-fun PreviewSaturationSelector() {
+fun LightPart(modifier: Modifier=Modifier){
+
     var hue by remember { mutableStateOf(0f) }
     var selectedSaturation by remember { mutableStateOf(0.5f) }
 
-    Column {
+    Row(modifier = modifier.padding(
+        top = 120f.pxToDp(),
+        bottom = 120f.pxToDp(),
+        end =120f.pxToDp()
+    )) {
+        FullHueVerticalSlider(onHueChanged = {hue=it})
         SaturationSelector(
             hue = hue,
-            onSaturationSelected = { selectedSaturation = it }
+            onSaturationSelected = { selectedSaturation = it },
+            modifier = Modifier
+                .padding(start = 80f.pxToDp())
+                .size(992f.pxToDp(), 480f.pxToDp())
         )
+        Column(verticalArrangement = Arrangement.spacedBy(24f.pxToDp()),
+            modifier = Modifier.padding(start = 24f.pxToDp())) {
+            Box(modifier = Modifier
+                .background(
+                    colorResource(R.color.cp_red),
+                    shape = RectangleShape
+                )
+                .size(220f.pxToDp(), 102f.pxToDp()))
 
-        // 色相控制滑块（用于演示）
-        Slider(
-            value = hue,
-            onValueChange = { hue = it },
-            valueRange = 0f..360f
-        )
+            Box(modifier = Modifier
+                .background(
+                    colorResource(R.color.cp_blue),
+                    shape = RectangleShape
+                )
+                .size(220f.pxToDp(), 102f.pxToDp()))
+
+            Box(modifier = Modifier
+                .background(
+                    colorResource(R.color.cp_green),
+                    shape = RectangleShape
+                )
+                .size(220f.pxToDp(), 102f.pxToDp()))
+
+            Box(modifier = Modifier
+                .background(
+                    colorResource(R.color.cp_white),
+                    shape = RectangleShape
+                )
+                .size(220f.pxToDp(), 102f.pxToDp()))
+        }
     }
 }
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 595,
+    heightDp = 262
+)
+@Composable
+fun LightPart_(){
+    LightPart()
+}
+
+
 /**
  * LightColorPicker
  */
@@ -573,7 +676,44 @@ fun LightColorPicker(){
 )
 @Composable
 fun FinalScreen(){
+    CustomScreen()
+ }
 
+
+/**
+ * 自定义座舱屏幕
+ */
+@Composable
+fun CustomScreen(){
+    var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
+    Row(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
+            ThemeChangeButtons_()
+        }
+        Box(modifier = Modifier
+            .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())){
+            Row(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 143f.pxToDp())){
+                BigPanel(modifier = Modifier)
+            }
+        }
+        Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())){
+            Row {
+                SoundLightElectricitySelectionButtons(
+                    tag,{tag=it}, modifier = Modifier.padding(top = 120f.pxToDp())
+                )
+                when(tag){
+                    SoundLightElectricityTag.SOUND->
+                        SoundList_()
+
+                    SoundLightElectricityTag.LIGHT ->
+                        LightPart_()
+                    SoundLightElectricityTag.ELECTRICITY ->
+                        ElectricityList_()
+                }
+            }
+
+        }
+    }
 }
 
 
@@ -648,7 +788,7 @@ fun BigPanel(
 //            .size(23.pxToDp(),35.pxToDp())
 //            .size(23.14f.pxToDp(),35.14f.pxToDp())
 
-    Text(23.14f.pxToDp().toString(), color = Color.White)
+//    Text(23.14f.pxToDp().toString(), color = Color.White)
 //    Image(painter = painterResource(R.drawable.main_1),
 //        contentDescription = "",
 //        modifier =  modifier
@@ -674,4 +814,120 @@ fun BigPanel(
 @Composable
 fun BigPanel_(){
     BigPanel()
+}
+
+
+@Composable
+fun BackButton(){
+    Box(modifier = Modifier.size(
+        284f.pxToDp(),120f.pxToDp()
+    )){
+        Image(painterResource(R.drawable.b_button),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(
+                    start = 36f.pxToDp(), top = 40f.pxToDp()
+                )
+                .size(
+                    40f.pxToDp()
+                ))
+        Image(
+            painterResource(R.drawable.b_button_text),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(
+                    start = 84.28f.pxToDp(),
+                    top = 40.08f.pxToDp()
+                )
+                .size(
+                    115.71f.pxToDp(),
+                    37.28f.pxToDp()
+                ))
+    }
+}
+
+
+@Composable
+fun BackButton_(){
+    BackButton()
+}
+
+@Composable
+fun ThemeChangeButton(
+    chosen: Boolean,
+    tag: ScreenTag,
+    modifier: Modifier,
+    start:Float,
+    onClick:(ScreenTag)->Unit={}
+){
+    Box(modifier=Modifier
+        .size(
+            height = 120.pxToDp(),
+            width = 284.pxToDp(),
+        )
+        .background(Color.Transparent)) {
+        if (chosen) {
+            Image(
+                contentDescription = "",
+                painter = painterResource(R.drawable.choosen),
+                contentScale = ContentScale.FillBounds,
+                modifier = modifier
+                    .size(
+                        height = 120.pxToDp(),
+                        width = 284.pxToDp(),
+                    )
+            )
+        }
+        Text(
+            text = screenTags[tag.ordinal],
+            style = TextStyle(
+                fontSize = 32.getSP(),
+//                baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的
+                textAlign = TextAlign.Right
+            ),
+            color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
+            modifier = Modifier
+                .padding(top = 43.86f.pxToDp()
+                    ,end = 40.86f.pxToDp()
+                    , start = start.pxToDp()
+                )
+        )
+
+    }
+}
+@Composable
+fun ThemeChangeButtons(
+    chosenTag: ScreenTag,
+    modifier: Modifier=Modifier,
+    onChange:(ScreenTag)->Unit={}
+){
+    Column(modifier=modifier) {
+        BackButton_()
+        ThemeChangeButton(chosenTag==ScreenTag.CUS,
+            ScreenTag.CUS,Modifier.padding(top = 24f.pxToDp()),84.58f,onChange)
+        ThemeChangeButton(chosenTag==ScreenTag.INS,
+            ScreenTag.INS,Modifier.padding(top=8f.pxToDp()),181.31f,onChange)
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 200,
+    heightDp = 400
+)
+@Composable
+fun ThemeChangeButtons_(){
+    ThemeChangeButtons(ScreenTag.CUS)
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xff000000,
+    widthDp = 200,
+    heightDp = 100
+)
+@Composable
+fun ThemeChangeButton_(){
+    ThemeChangeButton(true,ScreenTag.INS,Modifier,84.58f)
 }

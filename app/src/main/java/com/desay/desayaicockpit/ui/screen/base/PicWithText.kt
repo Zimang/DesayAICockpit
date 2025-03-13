@@ -46,13 +46,13 @@ fun PicWithText(
         Image(painter = painterResource(imgPath),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  Modifier
         )
 
         Text(
             text = text,
             style= tStyle,
-            modifier=modifier.padding(
+            modifier=Modifier.padding(
                 start =tPadding.first,
                 top = tPadding.second
             )
