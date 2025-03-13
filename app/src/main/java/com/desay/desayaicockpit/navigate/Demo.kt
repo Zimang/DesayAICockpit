@@ -17,6 +17,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,22 +30,37 @@ import androidx.navigation.compose.composable
 
 @Composable
 fun NavigationBar(navController: NavHostController) {
+    val currentRoute = rememberNavControllerCurrentRoute(navController)
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .width(80.dp)
             .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        verticalArrangement = Arrangement.SpaceBetween, // 将退出按钮放在底部
+            .background(MaterialTheme.colorScheme.surface),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column {
-            NavigationButton("Home", "home", navController)
-            NavigationButton("Profile", "profile", navController)
-            NavigationButton("Settings", "settings", navController)
+            NavigationButton(
+                label = "Home",
+                route = "home",
+                currentRoute = currentRoute,
+                navController = navController
+            )
+            NavigationButton(
+                label = "Profile",
+                route = "profile",
+                currentRoute = currentRoute,
+                navController = navController
+            )
+            NavigationButton(
+                label = "Settings",
+                route = "settings",
+                currentRoute = currentRoute,
+                navController = navController
+            )
         }
-
         // 退出按钮
         Button(
             onClick = {
@@ -60,18 +77,63 @@ fun NavigationBar(navController: NavHostController) {
         }
     }
 }
+
 @Composable
-fun NavigationButton(text: String, route: String, navController: NavHostController) {
+fun rememberNavControllerCurrentRoute(navController: NavHostController): String? {
+    return remember(navController) {
+        derivedStateOf {
+            navController.currentBackStackEntry?.destination?.route
+        }
+    }.value
+}
+
+@Composable
+fun NavigationButton(
+    label: String,
+    route: String,
+    currentRoute: String?,
+    navController: NavHostController
+) {
+    val isSelected = remember(currentRoute) {
+        derivedStateOf { currentRoute == route }
+    }.value
+
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+
+    val contentColor = if (isSelected) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     Button(
-        onClick = { navController.navigate(route) },
+        onClick = {
+            navController.navigate(route) {
+                popUpTo(route) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
+            containerColor = backgroundColor,
+            contentColor = contentColor
+        ),
+        elevation = if (isSelected) ButtonDefaults.buttonElevation(
+            defaultElevation = 8.dp
+        ) else null
     ) {
-        Text(text)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1
+        )
     }
 }
 
