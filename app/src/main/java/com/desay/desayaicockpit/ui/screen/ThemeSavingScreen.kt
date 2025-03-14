@@ -5,12 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Star
@@ -30,9 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,12 +78,14 @@ heightDp = 262
 @Composable
 fun CockpitNamingScreen() {
     var cockpitName by remember { mutableStateOf("梦幻座舱") }
-
+//    val modifier=Modifier
+    val maxLength = 10 // 最大输入长度
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .size(721f.pxToDp(),720f.pxToDp())
             .background(Color.Black)
-        , horizontalAlignment = Alignment.CenterHorizontally
+            .padding(start =  221f.pxToDp())
+//        , horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 标题
         Text(
@@ -86,55 +93,65 @@ fun CockpitNamingScreen() {
             color = Color.White,
             fontSize = 32.getSP(),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 166.78f.pxToDp())
+            modifier = Modifier.padding(
+                top = 166.78f.pxToDp())
         )
+        Box(modifier = Modifier.size(721f.pxToDp(),72f.pxToDp())
+            .padding(top = 72.64f.pxToDp())) {
+            // 透明输入框
+            BasicTextField(
+                value = cockpitName,
+                onValueChange = {
+                    if (it.length <= maxLength) cockpitName = it
+                },
+                modifier = Modifier
+                    .size(460f.pxToDp(),24f.pxToDp())
+                .padding(start = 170.86f.pxToDp(),  top = 22.88f.pxToDp()), // 根据背景图文字区域调整
 
-        // 主题名称输入框
-        TextField(
-            value = cockpitName,
-            onValueChange = { cockpitName = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(
-                    text = "主题名称",
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White.copy(alpha = 0.5f),
-                focusedIndicatorColor = Color.White,
-                unfocusedIndicatorColor = Color.White.copy(alpha = 0.5f)
-            ),
-            singleLine = true,
-            textStyle = LocalTextStyle.current.copy(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                textStyle = TextStyle(
+                    color = Color.White, // 文字颜色根据背景图区域设置
+                    fontSize = 24.getSP(),
+                    fontWeight = FontWeight.Medium,
+                ),
+                cursorBrush = SolidColor(Color.White), // 光标颜色
+                singleLine = true
             )
-        )
 
+        }
         // 按钮区域
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.size(721f.pxToDp(),72f.pxToDp())
+                .padding(74f.pxToDp())
         ) {
-            // 保存并应用按钮
-            IconTextButton(
-                icon = Icons.Default.CheckCircle,
-                text = "保存并应用",
-                onClick = { /* 处理保存并应用 */ }
-            )
 
-            // 保存按钮
-            IconTextButton(
-                icon = Icons.Default.Star,
-                text = "保存",
-                onClick = { /* 处理保存 */ }
-            )
+            Row (horizontalArrangement = Arrangement.spacedBy(16f.pxToDp())){
+
+                val c=colorResource(R.color.n_choosen)
+                val img=painterResource(R.drawable.app_2)
+                Box(modifier = Modifier.size(
+                    228.pxToDp(),72f.pxToDp()
+                )){
+                    Image(img,contentDescription = null,
+                        modifier = Modifier.size(
+                            228.pxToDp(),72f.pxToDp()
+                        ))
+                    Text(text = "保存并应用", style = TextStyle(
+                        color = c, fontSize = 30.getSP()
+                    ), modifier = Modifier.align(Alignment.Center))
+                }
+
+                Box(modifier = Modifier.size(
+                    228.pxToDp(),72f.pxToDp()
+                )){
+                    Image(painterResource(R.drawable.app_2),contentDescription = null,
+                        modifier = Modifier.fillMaxSize())
+                    Text(text = "保存",
+                        style = TextStyle(
+                            color = c,
+                            fontSize = 30.getSP(),
+                        ), modifier = Modifier.align(Alignment.Center))
+                }
+            }
         }
     }
 }
@@ -153,20 +170,20 @@ private fun IconTextButton(
         ),
         shape = RoundedCornerShape(8.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Color.White
-            )
-            Text(
-                text = text,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        ) {
+//            Icon(
+//                imageVector = icon,
+//                contentDescription = null,
+//                tint = Color.White
+//            )
+//            Text(
+//                text = text,
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight.Medium
+//            )
+//        }
     }
 }
