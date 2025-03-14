@@ -65,8 +65,8 @@ fun PicWithPic(
     @DrawableRes bgImgPath:Int,
     pSize:Pair<Dp,Dp>,
     bgSize:Pair<Dp,Dp>,
-    pPadding:Pair<Dp,Dp> = Pair(0.dp,0.dp),
     modifier: Modifier=Modifier,
+    pPadding:Pair<Dp,Dp> = Pair(0.dp,0.dp),
 ){
     val center=pPadding.first==0.dp&&pPadding.second==0.dp
     Box(modifier = modifier.size(bgSize.first,bgSize.second),
@@ -85,6 +85,7 @@ fun PicWithPic(
 
     }
 }
+
 @Preview
 @Composable
 fun PicWithPic_(){
@@ -93,7 +94,30 @@ fun PicWithPic_(){
         R.drawable.gen_b,
         Pair(189.28f.pxToDp(),29.79f.pxToDp()),
         Pair(340f.pxToDp(),80f.pxToDp()),
-        Pair(0.pxToDp(),0.pxToDp()),
+        pPadding =  Pair(0.pxToDp(),0.pxToDp()),
+    )
+}
 
+@Preview
+@Composable
+fun PicWithPic_Save(){
+    PicWithPic(
+        R.drawable.save,
+        R.drawable.save_bt_bg,
+        Pair(189.28f.pxToDp(),29.79f.pxToDp()),
+        Pair(340f.pxToDp(),80f.pxToDp()),
+        pPadding =  Pair(0.pxToDp(),0.pxToDp()),
+    )
+}
+
+@Preview
+@Composable
+fun PicWithPic_SaveApply(){
+    PicWithPic(
+        R.drawable.save_bt_save_and_apply,
+        R.drawable.save_bt_bg,
+        Pair(189.28f.pxToDp(),29.79f.pxToDp()),
+        Pair(340f.pxToDp(),80f.pxToDp()),
+        pPadding =  Pair(0.pxToDp(),0.pxToDp()),
     )
 }

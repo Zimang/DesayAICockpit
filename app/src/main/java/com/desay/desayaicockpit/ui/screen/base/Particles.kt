@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -79,7 +80,10 @@ fun BackgroundInputField(
                         .fillMaxSize()
                         .padding(vertical = 4.dp)
                 ) {
-                    innerTextField() // 直接放置系统生成的输入框
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(painterResource(R.drawable.save_lable), contentDescription = "")
+                        innerTextField() // 直接放置系统生成的输入框
+                    }
                 }
             }
         )
