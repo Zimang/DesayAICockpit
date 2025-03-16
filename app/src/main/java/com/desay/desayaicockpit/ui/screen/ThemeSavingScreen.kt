@@ -57,13 +57,13 @@ import com.desay.desayaicockpit.utils.pxToDp
  */
 
 @Composable
-fun SaveScreen(onChange: (ScreenTag) -> Unit={}){
+fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
             Column() {
 //                BackButton(onExit)
-                BackButton({})
+                BackButton(onExit)
             }
         }
         Box(modifier = Modifier

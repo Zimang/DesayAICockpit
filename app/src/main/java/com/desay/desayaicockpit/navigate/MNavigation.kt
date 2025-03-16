@@ -88,9 +88,11 @@ fun MainNavigation() {
 //                .padding(start = 284.pxToDp()) // 为左侧导航栏留出空间
                 .fillMaxSize()
         ) {
-            composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }) }
+            composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }
+//                ,{navController.navigateUp()}
+            ) }
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) }) }
-            composable(Route.ScreenSAVE.route) { SaveScreen() }
+            composable(Route.ScreenSAVE.route) { SaveScreen(onExit = {navController.navigateUp()}) }
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }

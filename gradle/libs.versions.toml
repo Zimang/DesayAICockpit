@@ -9,6 +9,8 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2025.02.00"
 navigationCompose = "2.8.9"
+room = "2.4.0"
+#room = "2.6.1"
 #composeBom = "2024.04.01"
 
 [libraries]
@@ -33,6 +35,8 @@ viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", versio
 livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version = "2.6.1" }
 viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version = "2.6.1" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-room={ group = "androidx.room", name = "room-runtime", version.ref = "room"}
+androidx-room-ktx={ group = "androidx.room", name = "room-ktx", version.ref = "room"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

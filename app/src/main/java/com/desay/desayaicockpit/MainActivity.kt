@@ -4,37 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.activity.viewModels
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
 import com.desay.desayaicockpit.navigate.MainNavigation
-import com.desay.desayaicockpit.navigate.NavigationBar
-import com.desay.desayaicockpit.navigate.NavigationContent
+import com.desay.desayaicockpit.ui.screen.demo.ProjectListScreen
 import com.desay.desayaicockpit.ui.theme.DesayAICockpitTheme
+import com.desay.desayaicockpit.viewmodel.ProjectViewModel
+import com.desay.desayaicockpit.viewmodel.ProjectViewModelFactory
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             DesayAICockpitTheme {
-//                val navController = rememberNavController()
-//
-//                Row(modifier = Modifier.fillMaxSize()) {
-//                    // 固定左侧导航栏
-//                    NavigationBar(navController)
-//
-//                    // 右侧内容区域
-//                    NavigationContent(navController)
-//                }
                 MainNavigation()
+                //测试数据流
+//                ProjectListScreen()
             }
         }
     }
