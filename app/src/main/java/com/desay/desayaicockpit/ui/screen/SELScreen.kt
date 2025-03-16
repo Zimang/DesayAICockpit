@@ -172,12 +172,12 @@ fun<T> CircularList(
         }
     }
 }
-//@Preview(showBackground = true, widthDp = 1000)
+@Preview(showBackground = true, widthDp = 1000)
 @Composable
 fun CircularList_() {
     CircularList(
-//        items = listOf("A", "B", "C"),
-        items = electricityItemDataList,
+        items = listOf("A", "B", "C"),
+//        items = electricityItemDataList,
         onItemClick = { Log.d("TAG", "Clicked: $it") }
     ) { item ->
 
