@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -39,16 +41,17 @@ import com.desay.desayaicockpit.utils.pxToDp
 
 @Composable
 fun BackgroundInputField(
-    @DrawableRes bg:Int
+    @DrawableRes bg:Int,
+    modifier: Modifier=Modifier
 ) {
     // 图片资源需放入res/drawable目录
     val backgroundImage = painterResource(bg)
     var text by remember { mutableStateOf("") }
-    val maxLength = 10 // 最大输入长度
+    val maxLength = 20 // 最大输入长度
 
     Box(
-        modifier = Modifier
-            .size(300.dp, 60.dp) // 根据背景图尺寸设置
+        modifier = modifier
+            .size(721f.pxToDp(), 72f.pxToDp()) // 根据背景图尺寸设置
             .background(Color.Transparent)
     ) {
         // 背景图片
@@ -65,38 +68,53 @@ fun BackgroundInputField(
             onValueChange = {
                 if (it.length <= maxLength) text = it
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 20.dp, end = 20.dp, top = 18.dp), // 根据背景图文字区域调整
+//            modifier = Modifier
+//                .size(height = 24f.pxToDp()
+//                    , width =500f.pxToDp()
+//                ),
             textStyle = TextStyle(
                 color = Color.White, // 文字颜色根据背景图区域设置
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                fontSize =24.pxToDp().value.sp,
+//                baselineShift = BaselineShift(-1f)
+//                fontWeight = FontWeight.Medium
             ),
             cursorBrush = SolidColor(colorResource(R.color.choosen)), // 光标颜色
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(vertical = 4.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(painterResource(R.drawable.save_lable), contentDescription = "")
-                        innerTextField() // 直接放置系统生成的输入框
+                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxSize().padding(end = 100f.pxToDp())) {
+                        Image(painterResource(R.drawable.save_lable),
+                            contentDescription = "",
+                            modifier = Modifier.padding(
+                                start = 31.34f.pxToDp(),
+                                end = 45.63f.pxToDp(),
+                                top = 23.77f.pxToDp()
+                            ))
+//                        )
+                        Box(modifier = Modifier.padding(
+                            top =22.88f.pxToDp(),
+//                            bottom = 25.12f.pxToDp()
+                        )){
+                            innerTextField() // 直接放置系统生成的输入框
+                        }
                     }
                 }
             }
         )
 
-        // 输入计数提示（可选）
-        Text(
-            text = "${text.length}/$maxLength",
-            color = Color.Gray,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 8.dp, bottom = 4.dp),
-            fontSize = 12.sp
-        )
+//        // 输入计数提示（可选）
+//        Text(
+//            text = "${text.length}/$maxLength",
+//            color = Color.Gray,
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(end = 8.dp, bottom = 4.dp),
+//            fontSize = 12.sp
+//        )
     }
 }
 

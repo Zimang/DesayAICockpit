@@ -31,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.desay.desayaicockpit.ui.screen.CustomScreen
 import com.desay.desayaicockpit.ui.screen.InspiratonScreen
+import com.desay.desayaicockpit.ui.screen.SaveScreen
 import com.desay.desayaicockpit.ui.screen.ScreenTag
 import com.desay.desayaicockpit.ui.screen.ThemeChangeButtons
 import com.desay.desayaicockpit.utils.pxToDp
@@ -89,7 +90,7 @@ fun MainNavigation() {
         ) {
             composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }) }
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) }) }
-            composable(Route.ScreenSAVE.route) {  }
+            composable(Route.ScreenSAVE.route) { SaveScreen() }
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }
@@ -100,7 +101,7 @@ private fun navigateByTag(screenTag: ScreenTag,naviController: NavController){
     when(screenTag) {
         ScreenTag.CUS -> navigateToCUS(naviController)
         ScreenTag.INS -> navigateToIns(naviController)
-        ScreenTag.SAVE -> TODO()
+        ScreenTag.SAVE -> navigateToSave(naviController)
     }
 }
 
@@ -116,6 +117,13 @@ private fun navigateToCUS(navController: NavController) {
     navController.navigate(Route.ScreenCUS.route) {
         launchSingleTop = true
         popUpTo(Route.ScreenCUS.route) { inclusive = false }
+    }
+}
+
+private fun navigateToSave(navController: NavController) {
+    navController.navigate(Route.ScreenSAVE.route) {
+        launchSingleTop = true
+        popUpTo(Route.ScreenSAVE.route) { inclusive = false }
     }
 }
 

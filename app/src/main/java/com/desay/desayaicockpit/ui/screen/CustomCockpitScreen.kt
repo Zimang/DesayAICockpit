@@ -82,7 +82,7 @@ import com.desay.desayaicockpit.utils.pxToDpNum
  *
  */
 
-val mDeltaFontWeight=22
+val mDeltaFontWeight=0
 
 fun Int.getSP():TextUnit{
     return (this-mDeltaFontWeight).sp
@@ -694,7 +694,7 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={}){
         Box(modifier = Modifier
             .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())){
             Row(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 143f.pxToDp())){
-                BigPanel(modifier = Modifier)
+                BigPanel(onChange, modifier = Modifier)
             }
         }
         Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())){
@@ -720,6 +720,7 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={}){
 
 @Composable
 fun BigPanel(
+    genCockpit:(ScreenTag)->Unit={},
     modifier: Modifier=Modifier){
     Box(modifier.size(
         1286.pxToDp(),720.pxToDp()
@@ -729,12 +730,12 @@ fun BigPanel(
             R.drawable.gen_cockpit_bg,
             Pair(189.28f.pxToDp(), 29.79f.pxToDp()),
             Pair(340f.pxToDp(), 80f.pxToDp()),
-            Pair(0.dp,0.dp),
             modifier.padding(
                 start = 473f.pxToDp(),
                 bottom = 72f.pxToDp(),
                 top = 568f.pxToDp()
-            )
+            ).clickable { genCockpit(ScreenTag.SAVE) },
+            Pair(0.dp,0.dp),
         )
         Image(painter = painterResource(R.drawable.bg_pannel),
             contentDescription = "",

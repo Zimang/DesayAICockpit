@@ -75,7 +75,7 @@ fun PicWithPic(
         Image(painter = painterResource(bgImgPath),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  Modifier
+//            modifier =  Modifier
         )
         Image(painter = painterResource(imgPath),
             contentDescription = "",
