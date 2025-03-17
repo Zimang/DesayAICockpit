@@ -5,13 +5,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.desay.desayaicockpit.data.ElectricityItemData
+import com.desay.desayaicockpit.data.SoundItemData
+import com.desay.desayaicockpit.data.ThemeItemData
 
 @SuppressLint("RestrictedApi")
-@Database( version = 1,entities = [Project::class]
+@Database( version = 1,entities = [ElectricityItemData::class,
+    SoundItemData::class,
+    ThemeItemData::class,
+    Project::class]
     , exportSchema = false,
     autoMigrations = [])
 abstract class AppDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
+    abstract fun electricityItemDao(): ElectricityItemDao
+    abstract fun soundItemDao(): SoundItemDao
+    abstract fun themeItemDao(): ThemeItemDao
 
 //    companion object {
 //        private var INSTANCE: AppDatabase? = null

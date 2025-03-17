@@ -70,6 +70,7 @@ fun ThemeCard(themeItemData: ThemeItemData,
                         472f.pxToDp(),72f.pxToDp()
                     ))
                 Text(text = t, style = TextStyle(
+                    fontSize = 24.getSP(),
                     color = c
                 ), modifier = Modifier.align(Alignment.Center))
             }
@@ -99,7 +100,7 @@ fun ThemeCard(themeItemData: ThemeItemData,
                     Text(text = "删除",
                         style = TextStyle(
                         color = colorResource(R.color.n_choosen),
-                        fontSize = 30.getSP(),
+                        fontSize = 24.getSP(),
                     ), modifier = Modifier.align(Alignment.Center))
                 }
             }
@@ -128,64 +129,64 @@ fun ThemeCards_(){
 //            )
 //
 //        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",true),
-                false
-            )
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",false),
-                false
-            )
-
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",true),
-                false
-            )
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",false),
-                true
-            )
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",false),
-                false
-            )
-
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",true),
-                false
-            )
-        }
-        item {
-            ThemeCard(ThemeItemData(
-                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-                "呱呱叫",false),
-                false
-            )
-        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",true),
+//                false
+//            )
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",false),
+//                false
+//            )
+//
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",true),
+//                false
+//            )
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",false),
+//                true
+//            )
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",false),
+//                false
+//            )
+//
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",true),
+//                false
+//            )
+//        }
+//        item {
+//            ThemeCard(ThemeItemData(
+//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
+//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
+//                "呱呱叫",false),
+//                false
+//            )
+//        }
 
     }
 }
