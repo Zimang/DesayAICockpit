@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace 'com.desay.desayaicockpit'
+    namespace 'com.desaysv.aicockpit'
     compileSdk 35
 
     defaultConfig {
