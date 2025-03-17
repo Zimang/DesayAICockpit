@@ -64,6 +64,7 @@ import com.desay.desayaicockpit.ui.screen.base.PicWithPic
 import com.desay.desayaicockpit.ui.screen.base.PicWithText
 import com.desay.desayaicockpit.utils.pxToDp
 import com.desay.desayaicockpit.utils.pxToDpNum
+import com.desay.desayaicockpit.utils.pxToSp
 
 
 /**
@@ -86,8 +87,9 @@ import com.desay.desayaicockpit.utils.pxToDpNum
 
 val mDeltaFontWeight=0
 
+@Composable
 fun Int.getSP():TextUnit{
-    return (this-mDeltaFontWeight).sp
+    return this.pxToSp()
 }
 
 enum class SoundLightElectricityTag{
@@ -131,7 +133,8 @@ fun SoundLightElectricitySelectionButton(
             height = 120.pxToDp(),
             width = 284.pxToDp(),
         )
-        .background(Color.Transparent)) {
+        .background(Color.Transparent),
+        contentAlignment = Alignment.CenterStart) {
         if (chosen) {
             Image(
                 contentDescription = "",
@@ -143,14 +146,16 @@ fun SoundLightElectricitySelectionButton(
         Text(
             text = tags[tag.ordinal],
             style = TextStyle(
-//                fontSize = 32.getSP(),
+                fontSize = 32.getSP(),
 //                baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的
-                textAlign = TextAlign.Center
+//                textAlign = TextAlign.Center
             ),
             color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
             modifier = modifier
-                .padding(top = 44.06f.pxToDp(), start = 212.pxToDp())
-                .size(width = 29.66f.pxToDp(), height = 28.83f.pxToDp())
+                .padding(
+//                    top = 44.06f.pxToDp(),
+                    start = 212.pxToDp())
+//                .size(width = 29.66f.pxToDp(), height = 28.83f.pxToDp())
 
         )
     }
@@ -179,16 +184,16 @@ fun SoundLightElectricitySelectionButtons(
     Column(modifier=modifier) {
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.SOUND,
             SoundLightElectricityTag.SOUND==chosenTag,Modifier.clickable {
-            onTagChosen(SoundLightElectricityTag.SOUND)
-        })
+                onTagChosen(SoundLightElectricityTag.SOUND)
+            })
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.LIGHT,
             SoundLightElectricityTag.LIGHT==chosenTag,Modifier.clickable {
-            onTagChosen(SoundLightElectricityTag.LIGHT)
-        })
+                onTagChosen(SoundLightElectricityTag.LIGHT)
+            })
         SoundLightElectricitySelectionButton(SoundLightElectricityTag.ELECTRICITY,
             SoundLightElectricityTag.ELECTRICITY==chosenTag,Modifier.clickable {
-            onTagChosen(SoundLightElectricityTag.ELECTRICITY)
-        })
+                onTagChosen(SoundLightElectricityTag.ELECTRICITY)
+            })
 
     }
 }
@@ -285,7 +290,7 @@ fun ElectricityList(
     showBackground = true,
     backgroundColor = 0xff000000,
     widthDp = 595,
-     heightDp = 262
+    heightDp = 262
 )
 @Composable
 fun ElectricityList_(){
@@ -683,7 +688,7 @@ fun LightColorPicker(){
 @Composable
 fun FinalScreen(){
     CustomScreen()
- }
+}
 
 
 /**
@@ -869,6 +874,7 @@ fun ThemeChangeButton(
     tag: ScreenTag,
     modifier: Modifier,
     start:Float,
+    top:Float,
     onClick:(ScreenTag)->Unit={},
     w:Dp,
     h:Dp
@@ -879,13 +885,15 @@ fun ThemeChangeButton(
             width = 284.pxToDp(),
         )
         .background(Color.Transparent)
-        .clickable(onClick = { onClick(tag) })) {
+        .clickable(onClick = { onClick(tag) }),
+        contentAlignment = Alignment.CenterStart
+    ) {
         if (chosen) {
             Image(
                 contentDescription = "",
                 painter = painterResource(R.drawable.choosen),
                 contentScale = ContentScale.FillBounds,
-                modifier = modifier
+                modifier = Modifier
                     .size(
                         height = 120.pxToDp(),
                         width = 284.pxToDp(),
@@ -895,19 +903,14 @@ fun ThemeChangeButton(
         Text(
             text = screenTags[tag.ordinal],
             style = TextStyle(
-                fontSize = 10.getSP(),
-                baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的
-                textAlign = TextAlign.Right
+                fontSize = 32.getSP(),
             ),
             maxLines = 1,
             color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
             modifier = Modifier
                 .padding(
-                    top = 43.86f.pxToDp(), end = 40.86f.pxToDp(), start = start.pxToDp(),
-                    bottom = 46f.pxToDp()
-                )
-                .size(
-                    w, h
+//                    top = top.pxToDp(),
+                    start = start.pxToDp(),
                 )
         )
 
@@ -923,9 +926,20 @@ fun ThemeChangeButtons(
     Column(modifier=modifier) {
         BackButton(onExit)
         ThemeChangeButton(chosenTag==ScreenTag.CUS,
-            ScreenTag.CUS,Modifier.padding(top = 24f.pxToDp()),84.58f,onChange,158.56f.pxToDp(),29.82f.pxToDp())
+            ScreenTag.CUS,
+            Modifier.padding(top = 24f.pxToDp()),
+            84.58f,
+            43.86f,
+            onChange,
+            158.56f.pxToDp(),29.82f.pxToDp()
+        )
         ThemeChangeButton(chosenTag==ScreenTag.INS,
-            ScreenTag.INS,Modifier.padding(top=8f.pxToDp()),181.31f,onChange,61.54f.pxToDp(),29.66f.pxToDp())
+            ScreenTag.INS,Modifier.padding(top=8f.pxToDp()),
+            181.31f,
+            43.93f,
+            onChange,
+            61.54f.pxToDp()
+            ,29.66f.pxToDp())
     }
 }
 
@@ -944,14 +958,14 @@ fun ThemeChangeButtons_(onChange: (ScreenTag) -> Unit){
     ThemeChangeButtons(ScreenTag.CUS, onChange = onChange)
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 200,
-    heightDp = 100
-)
-@Composable
-fun ThemeChangeButton_(){
-    ThemeChangeButton(true,ScreenTag.INS, Modifier.padding(top=8f.pxToDp()),181.31f,
-        {  },61.54f.pxToDp(),29.66f.pxToDp())
-}
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xff000000,
+//    widthDp = 200,
+//    heightDp = 100
+//)
+//@Composable
+//fun ThemeChangeButton_(){
+//    ThemeChangeButton(true,ScreenTag.INS, Modifier.padding(top=8f.pxToDp()),181.31f,
+//        {  },61.54f.pxToDp(),29.66f.pxToDp())
+//}

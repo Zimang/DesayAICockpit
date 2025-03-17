@@ -87,7 +87,7 @@ fun ThemeCard(themeItemData: ThemeItemData,
                             228.pxToDp(),72f.pxToDp()
                         ))
                     Text(text = t, style = TextStyle(
-                        color = c, fontSize = 30.getSP()
+                        color = c, fontSize = 24.getSP()
                     ), modifier = Modifier.align(Alignment.Center))
                 }
 

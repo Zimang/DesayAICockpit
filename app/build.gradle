@@ -11,7 +11,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.desay.desayaicockpit"
+        applicationId "com.desaysv.aicockpit"
         minSdk 28
         targetSdk 35
         versionCode 1

@@ -38,7 +38,7 @@ fun PicWithText(
     pSize:Pair<Dp,Dp>,
     tPadding:Pair<Dp,Dp>,
     modifier: Modifier=Modifier,
-    tStyle:TextStyle=TextStyle()
+    tStyle:TextStyle=TextStyle(),
 ){
     Box(modifier
         .size(pSize.first,pSize.second)

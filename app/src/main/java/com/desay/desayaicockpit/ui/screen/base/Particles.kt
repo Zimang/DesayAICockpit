@@ -294,7 +294,7 @@ fun InfiniteScalingImageList_Sound(
                 Text(
                     text = imageRes.soundName,
                     style = TextStyle(
-//            fontSize = 30.getSP(),
+                    fontSize = 30.getSP(),
                         color = Color.White
                     ),
                     modifier=Modifier.padding(
