@@ -1,5 +1,6 @@
 package com.desaysv.aicockpit.ui.screen
 
+import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -185,6 +186,7 @@ fun InspiratonScreen(){
 @Composable
 fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
     val context = LocalContext.current
+    val contextApp=(LocalContext.current as? Activity)
     val app = context.applicationContext as MyApplication
     val rp=app.themeRepository
     val scope = rememberCoroutineScope()
@@ -200,7 +202,11 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
-            ThemeChangeButtons(ScreenTag.INS, onChange =onChange)
+            ThemeChangeButtons(ScreenTag.INS, onChange =onChange, onExit = {
+                scope.launch {
+                    contextApp?.finish()
+                }
+            })
         }
         Box(modifier = Modifier
             .size(width = (207+1286+143+284+1636).pxToDp(), height = 720f.pxToDp())){

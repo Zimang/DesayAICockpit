@@ -1,5 +1,6 @@
 package com.desaysv.aicockpit.ui.screen
 
+import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -57,6 +60,7 @@ import com.desaysv.aicockpit.ui.screen.base.PicWithText
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
+import kotlinx.coroutines.launch
 
 
 /**
@@ -915,7 +919,7 @@ fun ThemeChangeButtons(
     chosenTag: ScreenTag,
     modifier: Modifier=Modifier,
     onChange:(ScreenTag)->Unit={},
-    onExit:()->Unit={}
+    onExit: ()->Unit={}
 ){
     Column(modifier=modifier) {
         BackButton(onExit)
@@ -949,7 +953,14 @@ fun ThemeChangeButtons_(){
 }
 @Composable
 fun ThemeChangeButtons_(onChange: (ScreenTag) -> Unit){
-    ThemeChangeButtons(ScreenTag.CUS, onChange = onChange)
+    val context=(LocalContext.current as? Activity)
+    val scope = rememberCoroutineScope()
+    ThemeChangeButtons(ScreenTag.CUS, onChange = onChange, onExit = {
+        scope.launch {
+            context?.finish()
+        }
+
+    })
 }
 
 //@Preview(
