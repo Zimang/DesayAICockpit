@@ -1,22 +1,43 @@
 package com.desaysv.aicockpit.ui.screen.base
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 @Composable
@@ -172,4 +193,125 @@ fun CircleLayoutDemo() {
             }
         }
     }
+}
+
+/**
+ * 点击交互
+ */
+@Preview
+@Composable
+fun Demo_1(){
+    // 基础点击
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .clickable { /* 点击逻辑 */ }
+            .background(Color.Blue)
+    )
+
+// 自定义交互反馈
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    Box(
+        modifier = Modifier
+            .clickable(
+                interactionSource = interactionSource, //获取按压状态
+                //indication()这个API应当挺有用的
+                indication =
+//                rememberRipple(color = Color.Red) // 自定义涟漪效果,该API不支持新的其他API,而其他的API有明显的性能优化
+                ripple(
+                    bounded = true,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            ) { /* 逻辑 */ }
+    ) {
+        Text(if (isPressed) "Pressed!" else "Click Me")
+    }
+}
+
+/**
+ * 长按交互
+ */
+@Preview
+@Composable
+fun Demo_2(){
+    var isActive by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = { isActive = !isActive }
+                )
+            }
+            .background(if (isActive) Color.Red else Color.Gray)
+    )
+}
+
+/**
+ * 拖拽控制
+ * 有可能会拖出去
+ */
+@Preview(
+    widthDp = 1080,
+    heightDp = 1980
+)
+@Composable
+fun Demo_3(){
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+
+    Box(modifier = Modifier.fillMaxSize()){
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { /* 拖拽开始 */ },
+                        onDrag = { change, dragAmount ->
+                            offsetX += dragAmount.x
+                            offsetY += dragAmount.y
+                            change.consume()
+                        },
+                        onDragEnd = { /* 拖拽结束 */ }
+                    )
+                }
+                .background(Color.Green)
+                .size(100.dp)
+        )
+
+    }
+}
+
+/**
+ * 双指缩放
+ * 有可能会拖出去
+ */
+@Preview(
+    widthDp = 1080,
+    heightDp = 1980
+)
+@Composable
+fun Demo_4(){
+    var scale by remember { mutableFloatStateOf(1f) }
+
+    Box(
+        modifier = Modifier
+            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        if (event.changes.size >= 2) {
+                            val zoom = event.calculateZoom()
+                            scale = (scale * zoom).coerceIn(0.5f, 3f)
+                        }
+                    }
+                }
+            }
+            .background(Color.Cyan)
+            .size(200.dp)
+    )
 }
