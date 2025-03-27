@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -36,10 +38,18 @@ import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 
 // 键盘行定义
-val letterRows = listOf(
+val letterUpperRows = listOf(
     listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
     listOf("A", "S", "D", "F", "G", "H", "J", "K", "L"),
-    listOf("Z", "X", "C", "V", "B", "N", "M","⌫"),
+    listOf("SH","Z", "X", "C", "V", "B", "N", "M","⌫"),
+    listOf("123", "中", "mic", "换行")
+)
+
+// 键盘行定义
+val letterRows = listOf(
+    listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
+    listOf("a", "s", "d", "f", "g", "h", "j", "k", "l"),
+    listOf("sh","z", "x", "c", "v", "b", "n", "m","⌫"),
     listOf("123", "中", "mic", "换行")
 )
 
@@ -88,9 +98,12 @@ val defaultFontSize=40
 fun KeyboardLayout(
     isNumeric: Boolean,
     isChinese: Boolean,
+    isCap: Boolean,
     onKeyPress: (String) -> Unit
 ) {
-    val rows = if (isNumeric) numberRows else letterRows
+//    val rows = if (isNumeric) numberRows else letterRows
+    val rows = if (isNumeric) numberRows else
+            if(isCap) letterUpperRows else letterRows
 
     Column(
         modifier = Modifier
@@ -102,8 +115,9 @@ fun KeyboardLayout(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.pxToDp()),
-                horizontalArrangement = Arrangement.SpaceAround
+                    .padding(vertical = 2.pxToDp()) ,
+//                horizontalArrangement = Arrangement.spacedBy(6.pxToDp())
+                horizontalArrangement = Arrangement.Center
             ) {
                 row.forEach { key ->
                     KeyButton(
@@ -115,13 +129,14 @@ fun KeyboardLayout(
                         width = run{
                             when (key) {
                                 "123", "ABC", "换行" -> defaultLongButtonWidth.pxToDp()
-                                "中" -> defaultChineseButtonWidth.pxToDp()
+                                "中","SH" -> defaultChineseButtonWidth.pxToDp()
                                 "mic" -> defaultMicButtonWidth.pxToDp()
                                 else -> defaultButtonWidth.pxToDp()
                             }
                         },
                         onKeyPress = onKeyPress
                     )
+                    Spacer(Modifier.width(8.pxToDp()))
                 }
             }
         }
@@ -133,6 +148,7 @@ fun KeyboardLayout(
 fun KeyboardScreen() {
     var isNumeric by remember { mutableStateOf(false) }
     var isChinese by remember { mutableStateOf(false) }
+    var isCap by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -142,11 +158,16 @@ fun KeyboardScreen() {
         KeyboardLayout(
             isNumeric = isNumeric,
             isChinese = isChinese,
+            isCap = isCap,
             onKeyPress = { key ->
                 when (key) {
                     "123" -> isNumeric = true
                     "ABC" -> isNumeric = false
                     "中", "英" -> isChinese = !isChinese
+                    "sh", "SH" -> {
+                        isCap = !isCap
+                        isChinese = false
+                    }
                     // 其他按键处理...
                 }
             }
