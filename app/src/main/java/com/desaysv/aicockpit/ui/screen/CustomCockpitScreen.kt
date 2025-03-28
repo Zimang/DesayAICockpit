@@ -61,6 +61,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_Sound
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic
 import com.desaysv.aicockpit.ui.screen.base.PicWithText
+import com.desaysv.aicockpit.ui.theme.Choosen
 import com.desaysv.aicockpit.utils.LocaleManager
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
@@ -132,7 +133,9 @@ val soundItemDataList = List(tSoundPics.size) { index ->
  */
 @Composable
 fun SoundLightElectricitySelectionButton(
-    tag:SoundLightElectricityTag, chosen:Boolean,modifier: Modifier
+    tag:SoundLightElectricityTag,
+    chosen:Boolean,
+    modifier: Modifier
 ){
 
     val tags = ResourceManager.getTags()
@@ -168,6 +171,46 @@ fun SoundLightElectricitySelectionButton(
         )
     }
 }
+/**
+ * Sound Light Electricity Selection Button
+ */
+@Composable
+fun SoundLightElectricitySelectionButtonV1(
+    tag:SoundLightElectricityTag,
+    chosen:Boolean,
+    onClick:()->Unit
+){
+
+    val tags = ResourceManager.getTags()
+    Box(modifier=Modifier.size(height = 120.pxToDp(), width = 284.pxToDp())
+            .background(Color.Transparent)
+        .clickable{onClick()},
+        contentAlignment = Alignment.CenterEnd) {
+
+        if (chosen) {
+            Image(
+                contentDescription = "",
+                painter = painterResource(R.drawable.choosen),
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize())
+        }
+
+        Text(
+            text = tags[tag.ordinal]!!,
+            style = TextStyle(
+                fontSize = 32.getSP(),
+            ),
+            color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
+            modifier = Modifier
+                .padding(
+                    end = 40.pxToDp()
+                )
+
+        )
+    }
+}
+
+
 @Preview
 @Composable
 fun SoundLightElectricitySelectionButton_(){
@@ -203,6 +246,35 @@ fun SoundLightElectricitySelectionButtons(
                 onTagChosen(SoundLightElectricityTag.ELECTRICITY)
             })
 
+    }
+}
+
+/**
+ * Sound Light Electricity Selection Buttons
+ */
+@Composable
+fun SoundLightElectricitySelectionButtonsV1(
+    chosenTag: SoundLightElectricityTag,
+    onTagChosen: (SoundLightElectricityTag)->Unit
+){
+
+    Column(modifier = Modifier.padding(top = 120f.pxToDp())
+    ) {
+        SoundLightElectricitySelectionButtonV1(
+            SoundLightElectricityTag.SOUND,
+            SoundLightElectricityTag.SOUND==chosenTag) {
+                onTagChosen(SoundLightElectricityTag.SOUND)
+            }
+        SoundLightElectricitySelectionButtonV1(
+            SoundLightElectricityTag.LIGHT,
+            SoundLightElectricityTag.LIGHT==chosenTag) {
+                onTagChosen(SoundLightElectricityTag.LIGHT)
+            }
+        SoundLightElectricitySelectionButtonV1(
+            SoundLightElectricityTag.ELECTRICITY,
+            SoundLightElectricityTag.ELECTRICITY==chosenTag) {
+                onTagChosen(SoundLightElectricityTag.ELECTRICITY)
+            }
     }
 }
 
@@ -582,37 +654,6 @@ fun SaturationSelector(
         )
     }
 }
-//@Preview
-//@Composable
-//fun PreviewSaturationSelector(modifier: Modifier) {
-//    var hue by remember { mutableStateOf(0f) }
-//    var selectedSaturation by remember { mutableStateOf(0.5f) }
-//
-//    Row(modifier = modifier.padding(top = 120f.pxToDp(), bottom = 120f.pxToDp())) {
-//        FullHueVerticalSlider(onHueChanged = {hue=it})
-//        SaturationSelector(
-//            hue = hue,
-//            onSaturationSelected = { selectedSaturation = it },
-//            modifier = Modifier.padding(start = 80f.pxToDp())
-//                .size(992f.pxToDp(),480f.pxToDp())
-//        )
-//        Column(verticalArrangement = Arrangement.spacedBy(24f.pxToDp()),
-//            modifier = Modifier.padding(start = 24f.pxToDp())) {
-//            Box(modifier = Modifier.background(colorResource(R.color.cp_red),
-//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
-//
-//            Box(modifier = Modifier.background(colorResource(R.color.cp_blue),
-//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
-//
-//            Box(modifier = Modifier.background(colorResource(R.color.cp_green),
-//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
-//
-//            Box(modifier = Modifier.background(colorResource(R.color.cp_white),
-//                shape = RectangleShape).size(220f.pxToDp(),102f.pxToDp()))
-//        }
-//    }
-//}
-
 @Composable
 fun LightPart(modifier: Modifier=Modifier){
 
@@ -714,14 +755,18 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
             Row(modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 143f.pxToDp())){
-                BigPanel(onChange, modifier = Modifier)
+                BigPanelV1(onChange)
+//                BigPanel(onChange, modifier = Modifier)
             }
         }
         Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())){
             Row {
-                SoundLightElectricitySelectionButtons(
-                    tag,{tag=it}, modifier = Modifier.padding(top = 120f.pxToDp())
-                )
+//                SoundLightElectricitySelectionButtons(
+//                    tag,{tag=it}, modifier = Modifier.padding(top = 120f.pxToDp())
+//                )
+                SoundLightElectricitySelectionButtonsV1(tag){
+                    tag=it
+                }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
                         SoundList_()
@@ -738,45 +783,55 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
 }
 
 
+
+
+
 @Composable
-fun BigPanel(
-    genCockpit:(ScreenTag)->Unit={},
-    modifier: Modifier=Modifier){
-    Box(modifier.size(
+fun BigPanelV1(
+    genCockpit:(ScreenTag)->Unit={}){
+    Box(Modifier.size(
         1286.pxToDp(),720.pxToDp()
     )){
-        PicWithPic(
-            R.drawable.gen_cockpit_text,
-            R.drawable.gen_cockpit_bg,
-            Pair(189.28f.pxToDp(), 29.79f.pxToDp()),
-            Pair(340f.pxToDp(), 80f.pxToDp()),
-            modifier
+
+        Box(
+            modifier = Modifier
                 .padding(
                     start = 473f.pxToDp(),
                     bottom = 72f.pxToDp(),
                     top = 568f.pxToDp()
-                ),
-//                .clickable {},
-            Pair(0.dp,0.dp),
+                )
+                .size(340f.pxToDp(),80f.pxToDp())
+                .clickable {genCockpit(ScreenTag.SAVE)},
+            contentAlignment = Alignment.Center
         ){
-            genCockpit(ScreenTag.SAVE)
+            Image(painter = painterResource(R.drawable.gen_cockpit_bg),
+                contentDescription = "",
+                contentScale = ContentScale.FillBounds,
+            )
+
+            Text(text = ResourceManager.getGenerateMyCabin()!!,
+                color = Choosen,
+                fontSize = 24.getSP()
+            )
+
         }
+
         Image(painter = painterResource(R.drawable.bg_pannel),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(top = 202.3f.pxToDp())
         )
         Image(painter = painterResource(R.drawable.main_1),
             contentDescription = "",
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(top = 233.75f.pxToDp(), start = 462.96f.pxToDp())
                 .size(374.55f.pxToDp(), 70.23f.pxToDp())
         )
 
         Image(painter = painterResource(R.drawable.p_head),
             contentDescription = "",
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(start = 361.pxToDp(), top = 158.pxToDp())
                 .size(608.pxToDp(), 43.pxToDp())
         )
@@ -784,7 +839,7 @@ fun BigPanel(
         Image(painter = painterResource(R.drawable.p_text),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(top =72.86f.pxToDp() ,
                     start = 379.18f.pxToDp(),
                     end = 883.68f.pxToDp(),
@@ -793,7 +848,7 @@ fun BigPanel(
         Image(painter = painterResource(R.drawable.zero_1),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(top =72.24f.pxToDp() ,
                     start = 461.01f.pxToDp(),
                     end = 802.19f.pxToDp(),
@@ -802,7 +857,7 @@ fun BigPanel(
         Image(painter = painterResource(R.drawable.km_h),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  Modifier
                 .padding(top =92.44f.pxToDp() ,
                     start = 499.05f.pxToDp(),
                     end = 742.94f.pxToDp(),
@@ -811,23 +866,6 @@ fun BigPanel(
         )
 
     }
-//            .size(23.pxToDp(),35.pxToDp())
-//            .size(23.14f.pxToDp(),35.14f.pxToDp())
-
-//    Text(23.14f.pxToDp().toString(), color = Color.White)
-//    Image(painter = painterResource(R.drawable.main_1),
-//        contentDescription = "",
-//        modifier =  modifier
-//            .padding(top = 233.75f.pxToDp(), start =462.96f.pxToDp() )
-//            .size(374.55f.pxToDp(),70.23f.pxToDp())
-//    )
-//
-//    Image(painter = painterResource(R.drawable.p_head),
-//        contentDescription = "",
-//        modifier =  modifier
-//            .padding(start = 361.pxToDp(), top=158.pxToDp() )
-//            .size(608.pxToDp(),43.pxToDp())
-//    )
 }
 
 
@@ -839,39 +877,8 @@ fun BigPanel(
 )
 @Composable
 fun BigPanel_(){
-    BigPanel()
+    BigPanelV1()
 }
-
-//
-//@Composable
-//fun BackButton(onExit: () -> Unit){
-//    Box(modifier = Modifier.size(
-//        284f.pxToDp(),120f.pxToDp())
-//        .clickable { onExit() }){
-//        Image(painterResource(R.drawable.b_button),
-//            contentDescription = "",
-//            modifier = Modifier
-//                .padding(
-//                    start = 36f.pxToDp(), top = 40f.pxToDp()
-//                )
-//                .size(
-//                    40f.pxToDp()
-//                ))
-//        Image(
-//            painterResource(R.drawable.b_button_text),
-//            contentDescription = "",
-//            modifier = Modifier
-//                .padding(
-//                    start = 84.28f.pxToDp(),
-//                    top = 40.08f.pxToDp()
-//                )
-//                .size(
-//                    115.71f.pxToDp(),
-//                    37.28f.pxToDp()
-//                ))
-//    }
-//}
-
 
 @Composable
 fun BackButton(onExit: () -> Unit){
@@ -894,19 +901,6 @@ fun BackButton(onExit: () -> Unit){
                     .size(
                         40f.pxToDp()
                     ))
-//            Image(
-//                painterResource(R.drawable.b_button_text),
-//                contentDescription = "",
-//                modifier = Modifier
-//                    .padding(
-////                        start = 20.5f.pxToDp(),
-//                        start = 8f.pxToDp(),
-//                        top = 40.08f.pxToDp()
-//                    )
-//                    .size(
-//                        115.71f.pxToDp(),
-//                        37.28f.pxToDp()
-//                    ))
             Text(
                 text = ResourceManager.getAiCabin()!!,
 //                text = "AI座舱",
@@ -930,54 +924,6 @@ fun BackButton_(){
     BackButton({})
 }
 
-@Composable
-fun ThemeChangeButton(
-    chosen: Boolean,
-    tag: ScreenTag,
-    modifier: Modifier,
-    start:Float,
-    top:Float,
-    onClick:(ScreenTag)->Unit={},
-    w:Dp,
-    h:Dp
-){
-    Box(modifier=Modifier
-        .size(
-            height = 120.pxToDp(),
-            width = 284.pxToDp(),
-        )
-        .background(Color.Transparent)
-        .clickable(onClick = { onClick(tag) }),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        if (chosen) {
-            Image(
-                contentDescription = "",
-                painter = painterResource(R.drawable.choosen),
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .size(
-                        height = 120.pxToDp(),
-                        width = 284.pxToDp(),
-                    )
-            )
-        }
-        Text(
-            text =   ResourceManager.getScreenTags()[tag.ordinal]!!,
-            style = TextStyle(
-                fontSize = 32.getSP(),
-            ),
-            maxLines = 1,
-            color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
-            modifier = Modifier
-                .padding(
-//                    top = top.pxToDp(),
-                    start = start.pxToDp(),
-                )
-        )
-
-    }
-}
 @Composable
 fun ThemeChangeButtonV1(
     chosen: Boolean,
@@ -1020,7 +966,7 @@ fun ThemeChangeButtons(
     onExit: ()->Unit={}
 ){
     Column() {
-        BackButton(onExit) 
+        BackButton(onExit)
         Spacer(modifier = Modifier.height(24.pxToDp()))
         ThemeChangeButtonV1(chosenTag==ScreenTag.CUS,
             ScreenTag.CUS,onChange
