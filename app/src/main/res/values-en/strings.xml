@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/values-en/strings.xml (英文) -->
+<resources>
+    <string name="personalized_cabin">Personalized cabin</string>
+    <string name="inspiration">Inspiration</string>
+    <string name="generate_my_cabin">Generate my cabin</string>
+    <string name="sound">Sound</string>
+    <string name="light">Light</string>
+    <string name="screen">Screen</string>
+    <string name="ai_cabin">AI cabin</string>
+    <string name="name_your_cabin">Give a name to your unique cabin</string>
+    <string name="schwarzwald_cabin">Schwarzwald cabin</string>
+    <string name="save_apply">Save and apply</string>
+    <string name="save">Save</string>
+    <string name="applied_successfully">Applied successfully</string>
+</resources>

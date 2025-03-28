@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -57,6 +58,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_Sound
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic
 import com.desaysv.aicockpit.ui.screen.base.PicWithText
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
@@ -94,7 +96,12 @@ enum class SoundLightElectricityTag{
 enum class ScreenTag{
     INS,CUS,SAVE
 }
-val tags= listOf("声","光","电")
+//val tags= listOf("声","光","电")
+//val tags= listOf(
+//    stringResource(R.string.sound),
+//    "光",
+//    "电"
+//)
 val screenTags= listOf("灵感","个性化座舱","保存")
 val tElectricityPics= listOf("el_1.png","el_2.png","el_2.png")
 val tElectricityName= listOf("默认主题","梦幻XXX","梦幻XXX")
@@ -124,6 +131,7 @@ fun SoundLightElectricitySelectionButton(
     tag:SoundLightElectricityTag, chosen:Boolean,modifier: Modifier
 ){
 
+    val tags = ResourceManager.getTags()
     Box(modifier=modifier
         .size(
             height = 120.pxToDp(),
@@ -140,7 +148,7 @@ fun SoundLightElectricitySelectionButton(
         }
 
         Text(
-            text = tags[tag.ordinal],
+            text = tags[tag.ordinal]!!,
             style = TextStyle(
                 fontSize = 32.getSP(),
 //                baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的

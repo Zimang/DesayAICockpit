@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.desaysv.aicockpit.data.db.AppDatabase
 import com.desaysv.aicockpit.data.repository.ProjectRepository
 import com.desaysv.aicockpit.data.repository.ThemeRepository
+import com.desaysv.aicockpit.utils.LocaleManager
+import com.desaysv.aicockpit.utils.ResourceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +26,8 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        LocaleManager.init(this)
+        ResourceManager.init(this)
         // 启动时检查默认主题
         CoroutineScope(Dispatchers.IO).launch {
             themeRepository.ensureDefaultThemeExists()

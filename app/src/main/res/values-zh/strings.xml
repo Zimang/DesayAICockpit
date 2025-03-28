@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">DesayAICockpit</string>
+    <string name="app_name">DesayAICockpit</string>
     <string name="personalized_cabin">个性化座舱</string>
     <string name="inspiration">灵感</string>
     <string name="generate_my_cabin">生成我的座舱</string>
