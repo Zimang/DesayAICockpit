@@ -33,6 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
@@ -50,10 +51,15 @@ fun ThemeCard(themeItemData: ThemeItemData,
               onApply:(Int)->Unit={},
               onDelete:(ThemeItemData)->Unit={},
               ){
+
+    val t=if (isApplied) ResourceManager.getApplying() else ResourceManager.getApply()
+    val c=if (isApplied) colorResource(R.color.choosen) else colorResource(R.color.n_choosen)
+    val img=if (isApplied) painterResource(R.drawable.app_1) else painterResource(R.drawable.app_2)
+
+
     Column(verticalArrangement = Arrangement.spacedBy(16f.pxToDp())) {
 
         Box(){
-            val c=if (isApplied) colorResource(R.color.choosen) else colorResource(R.color.n_choosen)
             Image(painterResource(R.drawable.el_1),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
@@ -65,25 +71,20 @@ fun ThemeCard(themeItemData: ThemeItemData,
             ), modifier = Modifier.align(Alignment.BottomStart)
                 .padding(start = 40.06f.pxToDp(), bottom =40.32f.pxToDp() ))
         }
-//        Image(painterResource(R.drawable.el_1),contentDescription = null,
-//            modifier = Modifier.size(
-//                472f.pxToDp()
-//            ))
+
         if (themeItemData.isDefault){
             Box(modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
                 if(!isApplied){
                     onApply(themeItemData.id)
                 }
             }){
-                val t=if (isApplied) "应用中" else "应用"
-                val c=if (isApplied) colorResource(R.color.choosen) else colorResource(R.color.n_choosen)
                 Image(painterResource(R.drawable.r_1),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.size(
                         472f.pxToDp(),72f.pxToDp()
                     ))
-                Text(text = t, style = TextStyle(
+                Text(text = t!!, style = TextStyle(
                     fontSize = 24.getSP(),
                     color = c
                 ), modifier = Modifier.align(Alignment.Center))
@@ -98,14 +99,12 @@ fun ThemeCard(themeItemData: ThemeItemData,
                         onApply(themeItemData.id)
                     }
                 }){
-                    val t=if (isApplied) "应用中" else "应用"
-                    val c=if (isApplied) colorResource(R.color.choosen) else colorResource(R.color.n_choosen)
-                    val img=if (isApplied) painterResource(R.drawable.app_1) else painterResource(R.drawable.app_2)
+//                    val t=if (isApplied) "应用中" else "应用"
                     Image(img,contentDescription = null,
                         modifier = Modifier.size(
                             228.pxToDp(),72f.pxToDp()
                         ))
-                    Text(text = t, style = TextStyle(
+                    Text(text = t!!, style = TextStyle(
                         color = c, fontSize = 24.getSP()
                     ), modifier = Modifier.align(Alignment.Center))
                 }
@@ -117,7 +116,9 @@ fun ThemeCard(themeItemData: ThemeItemData,
                 }){
                     Image(painterResource(R.drawable.app_2),contentDescription = null,
                         modifier = Modifier.fillMaxSize())
-                    Text(text = "删除",
+                    Text(
+//                        text = "删除",
+                        text = ResourceManager.getDeleted()!!,
                         style = TextStyle(
                         color = colorResource(R.color.n_choosen),
                         fontSize = 24.getSP(),
@@ -208,11 +209,11 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
                 }
             })
         }
+
         Box(modifier = Modifier
             .size(width = (207+1286+143+284+1636).pxToDp(), height = 720f.pxToDp())){
             Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 200f.pxToDp())){
-//                BigPanel(modifier = Modifier)
-//                ThemeCards_()
+
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(64f.pxToDp())) {
                     items(themes){ theme->
                         ThemeCard(

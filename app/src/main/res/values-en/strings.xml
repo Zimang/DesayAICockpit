@@ -12,5 +12,9 @@
     <string name="schwarzwald_cabin">Schwarzwald cabin</string>
     <string name="save_apply">Save and apply</string>
     <string name="save">Save</string>
+    <string name="apply">Apply</string>
+    <string name="applying">Applying</string>
     <string name="applied_successfully">Applied successfully</string>
+    <string name="deleted">Delete</string>
+
 </resources>

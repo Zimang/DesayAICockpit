@@ -53,6 +53,16 @@ object ResourceManager {
     fun getAiCabin(): String? =
         contextRef?.get()?.getString(R.string.ai_cabin)
 
+    fun getApply(): String? =
+        contextRef?.get()?.getString(R.string.apply)
+
+    fun getApplying(): String? =
+        contextRef?.get()?.getString(R.string.applying)
+
+    fun getDeleted(): String? =
+        contextRef?.get()?.getString(R.string.deleted)
+
+
     fun getNameYourCabin(): String? =
         contextRef?.get()?.getString(R.string.name_your_cabin)
 

@@ -11,5 +11,9 @@
     <string name="schwarzwald_cabin">黑森林座舱</string>
     <string name="save_apply">保存并应用</string>
     <string name="save">保存</string>
+    <string name="apply">应用</string>
+    <string name="applying">应用中</string>
     <string name="applied_successfully">应用成功</string>
+    <string name="deleted">删除</string>
+
 </resources>
