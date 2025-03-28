@@ -15,5 +15,5 @@
     <string name="applying">应用中</string>
     <string name="applied_successfully">应用成功</string>
     <string name="deleted">删除</string>
-
+    <string name="theme_name">主题名称</string>
 </resources>

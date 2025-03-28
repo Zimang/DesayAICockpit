@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -18,6 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.desaysv.aicockpit.R
+import com.desaysv.aicockpit.ui.screen.getSP
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 
 
@@ -84,7 +87,6 @@ fun PicWithPic(
 
     }
 }
-
 @Preview
 @Composable
 fun PicWithPic_(){
@@ -95,6 +97,7 @@ fun PicWithPic_(){
         Pair(340f.pxToDp(),80f.pxToDp()),
         pPadding =  Pair(0.pxToDp(),0.pxToDp()),
     )
+
 }
 
 @Composable
@@ -110,9 +113,43 @@ fun PicWithPic_Save(onClick: () -> Unit){
         onClick()
     }
 }
+@Composable
+fun RegularButton(@DrawableRes bg:Int,text:String, textSp:Int=24,w:Int=340,h:Int=80, onClick: () -> Unit){
+
+
+    Box(
+        modifier = Modifier
+            .size(w.pxToDp(),h.pxToDp())
+            .clickable{onClick()},
+        contentAlignment = Alignment.Center
+    ){
+        Image(painter = painterResource(bg),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds,
+        )
+
+        Text(text = ResourceManager.getSave()!!,
+            fontSize = textSp.getSP(),
+            color = Color.White
+        )
+
+    }
+}
 
 @Composable
 fun PicWithPic_SaveApply(onClick: () -> Unit){
+    PicWithPic(
+        R.drawable.save_bt_save_and_apply,
+        R.drawable.save_bt_bg,
+        Pair(189.28f.pxToDp(),29.79f.pxToDp()),
+        Pair(340f.pxToDp(),80f.pxToDp()),
+        pPadding =  Pair(0.pxToDp(),0.pxToDp()),
+    ){
+        onClick()
+    }
+}
+@Composable
+fun PicWithPic_SaveApplyV1(onClick: () -> Unit){
     PicWithPic(
         R.drawable.save_bt_save_and_apply,
         R.drawable.save_bt_bg,

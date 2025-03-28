@@ -16,5 +16,6 @@
     <string name="applying">Applying</string>
     <string name="applied_successfully">Applied successfully</string>
     <string name="deleted">Delete</string>
+    <string name="theme_name">Theme Name</string>
 
 </resources>

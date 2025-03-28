@@ -24,7 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 
 
@@ -72,15 +75,9 @@ fun BackgroundInputField(
                 if (it.length <= maxLength) text = it
                 onTextChange(it)
             },
-//            modifier = Modifier
-//                .size(height = 24f.pxToDp()
-//                    , width =500f.pxToDp()
-//                ),
             textStyle = TextStyle(
                 color = Color.White, // 文字颜色根据背景图区域设置
                 fontSize =24.pxToDp().value.sp,
-//                baselineShift = BaselineShift(-1f)
-//                fontWeight = FontWeight.Medium
             ),
             cursorBrush = SolidColor(colorResource(R.color.choosen)), // 光标颜色
             decorationBox = { innerTextField ->
@@ -93,6 +90,8 @@ fun BackgroundInputField(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(end = 100f.pxToDp())) {
+
+                        //需要修改为文字
                         Image(painterResource(R.drawable.save_lable),
                             contentDescription = "",
                             modifier = Modifier.padding(
@@ -103,6 +102,77 @@ fun BackgroundInputField(
 //                        )
                         Box(modifier = Modifier.padding(
                             top =22.88f.pxToDp(),
+//                            bottom = 25.12f.pxToDp()
+                        )){
+                            innerTextField() // 直接放置系统生成的输入框
+                        }
+                    }
+                }
+            }
+        )
+
+    }
+}
+
+@Composable
+fun BackgroundInputFieldV1(
+    @DrawableRes bg:Int,
+    modifier: Modifier=Modifier,
+    onTextChange:(String)->Unit
+) {
+    // 图片资源需放入res/drawable目录
+    val backgroundImage = painterResource(bg)
+    var text by remember { mutableStateOf("") }
+    val maxLength = 20 // 最大输入长度
+
+    Box(
+        modifier = modifier
+            .size(721f.pxToDp(), 72f.pxToDp()) // 根据背景图尺寸设置
+            .background(Color.Transparent)
+    ) {
+        // 背景图片
+        Image(
+            painter = backgroundImage,
+            contentDescription = "输入框背景",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // 透明输入框
+        BasicTextField(
+            value = text,
+            onValueChange = {
+                if (it.length <= maxLength) text = it
+                onTextChange(it)
+            },
+            textStyle = TextStyle(
+                color = Color.White, // 文字颜色根据背景图区域设置
+                fontSize =24.pxToDp().value.sp,
+            ),
+            cursorBrush = SolidColor(colorResource(R.color.choosen)), // 光标颜色
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxSize()
+//                            .padding(end = 100f.pxToDp())
+                    ) {
+
+                        Text(
+                            text=ResourceManager.getThemeName()!!,
+                            modifier=Modifier.alpha(0.8f).padding(
+                                start = 31.34f.pxToDp(),
+                                end = 45.63f.pxToDp()),
+                            fontSize = 24.getSP(),
+                            color = Color.White
+                        )
+
+                        Box(modifier = Modifier.padding(
+//                            top =22.88f.pxToDp(),
 //                            bottom = 25.12f.pxToDp()
                         )){
                             innerTextField() // 直接放置系统生成的输入框

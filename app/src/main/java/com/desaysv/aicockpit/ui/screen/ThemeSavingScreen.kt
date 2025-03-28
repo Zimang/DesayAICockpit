@@ -6,15 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -24,8 +28,11 @@ import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.base.BackgroundInputField
+import com.desaysv.aicockpit.ui.screen.base.BackgroundInputFieldV1
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_Save
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_SaveApply
+import com.desaysv.aicockpit.ui.screen.base.RegularButton
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import kotlinx.coroutines.launch
 
@@ -38,17 +45,16 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
-    var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
             Column() {
-//                BackButton(onExit)
                 BackButton(onExit)
             }
         }
+
         Box(modifier = Modifier
             .size(width = 1236.pxToDp(), height = 720f.pxToDp())){
-            CockpitNamingScreen(onExit)
+            CockpitNamingScreenV1(onExit)
         }
         Box(modifier = Modifier.size(width = 2320.pxToDp(), height = 720f.pxToDp())){
 
@@ -56,6 +62,8 @@ fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
         }
     }
 }
+
+
 //@Preview(
 //widthDp = 446,
 //heightDp = 262,
@@ -96,6 +104,8 @@ fun CockpitNamingScreen(onExit: () -> Unit) {
                 .padding(top=74f.pxToDp()),
             horizontalArrangement = Arrangement.spacedBy(41f.pxToDp())
         ) {
+
+
             PicWithPic_Save{
                 scope.launch {
                     rp.addTheme(
@@ -105,6 +115,78 @@ fun CockpitNamingScreen(onExit: () -> Unit) {
                 }
             }
             PicWithPic_SaveApply{
+                scope.launch {
+                    rp.setNewAppliedTheme(
+                       ThemeItemData(electricityItemId =  200,
+                           soundItemId = 200,
+                           themeName =  cockpitName,
+                           isApplied = true,
+                           isDefault = false)
+                    )
+                    onExit()
+                }
+            }
+        }
+    }
+}
+
+//@Preview(
+//widthDp = 446,
+//heightDp = 262,
+//backgroundColor = 0xff000000,
+//showBackground = true
+//)
+@Composable
+fun CockpitNamingScreenV1(onExit: () -> Unit) {
+    val context = LocalContext.current
+    val app = context.applicationContext as MyApplication
+    val rp=app.themeRepository
+    val scope = rememberCoroutineScope()
+
+    var cockpitName by remember { mutableStateOf("梦幻座舱") }
+//    val modifier=Modifier
+    val maxLength = 10 // 最大输入长度
+    Column(
+        modifier = Modifier
+//            .size(721f.pxToDp(),720f.pxToDp())
+            .background(Color.Black)
+            .padding(start =  221f.pxToDp())
+        , horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(160f.pxToDp()))
+        Text(
+            text = ResourceManager.getNameYourCabin()!!,
+            color = Color.White,
+            fontSize =32.getSP()
+        )
+//        Image(painterResource(R.drawable.save_head),contentDescription = null
+//            , modifier = Modifier
+//                .padding(
+//                start =136.01f.pxToDp(),
+//            ))
+
+
+        Spacer(Modifier.height(72.64f.pxToDp()))
+        BackgroundInputFieldV1(R.drawable.save_input_bg){
+            cockpitName=it
+        }
+
+        Spacer(Modifier.height(74f.pxToDp()))
+        // 按钮区域
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(41f.pxToDp())
+        ) {
+            RegularButton(R.drawable.save_bt_bg,ResourceManager.getSave()!!,
+                ){
+                scope.launch {
+                    rp.addTheme(
+                        200,200,cockpitName,false,false
+                    )
+                    onExit()
+                }
+            }
+            RegularButton(R.drawable.save_bt_bg,ResourceManager.getSaveApply()!!,
+            ){
                 scope.launch {
                     rp.setNewAppliedTheme(
                        ThemeItemData(electricityItemId =  200,

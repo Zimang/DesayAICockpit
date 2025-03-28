@@ -74,7 +74,8 @@ object ResourceManager {
 
     fun getSave(): String? =
         contextRef?.get()?.getString(R.string.save)
-
+    fun getThemeName(): String? =
+        contextRef?.get()?.getString(R.string.theme_name)
     fun getAppliedSuccessfully(): String? =
         contextRef?.get()?.getString(R.string.applied_successfully)
 

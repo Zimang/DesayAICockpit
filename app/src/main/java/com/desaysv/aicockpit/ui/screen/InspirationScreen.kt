@@ -99,7 +99,6 @@ fun ThemeCard(themeItemData: ThemeItemData,
                         onApply(themeItemData.id)
                     }
                 }){
-//                    val t=if (isApplied) "应用中" else "应用"
                     Image(img,contentDescription = null,
                         modifier = Modifier.size(
                             228.pxToDp(),72f.pxToDp()
@@ -117,7 +116,6 @@ fun ThemeCard(themeItemData: ThemeItemData,
                     Image(painterResource(R.drawable.app_2),contentDescription = null,
                         modifier = Modifier.fillMaxSize())
                     Text(
-//                        text = "删除",
                         text = ResourceManager.getDeleted()!!,
                         style = TextStyle(
                         color = colorResource(R.color.n_choosen),
@@ -138,13 +136,6 @@ fun ThemeCard(themeItemData: ThemeItemData,
 @Composable
 fun ThemeCards_(){
     LazyRow(horizontalArrangement = Arrangement.spacedBy(64f.pxToDp())) {
-//        val itemList= listOf(10){
-//            ThemeItemData(
-//                ElectricityItemData("测试","测试主题",R.drawable.el_1),
-//                SoundItemData("测试","测试生效",R.drawable.b_1_h),
-//                "呱呱叫",false)
-//        }
-
     }
 }
 

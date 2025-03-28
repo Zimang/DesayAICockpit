@@ -975,7 +975,7 @@ fun ThemeChangeButtons(
         ThemeChangeButtonV1(chosenTag==ScreenTag.INS,
             ScreenTag.INS,onChange
         )
-        Text(text = LocaleManager.getLanguage(), color = Color.White)
+//        Text(text = LocaleManager.getLanguage(), color = Color.White)
     }
 }
 
@@ -1001,14 +1001,3 @@ fun ThemeChangeButtons_(onChange: (ScreenTag) -> Unit){
     })
 }
 
-//@Preview(
-//    showBackground = true,
-//    backgroundColor = 0xff000000,
-//    widthDp = 200,
-//    heightDp = 100
-//)
-//@Composable
-//fun ThemeChangeButton_(){
-//    ThemeChangeButton(true,ScreenTag.INS, Modifier.padding(top=8f.pxToDp()),181.31f,
-//        {  },61.54f.pxToDp(),29.66f.pxToDp())
-//}
