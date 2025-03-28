@@ -1,22 +1,28 @@
-package com.desaysv.aicockpit.navigate
+package com.desaysv.aicockpit.business.navigate
 
 import android.app.Activity
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
 
 sealed class Route(val route: String) {
     object ScreenCUS : Route("custom") // 对应CUS
@@ -28,8 +34,19 @@ val TAG="TEST"
 @Composable
 fun MainNavigation() {
     val context = LocalContext.current
+    val app = context.applicationContext as MyApplication
     val navController = rememberNavController()
     val currentRoute = rememberNavControllerCurrentRoute(navController)
+
+    val rp=app.themeRepository
+    val themeViewModel = remember {
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = ThemeItemViewModelFactory(rp)
+        )[ThemeItemViewModel::class.java]
+    }
+
+
 
     // 将路由映射到ScreenTag
     val chosenTag = when(currentRoute) {
@@ -43,25 +60,6 @@ fun MainNavigation() {
         .background(
             color = Color.Black
         )) {
-//        // 左侧导航栏（固定位置）
-//        ThemeChangeButtons(
-//            chosenTag = chosenTag,
-//            modifier = Modifier
-//                .width(284.pxToDp())
-//                .fillMaxHeight()
-//                .align(Alignment.TopStart),
-//            onChange = { tag ->
-//                when(tag) {
-//                    ScreenTag.CUS -> navigateToCUS(navController)
-//                    ScreenTag.INS -> navigateToIns(navController)
-//                    ScreenTag.SAVE -> TODO()
-//                }
-//            },
-//            onExit = {
-////                handleExit(context)
-//            }
-//        )
-
         // 右侧内容区域
         NavHost(
             navController = navController,
@@ -70,11 +68,9 @@ fun MainNavigation() {
 //                .padding(start = 284.pxToDp()) // 为左侧导航栏留出空间
                 .fillMaxSize()
         ) {
-            composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }
-//                ,{navController.navigateUp()}
-            ) }
-            composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) }) }
-            composable(Route.ScreenSAVE.route) { SaveScreen(onExit = {navController.navigateUp()}) }
+            composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }) }
+            composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },themeViewModel) }
+            composable(Route.ScreenSAVE.route) { SaveScreen(themeViewModel, onExit = {navController.navigateUp()}) }
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }

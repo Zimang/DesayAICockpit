@@ -1,4 +1,4 @@
-package com.desaysv.aicockpit.navigate
+package com.desaysv.aicockpit.business.navigate
 
 import android.app.Activity
 import androidx.compose.foundation.background

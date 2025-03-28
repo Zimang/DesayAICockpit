@@ -34,6 +34,8 @@ import com.desaysv.aicockpit.ui.screen.base.PicWithPic_SaveApply
 import com.desaysv.aicockpit.ui.screen.base.RegularButton
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
+import com.desaysv.aicockpit.viewmodel.SoundViewModel
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -44,7 +46,9 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
+fun SaveScreen(viewModel: ThemeItemViewModel, onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
+
+
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
             Column() {
@@ -54,7 +58,7 @@ fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
 
         Box(modifier = Modifier
             .size(width = 1236.pxToDp(), height = 720f.pxToDp())){
-            CockpitNamingScreenV1(onExit)
+            CockpitNamingScreenV1(viewModel,onExit)
         }
         Box(modifier = Modifier.size(width = 2320.pxToDp(), height = 720f.pxToDp())){
 
@@ -63,7 +67,6 @@ fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
     }
 }
 
-
 //@Preview(
 //widthDp = 446,
 //heightDp = 262,
@@ -71,80 +74,9 @@ fun SaveScreen(onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
 //showBackground = true
 //)
 @Composable
-fun CockpitNamingScreen(onExit: () -> Unit) {
-    val context = LocalContext.current
-    val app = context.applicationContext as MyApplication
-    val rp=app.themeRepository
+fun CockpitNamingScreenV1(viewModel: ThemeItemViewModel, onExit: () -> Unit) {
     val scope = rememberCoroutineScope()
-
     var cockpitName by remember { mutableStateOf("梦幻座舱") }
-//    val modifier=Modifier
-    val maxLength = 10 // 最大输入长度
-    Column(
-        modifier = Modifier
-//            .size(721f.pxToDp(),720f.pxToDp())
-            .background(Color.Black)
-            .padding(start =  221f.pxToDp())
-//        , horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(painterResource(R.drawable.save_head),contentDescription = null
-            , modifier = Modifier
-                .padding(
-                top = 166.78f.pxToDp(), start =136.01f.pxToDp(),
-//                bottom =520.64f.pxToDp(), end =431.01f.pxToDp(),
-            ))
-        BackgroundInputField(R.drawable.save_input_bg, modifier = Modifier.padding(top = 72.64f.pxToDp())){
-            cockpitName=it
-        }
-
-        // 按钮区域
-        Row(
-            modifier = Modifier
-//                .size(721f.pxToDp(),72f.pxToDp())
-                .padding(top=74f.pxToDp()),
-            horizontalArrangement = Arrangement.spacedBy(41f.pxToDp())
-        ) {
-
-
-            PicWithPic_Save{
-                scope.launch {
-                    rp.addTheme(
-                        200,200,cockpitName,false,false
-                    )
-                    onExit()
-                }
-            }
-            PicWithPic_SaveApply{
-                scope.launch {
-                    rp.setNewAppliedTheme(
-                       ThemeItemData(electricityItemId =  200,
-                           soundItemId = 200,
-                           themeName =  cockpitName,
-                           isApplied = true,
-                           isDefault = false)
-                    )
-                    onExit()
-                }
-            }
-        }
-    }
-}
-
-//@Preview(
-//widthDp = 446,
-//heightDp = 262,
-//backgroundColor = 0xff000000,
-//showBackground = true
-//)
-@Composable
-fun CockpitNamingScreenV1(onExit: () -> Unit) {
-    val context = LocalContext.current
-    val app = context.applicationContext as MyApplication
-    val rp=app.themeRepository
-    val scope = rememberCoroutineScope()
-
-    var cockpitName by remember { mutableStateOf("梦幻座舱") }
-//    val modifier=Modifier
     val maxLength = 10 // 最大输入长度
     Column(
         modifier = Modifier
@@ -159,19 +91,15 @@ fun CockpitNamingScreenV1(onExit: () -> Unit) {
             color = Color.White,
             fontSize =32.getSP()
         )
-//        Image(painterResource(R.drawable.save_head),contentDescription = null
-//            , modifier = Modifier
-//                .padding(
-//                start =136.01f.pxToDp(),
-//            ))
-
 
         Spacer(Modifier.height(72.64f.pxToDp()))
+
         BackgroundInputFieldV1(R.drawable.save_input_bg){
             cockpitName=it
         }
 
         Spacer(Modifier.height(74f.pxToDp()))
+
         // 按钮区域
         Row(
             horizontalArrangement = Arrangement.spacedBy(41f.pxToDp())
@@ -179,7 +107,7 @@ fun CockpitNamingScreenV1(onExit: () -> Unit) {
             RegularButton(R.drawable.save_bt_bg,ResourceManager.getSave()!!,
                 ){
                 scope.launch {
-                    rp.addTheme(
+                    viewModel.addTheme(
                         200,200,cockpitName,false,false
                     )
                     onExit()
@@ -188,27 +116,12 @@ fun CockpitNamingScreenV1(onExit: () -> Unit) {
             RegularButton(R.drawable.save_bt_bg,ResourceManager.getSaveApply()!!,
             ){
                 scope.launch {
-                    rp.setNewAppliedTheme(
-                       ThemeItemData(electricityItemId =  200,
-                           soundItemId = 200,
-                           themeName =  cockpitName,
-                           isApplied = true,
-                           isDefault = false)
+                    viewModel.addApplyingTheme(
+                       200,200,cockpitName
                     )
                     onExit()
                 }
             }
         }
     }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 1396,
-    heightDp = 262
-)
-@Composable
-fun FinalScreen_Save(){
-    SaveScreen {  }
 }

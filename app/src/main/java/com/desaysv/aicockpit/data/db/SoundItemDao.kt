@@ -12,6 +12,12 @@ interface SoundItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(soundItem: SoundItemData): Long
 
+    @Query("SELECT * FROM sound_items")
+    suspend fun getAll(): List<SoundItemData>
+
+    @Query("DELETE FROM sound_items")
+    suspend fun deleteAll()
+
     @Query("SELECT * FROM sound_items WHERE id = :id")
     suspend fun getById(id: Int): SoundItemData?
 

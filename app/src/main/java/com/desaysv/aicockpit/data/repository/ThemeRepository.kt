@@ -41,7 +41,7 @@ class ThemeRepository(private val themeItemDao: ThemeItemDao){
 
 
     // **方法 1：清除当前 isApplied 并添加新主题**
-    suspend fun setNewAppliedTheme(theme: ThemeItemData) {
+    suspend fun  setNewAppliedTheme(theme: ThemeItemData) {
         themeItemDao.replaceAppliedTheme(theme)
     }
 

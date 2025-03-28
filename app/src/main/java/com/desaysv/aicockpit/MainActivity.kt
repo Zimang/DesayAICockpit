@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import com.desaysv.aicockpit.navigate.MainNavigation
+import com.desaysv.aicockpit.business.navigate.MainNavigation
 import com.desaysv.aicockpit.ui.theme.DesayAICockpitTheme
 
 class MainActivity : ComponentActivity() {

@@ -176,18 +176,9 @@ fun InspiratonScreen(){
  * 灵感屏幕
  */
 @Composable
-fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
-    val context = LocalContext.current
+fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},viewModel: ThemeItemViewModel){
     val contextApp=(LocalContext.current as? Activity)
-    val app = context.applicationContext as MyApplication
-    val rp=app.themeRepository
     val scope = rememberCoroutineScope()
-    val viewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = ThemeItemViewModelFactory(rp)
-        )[ThemeItemViewModel::class.java]
-    }
 
     val themes by viewModel.themes.collectAsState(initial = emptyList())
 
@@ -210,11 +201,11 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={}){
                         ThemeCard(
                             theme,theme.isApplied,
                             onApply = {scope.launch {
-                                rp.switchAppliedTheme(it)
+                                viewModel.switchAppliedTheme(it)
                             }},
                             onDelete = {
                                 scope.launch {
-                                    rp.deleteTheme(it)
+                                    viewModel.deleteTheme(it)
                                 }
                             }
                         )

@@ -125,7 +125,8 @@ val soundItemDataList = List(tSoundPics.size) { index ->
     SoundItemData(
         imageName = tSoundPics[index],
         soundName = tSoundName[index],
-        imgId = tSoundImgId[index]
+        imgId = tSoundImgId[index],
+        imgPath = "no_path"
     )
 }
 /**
@@ -745,6 +746,10 @@ fun FinalScreen(){
  */
 @Composable
 fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
+
+
+
+
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
