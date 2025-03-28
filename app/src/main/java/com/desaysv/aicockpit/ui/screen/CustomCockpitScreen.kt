@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,6 +49,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -58,6 +61,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_Sound
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic
 import com.desaysv.aicockpit.ui.screen.base.PicWithText
+import com.desaysv.aicockpit.utils.LocaleManager
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
@@ -838,37 +842,89 @@ fun BigPanel_(){
     BigPanel()
 }
 
+//
+//@Composable
+//fun BackButton(onExit: () -> Unit){
+//    Box(modifier = Modifier.size(
+//        284f.pxToDp(),120f.pxToDp())
+//        .clickable { onExit() }){
+//        Image(painterResource(R.drawable.b_button),
+//            contentDescription = "",
+//            modifier = Modifier
+//                .padding(
+//                    start = 36f.pxToDp(), top = 40f.pxToDp()
+//                )
+//                .size(
+//                    40f.pxToDp()
+//                ))
+//        Image(
+//            painterResource(R.drawable.b_button_text),
+//            contentDescription = "",
+//            modifier = Modifier
+//                .padding(
+//                    start = 84.28f.pxToDp(),
+//                    top = 40.08f.pxToDp()
+//                )
+//                .size(
+//                    115.71f.pxToDp(),
+//                    37.28f.pxToDp()
+//                ))
+//    }
+//}
+
 
 @Composable
 fun BackButton(onExit: () -> Unit){
-    Box(modifier = Modifier.size(
+    Box(modifier =
+    Modifier.size(
         284f.pxToDp(),120f.pxToDp())
-        .clickable { onExit() }){
-        Image(painterResource(R.drawable.b_button),
-            contentDescription = "",
-            modifier = Modifier
-                .padding(
-                    start = 36f.pxToDp(), top = 40f.pxToDp()
+        .clickable { onExit() }
+    ){
+        Row(modifier = Modifier.fillMaxSize().padding(
+            top = 40f.pxToDp()//这里似乎太长了
+        )
+        , verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(painterResource(R.drawable.b_button),
+                contentDescription = "",
+                modifier = Modifier
+                    .padding(
+                        start = 36f.pxToDp()
+                    )
+                    .size(
+                        40f.pxToDp()
+                    ))
+//            Image(
+//                painterResource(R.drawable.b_button_text),
+//                contentDescription = "",
+//                modifier = Modifier
+//                    .padding(
+////                        start = 20.5f.pxToDp(),
+//                        start = 8f.pxToDp(),
+//                        top = 40.08f.pxToDp()
+//                    )
+//                    .size(
+//                        115.71f.pxToDp(),
+//                        37.28f.pxToDp()
+//                    ))
+            Text(
+                text = ResourceManager.getAiCabin()!!,
+//                text = "AI座舱",
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 37.getSP(),
+                    baselineShift = BaselineShift(0.08f)
+                ),
+                modifier = Modifier.padding(
+                    start = 8f.pxToDp(),
+//                    top = 40.08f.pxToDp()
                 )
-                .size(
-                    40f.pxToDp()
-                ))
-        Image(
-            painterResource(R.drawable.b_button_text),
-            contentDescription = "",
-            modifier = Modifier
-                .padding(
-                    start = 84.28f.pxToDp(),
-                    top = 40.08f.pxToDp()
-                )
-                .size(
-                    115.71f.pxToDp(),
-                    37.28f.pxToDp()
-                ))
+            )
+        }
     }
 }
 
-
+@Preview
 @Composable
 fun BackButton_(){
     BackButton({})
@@ -907,7 +963,7 @@ fun ThemeChangeButton(
             )
         }
         Text(
-            text = screenTags[tag.ordinal],
+            text =   ResourceManager.getScreenTags()[tag.ordinal]!!,
             style = TextStyle(
                 fontSize = 32.getSP(),
             ),
@@ -923,29 +979,57 @@ fun ThemeChangeButton(
     }
 }
 @Composable
+fun ThemeChangeButtonV1(
+    chosen: Boolean,
+    tag: ScreenTag,
+    onClick:(ScreenTag)->Unit={}
+){
+    Box(modifier=Modifier
+        .size(
+            height = 120.pxToDp(),
+            width = 284.pxToDp(),
+        )
+        .background(Color.Transparent)
+        .clickable(onClick = { onClick(tag) }),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        if (chosen) {
+            Image(
+                contentDescription = "",
+                painter = painterResource(R.drawable.choosen),
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text =   ResourceManager.getScreenTags()[tag.ordinal]!!,
+            style = TextStyle(
+                fontSize = 32.getSP(),
+                textAlign = TextAlign.Center
+            ),
+            color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
+            modifier = if(LocaleManager.isEn())
+            Modifier.width(250f.pxToDp()) else Modifier.padding(end = 40f.pxToDp())
+        )
+    }
+}
+@Composable
 fun ThemeChangeButtons(
     chosenTag: ScreenTag,
-    modifier: Modifier=Modifier,
     onChange:(ScreenTag)->Unit={},
     onExit: ()->Unit={}
 ){
-    Column(modifier=modifier) {
-        BackButton(onExit)
-        ThemeChangeButton(chosenTag==ScreenTag.CUS,
-            ScreenTag.CUS,
-            Modifier.padding(top = 24f.pxToDp()),
-            84.58f,
-            43.86f,
-            onChange,
-            158.56f.pxToDp(),29.82f.pxToDp()
+    Column() {
+        BackButton(onExit) 
+        Spacer(modifier = Modifier.height(24.pxToDp()))
+        ThemeChangeButtonV1(chosenTag==ScreenTag.CUS,
+            ScreenTag.CUS,onChange
         )
-        ThemeChangeButton(chosenTag==ScreenTag.INS,
-            ScreenTag.INS,Modifier.padding(top=8f.pxToDp()),
-            181.31f,
-            43.93f,
-            onChange,
-            61.54f.pxToDp()
-            ,29.66f.pxToDp())
+        Spacer(modifier = Modifier.height(8.pxToDp()))
+        ThemeChangeButtonV1(chosenTag==ScreenTag.INS,
+            ScreenTag.INS,onChange
+        )
+        Text(text = LocaleManager.getLanguage(), color = Color.White)
     }
 }
 

@@ -33,4 +33,8 @@ object LocaleManager {
 
         context.createConfigurationContext(config)
     }
+
+    fun isEn():Boolean{
+        return getLanguage()=="en"
+    }
 }
