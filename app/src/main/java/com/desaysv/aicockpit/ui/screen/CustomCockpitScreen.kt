@@ -474,22 +474,6 @@ fun SoundList_(){
     }
 }
 
-/**
- * SoundListWithMarqueeEffect
- */
-@Composable
-fun SoundListWithMarqueeEffect(){
-
-}
-
-/**
- * ElectricityList 跑马灯效果
- */
-@Composable
-fun ElectricityListWithMarqueeEffect(){
-
-}
-
 
 /**
  * LightColorSlider

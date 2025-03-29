@@ -37,11 +37,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
+import java.io.File
 
 
 @Composable
@@ -273,7 +275,8 @@ fun InfiniteScalingImageList(
 @Composable
 fun InfiniteScalingImageList_Sound(
     onThemeChosen:(Int)->Unit,
-    soundItemDataList: List<SoundItemData>
+    soundItemDataList: List<SoundItemData>,
+    usingLocalPath:Boolean=false
 ) {
     val loopCount = 1000 // 复制列表次数，确保足够的数据
     val infiniteImages = List(loopCount) { soundItemDataList }.flatten() // 拼接成大列表
@@ -309,7 +312,13 @@ fun InfiniteScalingImageList_Sound(
             val alpha = (1.0f - relativeIndex * 0.15f).coerceIn(0.3f, 1.0f)
             Box(){
 
-                Image(painter = painterResource(imageRes.imgId),
+                val painter = if (imageRes.imgPath != null) {
+                    rememberAsyncImagePainter(File(imageRes.imgPath))
+                } else {
+                    painterResource(id = imageRes.imgId ?: android.R.drawable.ic_menu_gallery)
+                }
+
+                Image(painter = painter,
                     contentDescription = "",
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
@@ -322,7 +331,8 @@ fun InfiniteScalingImageList_Sound(
                 )
 
                 Text(
-                    text = imageRes.soundName,
+//                    text = imageRes.soundName,
+                    text = imageRes.imgPath,
                     style = TextStyle(
                     fontSize = 30.getSP(),
                         color = Color.White
