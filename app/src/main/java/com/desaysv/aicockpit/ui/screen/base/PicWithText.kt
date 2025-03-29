@@ -127,8 +127,13 @@ fun RegularButton(@DrawableRes bg:Int,text:String, textSp:Int=24,w:Int=340,h:Int
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
         )
+//
+//        Text(text = ResourceManager.getSave()!!,//改成text
+//            fontSize = textSp.getSP(),
+//            color = Color.White
+//        )
 
-        Text(text = ResourceManager.getSave()!!,
+        Text(text = text,
             fontSize = textSp.getSP(),
             color = Color.White
         )

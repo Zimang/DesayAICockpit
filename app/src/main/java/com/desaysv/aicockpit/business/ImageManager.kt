@@ -4,11 +4,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Environment
 import androidx.core.content.ContextCompat
+import com.desaysv.aicockpit.utils.Log
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 
 object ImageConstants {
-    const val DEFAULT_PATH = "/storage/emulated/0/pics"
+//    var DEFAULT_PATH = Environment.getExternalStorageDirectory().path+ "/pics"
+    var DEFAULT_PATH = "/data/data/com.desaysv.aicockpit/files/defImg"
     const val ACTION_REQUEST_THEME = "com.desaysv.AI_Cockpit.MY_ACTION"
     const val ACTION_RECEIVE_THEME = "com.desaysv.ip.MY_ACTION"
     const val KEY_AI_PATH = "ai_path"
@@ -16,17 +20,22 @@ object ImageConstants {
 }
 
 object ImageManager {
-    private var isRequesting = false
     private var broadcastReceiver: BroadcastReceiver? = null
+
+    suspend fun loadThemeImagesSuspend(context: Context): List<String> = suspendCancellableCoroutine { cont ->
+        loadThemeImages(context) { images ->
+            if (cont.isActive) cont.resume(images, null)
+        }
+    }
 
     fun loadThemeImages(context: Context, onResult: (List<String>) -> Unit) {
         val defaultPath = ImageConstants.DEFAULT_PATH
+        Log.d("debugman",defaultPath)
         val images = getLocalImagesFromPath(defaultPath)
-
+        Log.d("debugman",images.toString())
         if (images.isNotEmpty()) {
             onResult(images)
-        } else if (!isRequesting) {
-            isRequesting = true
+        } else {
             sendThemeRequestBroadcast(context)
             registerThemeReceiver(context, onResult)
         }
@@ -34,9 +43,10 @@ object ImageManager {
 
     fun getLocalImagesFromPath(path: String): List<String> {
         val dir = File(path)
+        Log.d("",dir.path)
         return dir.listFiles { file ->
-//            file.extension.lowercase() in listOf("jpg", "png", "webp") 可以拓展
-            file.extension.lowercase() =="png"
+            file.extension.lowercase() in listOf("png", "jpg", "jpeg", "webp")
+
         }?.map { it.absolutePath } ?: emptyList()
     }
 
@@ -55,7 +65,6 @@ object ImageManager {
                     onResult(result)
                     context.unregisterReceiver(this)
                     broadcastReceiver = null
-                    isRequesting = false
                 }
             }
         }
@@ -63,7 +72,31 @@ object ImageManager {
             context,
             broadcastReceiver,
             IntentFilter(ImageConstants.ACTION_RECEIVE_THEME),
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_EXPORTED
         )
     }
+
+    // 新增：被动接收广播后的注册，当被动接收到指定广播时，直接把文件夹路径传给回调
+    fun registerPassiveReceiver(context: Context, onBroadcast: (String) -> Unit) {
+        // 如果需要，避免重复注册，可设置单例或标记
+        val passiveReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                Log.d("get"+intent.action)
+                if (intent.action == ImageConstants.ACTION_RECEIVE_THEME) {
+                    val path = intent.getStringExtra(ImageConstants.KEY_AI_PATH)
+                    if (!path.isNullOrEmpty()) {
+                        onBroadcast(path)
+                    }
+//                    context.unregisterReceiver(this)
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            context,
+            passiveReceiver,
+            IntentFilter(ImageConstants.ACTION_RECEIVE_THEME),
+            ContextCompat.RECEIVER_EXPORTED
+        )
+    }
+
 }

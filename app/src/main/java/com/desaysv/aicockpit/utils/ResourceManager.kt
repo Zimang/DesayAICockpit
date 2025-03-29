@@ -2,9 +2,37 @@ package com.desaysv.aicockpit.utils
 
 import android.content.Context
 import com.desaysv.aicockpit.R
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.ref.WeakReference
 
 object ResourceManager {
+    fun copyAssetsImagesToDefImgDir(context: Context) {
+        val assetManager = context.assets
+        val defImgDir = File(context.filesDir, "defImg") // ← 改这里
+
+        if (!defImgDir.exists()) {
+            defImgDir.mkdirs()
+        }
+
+//        val imageList = assetManager.list("images") ?: return // assets/images/
+
+        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png",  "b_4_h.png")
+
+
+        for (filename in imageList) {
+            val targetFile = File(defImgDir, filename)
+
+            if (!targetFile.exists()) {
+                assetManager.open("images/$filename").use { input ->
+                    FileOutputStream(targetFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        }
+    }
+
 
     private var contextRef: WeakReference<Context>? = null //避免内存泄露
 
