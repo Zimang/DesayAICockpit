@@ -1,6 +1,7 @@
 package com.desaysv.aicockpit.ui.screen
 
 import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -23,9 +24,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,19 +50,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
-import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_Sound
-import com.desaysv.aicockpit.ui.screen.base.PicWithPic
+import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_SoundV1
 import com.desaysv.aicockpit.ui.screen.base.PicWithText
 import com.desaysv.aicockpit.ui.theme.Choosen
 import com.desaysv.aicockpit.utils.LocaleManager
@@ -67,23 +68,13 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
+import com.desaysv.aicockpit.viewmodel.SoundViewModel
+import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import kotlinx.coroutines.launch
 
 
 /**
  *  AI座舱屏幕
- *  TODO 仪表盘&生成我的座舱按钮
- *  TODO 声
- *  声- 图像列表
- *  TODO 声- 移动跑马灯
- *  TODO 光
- *  TODO 光- 颜色滑块
- *  TODO 光- 颜色托盘
- *  TODO 光- 选色器
- *  TODO 电
- *  TODO 电- 图片文字项
- *  TODO 电- 图像列表
- *  TODO 电- 图片跑马灯
  *  声光电选择按钮
  *
  */
@@ -101,12 +92,8 @@ enum class SoundLightElectricityTag{
 enum class ScreenTag{
     INS,CUS,SAVE
 }
-//val tags= listOf("声","光","电")
-//val tags= listOf(
-//    stringResource(R.string.sound),
-//    "光",
-//    "电"
-//)
+
+
 val screenTags= listOf("灵感","个性化座舱","保存")
 val tElectricityPics= listOf("el_1.png","el_2.png","el_2.png")
 val tElectricityName= listOf("默认主题","梦幻XXX","梦幻XXX")
@@ -128,49 +115,6 @@ val soundItemDataList = List(tSoundPics.size) { index ->
         imgId = tSoundImgId[index],
         imgPath = "no_path"
     )
-}
-/**
- * Sound Light Electricity Selection Button
- */
-@Composable
-fun SoundLightElectricitySelectionButton(
-    tag:SoundLightElectricityTag,
-    chosen:Boolean,
-    modifier: Modifier
-){
-
-    val tags = ResourceManager.getTags()
-    Box(modifier=modifier
-        .size(
-            height = 120.pxToDp(),
-            width = 284.pxToDp(),
-        )
-        .background(Color.Transparent),
-        contentAlignment = Alignment.CenterStart) {
-        if (chosen) {
-            Image(
-                contentDescription = "",
-                painter = painterResource(R.drawable.choosen),
-                contentScale = ContentScale.FillBounds,
-                modifier = modifier.fillMaxSize())
-        }
-
-        Text(
-            text = tags[tag.ordinal]!!,
-            style = TextStyle(
-                fontSize = 32.getSP(),
-//                baselineShift = BaselineShift(0.2f), //这个参数还蛮有用的
-//                textAlign = TextAlign.Center
-            ),
-            color = if (chosen) colorResource(R.color.choosen)  else colorResource(R.color.n_choosen),
-            modifier = modifier
-                .padding(
-//                    top = 44.06f.pxToDp(),
-                    start = 212.pxToDp())
-//                .size(width = 29.66f.pxToDp(), height = 28.83f.pxToDp())
-
-        )
-    }
 }
 /**
  * Sound Light Electricity Selection Button
@@ -212,44 +156,6 @@ fun SoundLightElectricitySelectionButtonV1(
 }
 
 
-@Preview
-@Composable
-fun SoundLightElectricitySelectionButton_(){
-    Column {
-        for (tag in SoundLightElectricityTag.entries){
-            SoundLightElectricitySelectionButton(tag,false,Modifier)
-        }
-
-    }
-}
-
-/**
- * Sound Light Electricity Selection Buttons
- */
-@Composable
-fun SoundLightElectricitySelectionButtons(
-    chosenTag: SoundLightElectricityTag,
-    onTagChosen: (SoundLightElectricityTag)->Unit,
-    modifier: Modifier
-){
-
-    Column(modifier=modifier) {
-        SoundLightElectricitySelectionButton(SoundLightElectricityTag.SOUND,
-            SoundLightElectricityTag.SOUND==chosenTag,Modifier.clickable {
-                onTagChosen(SoundLightElectricityTag.SOUND)
-            })
-        SoundLightElectricitySelectionButton(SoundLightElectricityTag.LIGHT,
-            SoundLightElectricityTag.LIGHT==chosenTag,Modifier.clickable {
-                onTagChosen(SoundLightElectricityTag.LIGHT)
-            })
-        SoundLightElectricitySelectionButton(SoundLightElectricityTag.ELECTRICITY,
-            SoundLightElectricityTag.ELECTRICITY==chosenTag,Modifier.clickable {
-                onTagChosen(SoundLightElectricityTag.ELECTRICITY)
-            })
-
-    }
-}
-
 /**
  * Sound Light Electricity Selection Buttons
  */
@@ -277,16 +183,6 @@ fun SoundLightElectricitySelectionButtonsV1(
                 onTagChosen(SoundLightElectricityTag.ELECTRICITY)
             }
     }
-}
-
-/**
- * Sound Light Electricity Selection Buttons
- */
-@Preview(showBackground = true, backgroundColor = 0xff000000)
-@Composable
-fun SoundLightElectricitySelectionButtons_(){
-    var chosenTag by rememberSaveable{ mutableStateOf(SoundLightElectricityTag.SOUND) }
-    SoundLightElectricitySelectionButtons(chosenTag,{chosenTag=it},Modifier)
 }
 
 /**
@@ -321,20 +217,6 @@ fun ElectricityItem(
         )
     }
 }
-/**
- * ElectricityItem
- */
-@Preview(showBackground = true, backgroundColor = 0xff000000)
-@Composable
-fun ElectricityItem_(){
-
-    ElectricityItem(
-        electricityItemDataList[0].imgId,
-        electricityItemDataList[0].themeName,
-        true,
-        modifier = Modifier)
-}
-
 
 /**
  * ElectricityList
@@ -349,8 +231,6 @@ fun ElectricityList(
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(64.pxToDp()),
         modifier = modifier
-//            .size(1516.pxToDp(),472.pxToDp()) //1044+472=1516
-//            .padding(start = 2324.pxToDp(),top=120.pxToDp())
     ) {
         itemsIndexed(electricityItemDataList){index,electItem->
             ElectricityItem(electItem.imgId
@@ -384,115 +264,43 @@ fun ElectricityList_(){
             electricityItemDataList,
             electricityItemDataList[0],
             Modifier)
-//                .padding(top = 120.pxToDp()
-//                , bottom = 128.pxToDp()
-//                , start = 2324.pxToDp()))
     }
-//    Text(1286.pxToDpNum().toString(), color = Color.White) //468
     Text(1236.pxToDpNum().toString(), color = Color.White) //468
-//    Text(1516.pxToDpNum().toString()) //423
-//    Text(720.pxToDpNum().toString()) //262
-//    Text(3840.pxToDpNum().toString()) //1396
-//    Text(1636.pxToDpNum().toString()) //595
+
 }
 
-
 /**
- * SoundItem
+ * todo 需要接入数据库数据而非自定义数据
  */
 @Composable
-fun SoundItem(
-    soundItemData: SoundItemData,
-    modifier: Modifier
-){
-    PicWithText(
-        imgPath =  soundItemData.imgId,
-        text =  soundItemData.soundName,
-        tStyle = TextStyle(
-//            fontSize = 30.getSP(),
-            color = Color.White
-        ),
-        pSize =  Pair(342.pxToDp(),456.pxToDp()),
-        tPadding = Pair(24.72f.pxToDp(),407.77f.pxToDp()),
-        modifier = modifier
+fun SoundList_(viewModel: SoundViewModel) {
 
-    )
-}
-/**
- * SoundItem
- */
-@Preview(showBackground = true,
-    backgroundColor = 0xff000000
-)
-@Composable
-fun SoundItem_( ){
-    SoundItem(soundItemDataList[0],Modifier)
-}
-/**
- * SoundList
- */
-@Composable
-fun SoundList(
-    soundItemDataList: List<SoundItemData>,
-    onThemeChosen:(Int)->Unit,
-    modifier: Modifier){
+    val context = LocalContext.current
+    val isLoading = viewModel.isLoading
+    val soundItems = viewModel.soundItems
 
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(120.pxToDp()),
-        modifier = modifier
-//            .size(1516.pxToDp(),472.pxToDp()) //1044+472=1516
-//            .padding(start = 2324.pxToDp(),top=120.pxToDp())
+    LaunchedEffect(Unit) {
+        viewModel.startLoadingData(context)
+        // 注册被动广播接收器，等待外部广播传递新路径
+        viewModel.registerPassiveBroadcast(context)
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(start = 120.pxToDp(), top = 120.pxToDp())
     ) {
-        itemsIndexed(soundItemDataList){ index, electItem->
-            SoundItem(electItem
-                ,modifier=modifier.clickable {
-                    onThemeChosen(index)
-                }
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
+            InfiniteScalingImageList_SoundV1(
+                onThemeChosen = {},
+                soundItemDataList = soundItems
             )
         }
     }
-
-
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 595,
-    heightDp = 262
-)
-@Composable
-fun SoundList_(){
-
-    Box(Modifier
-        .fillMaxSize()
-        .padding(start = 120.pxToDp(), top = 120.pxToDp())
-//        ,contentAlignment = Alignment.TopStart
-    ){
-//        SoundList(soundItemDataList,{},Modifier)
-        InfiniteScalingImageList_Sound(onThemeChosen = {}, soundItemDataList)
-    }
-}
-
-
-/**
- * LightColorSlider
- */
-@Composable
-fun LightColorSlider(
-    modifier: Modifier = Modifier,
-    onHueChanged: (Float) -> Unit){
-    FullHueVerticalSlider(modifier,onHueChanged)
-
-}
-
-@Preview(showBackground = true,
-    heightDp = 200
-)
-@Composable
-fun FullHueVerticalSlider_() {
-    FullHueVerticalSlider(Modifier.padding(top = 20f.pxToDp()),{})
-}
 
 @Composable
 fun FullHueVerticalSlider(
@@ -702,28 +510,6 @@ fun LightPart_(){
 }
 
 
-/**
- * LightColorPicker
- */
-@Composable
-fun LightColorPicker(){
-
-}
-
-/**
- * final screen
- */
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 1396,
-    heightDp = 262
-)
-@Composable
-fun FinalScreen(){
-    CustomScreen()
-}
-
 
 /**
  * 自定义座舱屏幕
@@ -732,7 +518,16 @@ fun FinalScreen(){
 fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
 
 
+    val context = LocalContext.current
+    val soundViewModel = remember {
+        val app = context.applicationContext as MyApplication
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = SoundViewModelFactory(app.soundRepository)
+        )[SoundViewModel::class.java]
+    }
 
+//    val sounds by soundViewModel._soundItems.collectAsState(initial = emptyList())
 
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
@@ -758,7 +553,7 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundList_()
+                        SoundList_(soundViewModel)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart_()
@@ -853,7 +648,6 @@ fun BigPanelV1(
                     bottom = 612.34f.pxToDp()
                 )
         )
-
     }
 }
 
@@ -892,7 +686,6 @@ fun BackButton(onExit: () -> Unit){
                     ))
             Text(
                 text = ResourceManager.getAiCabin()!!,
-//                text = "AI座舱",
                 style = TextStyle(
                     color = Color.White,
                     fontSize = 37.getSP(),
@@ -900,7 +693,6 @@ fun BackButton(onExit: () -> Unit){
                 ),
                 modifier = Modifier.padding(
                     start = 8f.pxToDp(),
-//                    top = 40.08f.pxToDp()
                 )
             )
         }
@@ -964,7 +756,6 @@ fun ThemeChangeButtons(
         ThemeChangeButtonV1(chosenTag==ScreenTag.INS,
             ScreenTag.INS,onChange
         )
-//        Text(text = LocaleManager.getLanguage(), color = Color.White)
     }
 }
 

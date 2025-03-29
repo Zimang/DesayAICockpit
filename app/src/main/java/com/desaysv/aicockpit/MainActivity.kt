@@ -6,9 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.desaysv.aicockpit.business.navigate.MainNavigation
+import com.desaysv.aicockpit.ui.component.AppPermissionGate
 import com.desaysv.aicockpit.ui.theme.DesayAICockpitTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,14 +48,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DesayAICockpitTheme {
-
-//                MyText()
-                MainNavigation()
-                //测试数据流
-//                ProjectListScreen()
+                AppPermissionGate({}) {
+                    MainNavigation()
+                }
             }
         }
         printScreenScaleParams(this)
+
+
+
     }
 }
 

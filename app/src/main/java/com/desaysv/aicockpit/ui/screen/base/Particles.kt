@@ -208,8 +208,6 @@ fun PreviewInfiniteCarouselC() {
 
 
 
-
-//TODO mature
 @Preview(
     backgroundColor = 0xff000000,showBackground = true,
     widthDp = 700
@@ -333,6 +331,81 @@ fun InfiniteScalingImageList_Sound(
                 Text(
 //                    text = imageRes.soundName,
                     text = imageRes.imgPath,
+                    style = TextStyle(
+                    fontSize = 30.getSP(),
+                        color = Color.White
+                    ),
+                    modifier=Modifier.padding(
+                        start =24.72f.pxToDp(),
+                        top = 407.77f.pxToDp()
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun InfiniteScalingImageList_SoundV1(
+    onThemeChosen:(Int)->Unit,
+    soundItemDataList: List<SoundItemData>,
+    usingLocalPath:Boolean=false
+) {
+    val loopCount = 1000 // 复制列表次数，确保足够的数据
+    val infiniteImages = List(loopCount) { soundItemDataList }.flatten() // 拼接成大列表
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = soundItemDataList.size)
+
+    LaunchedEffect(listState.firstVisibleItemIndex) {
+        val totalSize = infiniteImages.size
+        val realSize = soundItemDataList.size
+
+        if (listState.firstVisibleItemIndex < realSize) {
+            listState.scrollToItem(realSize * (loopCount / 2)) // 回到中间部分
+        } else if (listState.firstVisibleItemIndex >= totalSize - realSize) {
+            listState.scrollToItem(realSize * (loopCount / 2)) // 回到中间部分
+        }
+    }
+
+    LazyRow(
+        state = listState,
+//        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(120f.pxToDp())
+    ) {
+        itemsIndexed(infiniteImages) { index, imageRes ->
+            val realIndex = index % soundItemDataList.size
+            val firstVisibleItemIndex = listState.firstVisibleItemIndex
+            val relativeIndex = realIndex - (firstVisibleItemIndex % soundItemDataList.size)
+
+            val scaleFactor = if (relativeIndex < 0) {
+                1.0f
+            } else {
+                (1.0f - (relativeIndex * relativeIndex) * 0.07f).coerceIn(0.7f, 1.0f)
+            }
+
+            val alpha = (1.0f - relativeIndex * 0.15f).coerceIn(0.3f, 1.0f)
+            Box(){
+
+                val painter = if (imageRes.imgPath != null) {
+                    rememberAsyncImagePainter(File(imageRes.imgPath))
+                } else {
+                    painterResource(id = imageRes.imgId ?: android.R.drawable.ic_menu_gallery)
+                }
+
+                Image(painter = painter,
+                    contentDescription = "",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .size(342.pxToDp(),456.pxToDp())
+                        .graphicsLayer(
+                            scaleX = scaleFactor,
+                            scaleY = scaleFactor,
+                            alpha = alpha
+                        )
+                )
+
+                Text(
+                    text = imageRes.soundName,
+//                    text = imageRes.imgPath,
                     style = TextStyle(
                     fontSize = 30.getSP(),
                         color = Color.White
