@@ -26,6 +26,8 @@ class SoundRepository(
     private val _dataUpdated = MutableSharedFlow<Unit>(replay = 0)
     val dataUpdated: SharedFlow<Unit> = _dataUpdated
 
+    //封装的行为
+    //hai
     suspend fun tryUpdateData(context: Context): Boolean {
         val broadcastSuccess = updateFromBroadcastPath(context)
         if (broadcastSuccess) return true
@@ -36,7 +38,8 @@ class SoundRepository(
         return getAllSounds().isNotEmpty()
     }
 
-    //主动请求后接收并处理处理
+    //主动请求后接收并处理广播接收的指定路径下的图片
+    //等待时间是1.5s
     private suspend fun updateFromBroadcastPath(context: Context): Boolean {
         val completable = CompletableDeferred<List<String>>()
 
@@ -58,6 +61,7 @@ class SoundRepository(
         } else false
     }
 
+    //从默认文件夹读取文件，写入数据库
     private suspend fun updateFromDefaultPath(): Boolean {
         val images = ImageManager.getLocalImagesFromPath(ImageConstants.DEFAULT_PATH)
         return if (images.isNotEmpty()) {
@@ -66,6 +70,7 @@ class SoundRepository(
         } else false
     }
 
+    //写入数据到数据库
     private suspend fun saveSoundItems(paths: List<String>) {
         val soundItems = paths.map { path ->
             SoundItemData(

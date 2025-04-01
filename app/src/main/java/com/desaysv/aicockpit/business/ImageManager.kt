@@ -23,11 +23,6 @@ object ImageConstants {
 object ImageManager {
     private var broadcastReceiver: BroadcastReceiver? = null
 
-    suspend fun loadThemeImagesSuspend(context: Context): List<String> = suspendCancellableCoroutine { cont ->
-        loadThemeImages(context) { images ->
-            if (cont.isActive) cont.resume(images, null)
-        }
-    }
 
     fun loadThemeImages(context: Context, onResult: (List<String>) -> Unit) {
         val defaultPath = ImageConstants.DEFAULT_PATH
@@ -37,8 +32,8 @@ object ImageManager {
         if (images.isNotEmpty()) {
             onResult(images)
         } else {
-            sendThemeRequestBroadcast(context)
             registerThemeReceiver(context, onResult)
+            sendThemeRequestBroadcast(context)
         }
     }
 

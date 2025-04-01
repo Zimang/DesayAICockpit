@@ -61,6 +61,7 @@ import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_SoundV1
+import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_SoundV2
 import com.desaysv.aicockpit.ui.screen.base.PicWithText
 import com.desaysv.aicockpit.ui.theme.Choosen
 import com.desaysv.aicockpit.utils.LocaleManager
@@ -293,7 +294,11 @@ fun SoundList_(viewModel: SoundViewModel) {
         if (isLoading) {
             CircularProgressIndicator()
         } else {
-            InfiniteScalingImageList_SoundV1(
+//            InfiniteScalingImageList_SoundV1(
+//                onThemeChosen = {},
+//                soundItemDataList = soundItems
+//            )
+            InfiniteScalingImageList_SoundV2(
                 onThemeChosen = {},
                 soundItemDataList = soundItems
             )
@@ -304,23 +309,18 @@ fun SoundList_(viewModel: SoundViewModel) {
 
 @Composable
 fun FullHueVerticalSlider(
+    hue:Float,
     modifier: Modifier = Modifier,
     onHueChanged: (Float) -> Unit
 ) {
     val trackHeight = 480f.pxToDp()
     val allHeight = 500.pxToDp()
-    var progress by remember { mutableFloatStateOf(0f) }
-
-    // 计算色相（0°-360°）
-    val hue = (progress * 360f).coerceIn(0f, 360f)
+    var progress =(hue / 360f).coerceIn(0f, 1f) //hue映射为滑块进度
+    var containerHeight by remember { mutableStateOf(0f) } //拖拽范围
 
     // HSV 转颜色（饱和度=1，明度=1）
     val currentColor = Color.hsv(hue, 1f, 1f)
 
-    // 实时回调色相变化
-    LaunchedEffect(hue) {
-        onHueChanged(hue)
-    }
     Box(
         modifier = modifier
             .height(allHeight)
@@ -328,9 +328,15 @@ fun FullHueVerticalSlider(
             .padding(2f.pxToDp())
             .pointerInput(Unit) {
                 detectVerticalDragGestures { change, _ ->
-                    val y = change.position.y.coerceIn(0f, size.height.toFloat())
-                    progress = y / size.height // 直接映射 Y 轴位置到 0-1
+                    if (containerHeight > 0) {
+                        val y = change.position.y.coerceIn(0f, containerHeight)
+                        val newProgress = y / containerHeight
+                        val newHue = (newProgress * 360f).coerceIn(0f, 360f)
+                        onHueChanged(newHue)
+                    }
                 }
+            }.onSizeChanged {
+                containerHeight=it.height.toFloat()
             }
     ){
 
@@ -464,7 +470,7 @@ fun LightPart(modifier: Modifier=Modifier){
         bottom = 120f.pxToDp(),
         end =120f.pxToDp()
     )) {
-        FullHueVerticalSlider(onHueChanged = {hue=it})
+        FullHueVerticalSlider(hue = hue, onHueChanged = {hue=it})
         SaturationSelector(
             hue = hue,
             selectedSaturation = selectedSaturation,
@@ -516,7 +522,7 @@ fun LightPart(modifier: Modifier=Modifier){
                 )
                 .size(220f.pxToDp(), 102f.pxToDp())
                 .clickable {
-                    hue = 0f
+//                    hue = 0f
                     selectedSaturation = 0f
                 })
         }
@@ -559,19 +565,21 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
             ThemeChangeButtons_(onChange=onChange)
         }
         Box(modifier = Modifier
-            .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())){
+            .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())
+//            .background(Color.White)
+        ){
             Row(modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 143f.pxToDp())){
+//                .align(Alignment.CenterEnd)
+                .padding(end = 143f.pxToDp(), start =207f.pxToDp())
+//                .background(Color.Red)
+            ){
                 BigPanelV1(onChange)
-//                BigPanel(onChange, modifier = Modifier)
             }
         }
-        Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())){
+        Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())
+//            .background(Color.Blue)
+        ){
             Row {
-//                SoundLightElectricitySelectionButtons(
-//                    tag,{tag=it}, modifier = Modifier.padding(top = 120f.pxToDp())
-//                )
                 SoundLightElectricitySelectionButtonsV1(tag){
                     tag=it
                 }
