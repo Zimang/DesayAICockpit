@@ -28,7 +28,7 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ResourceManager.copyAssetsImagesToDefImgDir(this)
+        ResourceManager.copyAssetsImagesToSharedPictures(this)
         LocaleManager.init(this)
         ResourceManager.init(this)
         // 启动时检查默认主题

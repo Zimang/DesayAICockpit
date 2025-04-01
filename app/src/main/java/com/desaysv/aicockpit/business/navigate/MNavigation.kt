@@ -7,12 +7,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,6 +33,16 @@ sealed class Route(val route: String) {
     object Exit : Route("exit")
 }
 val TAG="TEST"
+
+@Composable
+fun rememberNavControllerCurrentRoute(navController: NavHostController): String? {
+    return remember(navController) {
+        derivedStateOf {
+            navController.currentBackStackEntry?.destination?.route
+        }
+    }.value
+}
+
 @Composable
 fun MainNavigation() {
     val context = LocalContext.current

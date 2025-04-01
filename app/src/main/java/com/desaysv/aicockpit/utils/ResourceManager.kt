@@ -1,9 +1,13 @@
 package com.desaysv.aicockpit.utils
 
+import android.content.ContentValues
 import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
 import com.desaysv.aicockpit.R
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.ref.WeakReference
 
 object ResourceManager {
@@ -28,6 +32,36 @@ object ResourceManager {
                     FileOutputStream(targetFile).use { output ->
                         input.copyTo(output)
                     }
+                }
+            }
+        }
+    }
+
+    fun copyAssetsImagesToSharedPictures(context: Context) {
+        val assetManager = context.assets
+        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png")
+
+        val resolver = context.contentResolver
+
+        for (filename in imageList) {
+            val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit" // 可以改成你项目名
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
+            }
+
+            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+            if (uri != null) {
+                try {
+                    assetManager.open("images/$filename").use { inputStream ->
+                        resolver.openOutputStream(uri)?.use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
                 }
             }
         }

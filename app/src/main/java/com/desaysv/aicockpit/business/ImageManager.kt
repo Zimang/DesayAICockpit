@@ -12,7 +12,8 @@ import java.io.File
 
 object ImageConstants {
 //    var DEFAULT_PATH = Environment.getExternalStorageDirectory().path+ "/pics"
-    var DEFAULT_PATH = "/data/data/com.desaysv.aicockpit/files/defImg"
+//    var DEFAULT_PATH = "/data/data/com.desaysv.aicockpit/files/defImg"
+    var DEFAULT_PATH = "/sdcard/Pictures/aicockpit"
     const val ACTION_REQUEST_THEME = "com.desaysv.AI_Cockpit.MY_ACTION"
     const val ACTION_RECEIVE_THEME = "com.desaysv.ip.MY_ACTION"
     const val KEY_AI_PATH = "ai_path"
