@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.desaysv.aicockpit.business.navigate.MainNavigation
-import com.desaysv.aicockpit.demo.BroadcastFlowScreen
 import com.desaysv.aicockpit.ui.component.AppPermissionGate
 import com.desaysv.aicockpit.ui.theme.DesayAICockpitTheme
 
@@ -53,7 +52,6 @@ class MainActivity : ComponentActivity() {
                     MainNavigation()
                 }
 
-//                BroadcastFlowScreen()
 
             }
         }

@@ -16,18 +16,19 @@ class ThemeItemViewModelV2(
     private val useCase: ResourceUseCase<ThemeItemData> =WujiThemeUseCaseImpl(repository)
 ) : ViewModel() {
 
-    private val _themes = MutableStateFlow<List<ThemeItemData>>(emptyList())
-    val themes: StateFlow<List<ThemeItemData>> = _themes
+//    private val _themes = MutableStateFlow<List<ThemeItemData>>(emptyList())
+//    val themes: StateFlow<List<ThemeItemData>> = _themes
+    val themes=repository.allThemes
 
     init {
         useCase.load()
         useCase.observe()
 
-        viewModelScope.launch {
-            useCase.flow.collect { theme ->
-                _themes.update { it + theme }
-            }
-        }
+//        viewModelScope.launch {
+//            useCase.flow.collect { theme ->
+//                _themes.update { it + theme }
+//            }
+//        }
     }
 
     override fun onCleared() {
