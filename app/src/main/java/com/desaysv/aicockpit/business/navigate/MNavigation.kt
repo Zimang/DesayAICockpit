@@ -1,6 +1,8 @@
 package com.desaysv.aicockpit.business.navigate
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -8,7 +10,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +52,12 @@ fun rememberNavControllerCurrentRoute(navController: NavHostController): String?
 
 @Composable
 fun MainNavigation() {
+
+    //十分糟糕，我的将hue上升到这里
+
+    var hue by remember { mutableStateOf(0f) }
+    var saturation by remember { mutableStateOf(0.5f) }
+
     val context = LocalContext.current
     val app = context.applicationContext as MyApplication
     val navController = rememberNavController()
@@ -82,9 +93,14 @@ fun MainNavigation() {
 //                .padding(start = 284.pxToDp()) // 为左侧导航栏留出空间
                 .fillMaxSize()
         ) {
-            composable(Route.ScreenCUS.route) { CustomScreen({ navigateByTag(it,navController) }) }
+            composable(Route.ScreenCUS.route) { CustomScreen(hue = hue,
+                                        onHueChanged = { hue = it },
+                                saturation = saturation,
+                onSaturationChanged = { saturation = it },{ navigateByTag(it,navController) }) }
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },themeViewModel) }
-            composable(Route.ScreenSAVE.route) { SaveScreen(themeViewModel, onExit = {navController.navigateUp()}) }
+            composable(Route.ScreenSAVE.route) { SaveScreen({
+                sendColor(context,hue, saturation)
+            }, themeViewModel, onExit = {navController.navigateUp()}) }
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }
@@ -98,6 +114,28 @@ private fun navigateByTag(screenTag: ScreenTag,naviController: NavController){
         ScreenTag.SAVE -> navigateToSave(naviController)
     }
 }
+
+fun hsvToColorInt(hue: Float, saturation: Float, value: Float = 1f): Int {
+    val hsv = floatArrayOf(hue, saturation, value)
+    return android.graphics.Color.HSVToColor(hsv)
+}
+
+
+private fun sendColor(ctx : Context, hue:Float, saturation:Float){
+    val colorInt = hsvToColorInt(hue,saturation)
+    val hex = String.format("#%06X", 0xFFFFFF and colorInt)
+
+    // ✅ 发送广播
+    val intent = Intent("ACTION_CABIN_LIGHTING").apply {
+        `package` = "com.desaysv.sceneengine"
+        putExtra("data", hex)
+    }
+    ctx.sendBroadcast(intent)
+
+    Log.d("LightScreen", "广播已发送，RGB = $hex")
+
+}
+
 
 // 导航逻辑封装
 private fun navigateToIns(navController: NavController) {
@@ -114,7 +152,7 @@ private fun navigateToCUS(navController: NavController) {
     }
 }
 
-private fun navigateToSave(navController: NavController) {
+private fun navigateToSave(navController: NavController,) {
     navController.navigate(Route.ScreenSAVE.route) {
         launchSingleTop = true
         popUpTo(Route.ScreenSAVE.route) { inclusive = false }

@@ -459,84 +459,139 @@ fun SaturationSelector(
         )
     }
 }
+//
+//@Composable
+//fun LightPart(
+//    modifier: Modifier=Modifier
+//){
+//
+//    var hue by remember { mutableStateOf(0f) }
+//    var selectedSaturation by remember { mutableStateOf(0.5f) }
+//
+//    Row(modifier = modifier.padding(
+//        top = 120f.pxToDp(),
+//        bottom = 120f.pxToDp(),
+//        end =120f.pxToDp()
+//    )) {
+//        FullHueVerticalSlider(hue = hue, onHueChanged = {hue=it})
+//        SaturationSelector(
+//            hue = hue,
+//            selectedSaturation = selectedSaturation,
+//            onSaturationSelected = { selectedSaturation = it },
+//            modifier = Modifier
+//                .padding(start = 80f.pxToDp())
+//                .size(992f.pxToDp(), 480f.pxToDp())
+//        )
+//        Column(verticalArrangement = Arrangement.spacedBy(24f.pxToDp()),
+//            modifier = Modifier.padding(start = 24f.pxToDp())) {
+//            Box(modifier = Modifier
+//                .background(
+//                    colorResource(R.color.cp_red),
+//                    shape = RectangleShape
+//                )
+//                .size(220f.pxToDp(), 102f.pxToDp())
+//                .clickable {
+//                    hue = 0f
+//                    selectedSaturation = 1f
+//                }
+//            )
+//
+//            Box(modifier = Modifier
+//                .background(
+//                    colorResource(R.color.cp_blue),
+//                    shape = RectangleShape
+//                )
+//                .size(220f.pxToDp(), 102f.pxToDp())
+//                .clickable {
+//                    hue = 240f
+//                    selectedSaturation = 1f
+//                })
+//
+//            Box(modifier = Modifier
+//                .background(
+//                    colorResource(R.color.cp_green),
+//                    shape = RectangleShape
+//                )
+//                .size(220f.pxToDp(), 102f.pxToDp())
+//                .clickable {
+//                    hue = 120f
+//                    selectedSaturation = 1f
+//                })
+//
+//            Box(modifier = Modifier
+//                .background(
+//                    colorResource(R.color.cp_white),
+//                    shape = RectangleShape
+//                )
+//                .size(220f.pxToDp(), 102f.pxToDp())
+//                .clickable {
+////                    hue = 0f
+//                    selectedSaturation = 0f
+//                })
+//        }
+//    }
+//}
+
+
 @Composable
-fun LightPart(modifier: Modifier=Modifier){
-
-    var hue by remember { mutableStateOf(0f) }
-    var selectedSaturation by remember { mutableStateOf(0.5f) }
-
+fun LightPart(
+    hue: Float,
+    onHueChanged: (Float) -> Unit,
+    saturation: Float,
+    onSaturationChanged: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(modifier = modifier.padding(
         top = 120f.pxToDp(),
         bottom = 120f.pxToDp(),
-        end =120f.pxToDp()
+        end = 120f.pxToDp()
     )) {
-        FullHueVerticalSlider(hue = hue, onHueChanged = {hue=it})
+        FullHueVerticalSlider(hue = hue, onHueChanged = onHueChanged)
+
         SaturationSelector(
             hue = hue,
-            selectedSaturation = selectedSaturation,
-            onSaturationSelected = { selectedSaturation = it },
+            selectedSaturation = saturation,
+            onSaturationSelected = onSaturationChanged,
             modifier = Modifier
                 .padding(start = 80f.pxToDp())
                 .size(992f.pxToDp(), 480f.pxToDp())
         )
+
         Column(verticalArrangement = Arrangement.spacedBy(24f.pxToDp()),
             modifier = Modifier.padding(start = 24f.pxToDp())) {
-            Box(modifier = Modifier
-                .background(
-                    colorResource(R.color.cp_red),
-                    shape = RectangleShape
-                )
-                .size(220f.pxToDp(), 102f.pxToDp())
-                .clickable {
-                    hue = 0f
-                    selectedSaturation = 1f
-                }
-            )
 
             Box(modifier = Modifier
-                .background(
-                    colorResource(R.color.cp_blue),
-                    shape = RectangleShape
-                )
+                .background(colorResource(R.color.cp_red), shape = RectangleShape)
                 .size(220f.pxToDp(), 102f.pxToDp())
                 .clickable {
-                    hue = 240f
-                    selectedSaturation = 1f
+                    onHueChanged(0f)
+                    onSaturationChanged(1f)
                 })
 
             Box(modifier = Modifier
-                .background(
-                    colorResource(R.color.cp_green),
-                    shape = RectangleShape
-                )
+                .background(colorResource(R.color.cp_blue), shape = RectangleShape)
                 .size(220f.pxToDp(), 102f.pxToDp())
                 .clickable {
-                    hue = 120f
-                    selectedSaturation = 1f
+                    onHueChanged(240f)
+                    onSaturationChanged(1f)
                 })
 
             Box(modifier = Modifier
-                .background(
-                    colorResource(R.color.cp_white),
-                    shape = RectangleShape
-                )
+                .background(colorResource(R.color.cp_green), shape = RectangleShape)
                 .size(220f.pxToDp(), 102f.pxToDp())
                 .clickable {
-//                    hue = 0f
-                    selectedSaturation = 0f
+                    onHueChanged(120f)
+                    onSaturationChanged(1f)
+                })
+
+            Box(modifier = Modifier
+                .background(colorResource(R.color.cp_white), shape = RectangleShape)
+                .size(220f.pxToDp(), 102f.pxToDp())
+                .clickable {
+                    onSaturationChanged(0f)
                 })
         }
     }
-}
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 595,
-    heightDp = 262
-)
-@Composable
-fun LightPart_(){
-    LightPart()
 }
 
 
@@ -545,8 +600,15 @@ fun LightPart_(){
  * 自定义座舱屏幕
  */
 @Composable
-fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
+fun CustomScreen(
+    hue: Float,
+    onHueChanged: (Float) -> Unit,
+    saturation: Float,
+    onSaturationChanged: (Float) -> Unit,
+    onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
 
+//    var hue by remember { mutableStateOf(0f) }
+//    var saturation by remember { mutableStateOf(0.5f) }
 
     val context = LocalContext.current
     val soundViewModel = remember {
@@ -588,7 +650,12 @@ fun CustomScreen(onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
                         SoundList_(soundViewModel)
 
                     SoundLightElectricityTag.LIGHT ->
-                        LightPart_()
+                        LightPart(
+                            hue = hue,
+                            onHueChanged = { onHueChanged(it) },
+                            saturation = saturation,
+                            onSaturationChanged = { onSaturationChanged(it) }
+                        )
                     SoundLightElectricityTag.ELECTRICITY ->
                         ElectricityList_()
                 }

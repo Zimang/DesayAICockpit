@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SaveScreen(viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
+fun SaveScreen(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
 
 
     Row(modifier = Modifier.fillMaxSize()) {
@@ -56,7 +56,7 @@ fun SaveScreen(viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}
 
         Box(modifier = Modifier
             .size(width = 1236.pxToDp(), height = 720f.pxToDp())){
-            CockpitNamingScreenV1(viewModel,onExit)
+            CockpitNamingScreenV1(onSaveApply,viewModel,onExit)
         }
         Box(modifier = Modifier.size(width = 2320.pxToDp(), height = 720f.pxToDp())){
 
@@ -72,7 +72,7 @@ fun SaveScreen(viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}
 //showBackground = true
 //)
 @Composable
-fun CockpitNamingScreenV1(viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
+fun CockpitNamingScreenV1(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
     val scope = rememberCoroutineScope()
     var cockpitName by remember { mutableStateOf("梦幻座舱") }
     val maxLength = 10 // 最大输入长度
@@ -117,6 +117,7 @@ fun CockpitNamingScreenV1(viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
                     viewModel.addApplyingTheme(
                        200,200,cockpitName
                     )
+                    onSaveApply()
                     onExit()
                 }
             }
