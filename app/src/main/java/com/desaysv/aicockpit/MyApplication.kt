@@ -23,7 +23,7 @@ class MyApplication : Application() {
 
     // 初始化 Repository（依赖数据库 DAO）
     val repository by lazy { ProjectRepository(database.projectDao()) }
-    val themeRepository by lazy { ThemeRepository(database.themeItemDao()) }
+    val themeRepository by lazy { ThemeRepository(database.themeItemDao(),this) }
     val soundRepository by lazy { SoundRepository(database.soundItemDao()) }
 
     override fun onCreate() {

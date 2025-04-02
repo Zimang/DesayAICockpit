@@ -1,10 +1,20 @@
 package com.desaysv.aicockpit.data.repository
 
+import android.content.Context
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ThemeItemDao
+import com.desaysv.aicockpit.data.interfaces.ResourceLoader
+import com.desaysv.aicockpit.data.interfaces.ResourceRepository
+import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
 
-class ThemeRepository(private val themeItemDao: ThemeItemDao){
+class ThemeRepository(
+    private val themeItemDao: ThemeItemDao,
+    private val context: Context,
+    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader(),
+):ResourceRepository<ThemeItemData>{
 
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()
 
@@ -25,6 +35,7 @@ class ThemeRepository(private val themeItemDao: ThemeItemDao){
         )
         )
     }
+
 
     suspend fun deleteTheme(themeItemData: ThemeItemData) {
         val isDeletingApplied = themeItemData.isApplied
@@ -79,4 +90,34 @@ class ThemeRepository(private val themeItemDao: ThemeItemDao){
             )
         }
     }
+
+    override fun observeFlow(): Flow<ThemeItemData> {
+        return loader.observe(context).flatMapConcat { it.asFlow() }
+    }
+
+    override suspend fun load(): List<ThemeItemData> {
+        return loader.loadOnce()
+    }
+
+    override suspend fun getAll(): List<ThemeItemData> {
+        return themeItemDao.getAll()
+    }
+
+    override suspend fun insert(item: ThemeItemData) {
+        themeItemDao.insert(item)
+    }
+
+    override suspend fun delete(item: ThemeItemData) {
+        themeItemDao.delete(item)
+    }
+
+    override suspend fun deleteAll() {
+        themeItemDao.deleteAll()
+    }
+
+    override suspend fun saveAll(items: List<ThemeItemData>) {
+        themeItemDao.deleteAll()
+        items.forEach { themeItemDao.insert(it) }
+    }
+
 }

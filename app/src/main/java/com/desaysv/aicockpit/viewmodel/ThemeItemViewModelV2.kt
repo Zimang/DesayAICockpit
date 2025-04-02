@@ -3,13 +3,37 @@ package com.desaysv.aicockpit.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
 import com.desaysv.aicockpit.data.repository.ThemeRepository
+import com.desaysv.aicockpit.data.usecase.WujiThemeUseCaseImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ThemeItemViewModel (private val repository: ThemeRepository
-):ViewModel(){
-    val themes=repository.allThemes
+class ThemeItemViewModelV2(
+    private val repository: ThemeRepository,
+    private val useCase: ResourceUseCase<ThemeItemData> =WujiThemeUseCaseImpl(repository)
+) : ViewModel() {
 
+    private val _themes = MutableStateFlow<List<ThemeItemData>>(emptyList())
+    val themes: StateFlow<List<ThemeItemData>> = _themes
+
+    init {
+        useCase.load()
+        useCase.observe()
+
+        viewModelScope.launch {
+            useCase.flow.collect { theme ->
+                _themes.update { it + theme }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        useCase.clear()
+        super.onCleared()
+    }
 
     fun addTheme(eId:Int,sId:Int,tName:String,isDefault: Boolean,isApplied:Boolean)=viewModelScope.launch {
         repository.addTheme(

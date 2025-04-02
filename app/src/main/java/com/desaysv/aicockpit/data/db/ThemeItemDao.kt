@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.desaysv.aicockpit.data.ThemeItemData
 import kotlinx.coroutines.flow.Flow
 
@@ -23,6 +24,8 @@ interface ThemeItemDao {
     @Delete
     suspend fun delete(theme: ThemeItemData)
 
+    @Query("DELETE FROM themes")
+    suspend fun deleteAll()
 
     // 1. 取消所有当前 isApplied = true 的主题
     @Query("UPDATE themes SET isApplied = 0 WHERE isApplied = 1")
@@ -73,4 +76,14 @@ interface ThemeItemDao {
         clearDefaultTheme() // 清除旧的默认主题
         insert(newTheme.copy(isDefault = true)) // 插入新的默认主题
     }
+
+    @Update
+    suspend fun update(theme: ThemeItemData)
+
+    @Query("SELECT * FROM themes")
+    suspend fun getAll(): List<ThemeItemData>
+
+    @Query("SELECT * FROM themes WHERE themeName = :name LIMIT 1")
+    suspend fun getByName(name: String): ThemeItemData?
+
 }

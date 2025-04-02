@@ -49,11 +49,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DesayAICockpitTheme {
-//                AppPermissionGate({}) {
-//                    MainNavigation()
-//                }
-//
-                BroadcastFlowScreen()
+                AppPermissionGate(this,{}, ) {
+                    MainNavigation()
+                }
+
+//                BroadcastFlowScreen()
 
             }
         }

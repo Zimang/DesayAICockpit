@@ -3,8 +3,8 @@ package com.desaysv.aicockpit.demo
 import android.content.Context
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.db.SoundItemDao
-import com.desaysv.aicockpit.demo.interfaces.ResourceLoader
-import com.desaysv.aicockpit.demo.interfaces.ResourceRepository
+import com.desaysv.aicockpit.data.interfaces.ResourceLoader
+import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat

@@ -36,6 +36,7 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.SoundViewModel
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
 
 /**
@@ -43,7 +44,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SaveScreen(viewModel: ThemeItemViewModel, onChange: (ScreenTag) -> Unit={},onExit:()->Unit){
+fun SaveScreen(viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
 
 
     Row(modifier = Modifier.fillMaxSize()) {
@@ -71,7 +72,7 @@ fun SaveScreen(viewModel: ThemeItemViewModel, onChange: (ScreenTag) -> Unit={},o
 //showBackground = true
 //)
 @Composable
-fun CockpitNamingScreenV1(viewModel: ThemeItemViewModel, onExit: () -> Unit) {
+fun CockpitNamingScreenV1(viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
     val scope = rememberCoroutineScope()
     var cockpitName by remember { mutableStateOf("梦幻座舱") }
     val maxLength = 10 // 最大输入长度

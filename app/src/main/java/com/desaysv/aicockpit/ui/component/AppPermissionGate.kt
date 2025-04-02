@@ -1,5 +1,6 @@
 package com.desaysv.aicockpit.ui.component
 
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,8 +20,9 @@ import com.desaysv.aicockpit.utils.StoragePermissionManager
 
 @Composable
 fun AppPermissionGate(
+    context: Context,
     onGranted: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     var permissionGranted by remember { mutableStateOf(false) }
@@ -42,6 +44,10 @@ fun AppPermissionGate(
             permissionGranted = true
         } else {
             launcher.launch(permissions)
+        }
+
+        if(!StoragePermissionManager.hasAllFilesAccess()){
+            StoragePermissionManager.requestAllFilesAccess(context)
         }
     }
 

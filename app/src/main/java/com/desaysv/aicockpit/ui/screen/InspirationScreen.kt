@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
+import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
@@ -37,7 +38,9 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * 灵感屏幕
@@ -53,12 +56,16 @@ fun ThemeCard(themeItemData: ThemeItemData,
     val t=if (isApplied) ResourceManager.getApplying() else ResourceManager.getApply()
     val c=if (isApplied) colorResource(R.color.choosen) else colorResource(R.color.n_choosen)
     val img=if (isApplied) painterResource(R.drawable.app_1) else painterResource(R.drawable.app_2)
-
+    val painter = if (themeItemData.imgPath != null ) {
+        rememberAsyncImagePainter(File(themeItemData.imgPath))
+    } else {
+        painterResource(R.drawable.el_1)
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(16f.pxToDp())) {
 
         Box(){
-            Image(painterResource(R.drawable.el_1),
+            Image(painter,
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.size(
@@ -150,7 +157,7 @@ fun InspiratonScreen(){
         ViewModelProvider(
             owner = (context as ComponentActivity),
             factory = ThemeItemViewModelFactory(app.themeRepository)
-        )[ThemeItemViewModel::class.java]
+        )[ThemeItemViewModelV2::class.java]
     }
 
     val themes by viewModel.themes.collectAsState(initial = emptyList())
@@ -174,7 +181,8 @@ fun InspiratonScreen(){
  * 灵感屏幕
  */
 @Composable
-fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},viewModel: ThemeItemViewModel){
+fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
+                     viewModel: ThemeItemViewModelV2){
     val contextApp=(LocalContext.current as? Activity)
     val scope = rememberCoroutineScope()
 

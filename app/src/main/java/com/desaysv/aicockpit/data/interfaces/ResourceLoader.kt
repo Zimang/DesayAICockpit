@@ -1,4 +1,4 @@
-package com.desaysv.aicockpit.demo.interfaces
+package com.desaysv.aicockpit.data.interfaces
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow

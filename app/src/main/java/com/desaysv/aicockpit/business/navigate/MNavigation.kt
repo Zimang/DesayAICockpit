@@ -25,6 +25,8 @@ import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 
 sealed class Route(val route: String) {
     object ScreenCUS : Route("custom") // 对应CUS
@@ -54,8 +56,8 @@ fun MainNavigation() {
     val themeViewModel = remember {
         ViewModelProvider(
             owner = (context as ComponentActivity),
-            factory = ThemeItemViewModelFactory(rp)
-        )[ThemeItemViewModel::class.java]
+            factory = ThemeItemViewModelFactoryV2(rp)
+        )[ThemeItemViewModelV2::class.java]
     }
 
 

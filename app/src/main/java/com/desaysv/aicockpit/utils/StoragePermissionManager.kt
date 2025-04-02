@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import androidx.core.content.ContextCompat
 import android.provider.Settings
 
@@ -38,4 +39,22 @@ object StoragePermissionManager {
         }
         context.startActivity(intent)
     }
+
+
+
+    fun hasAllFilesAccess(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else true
+    }
+
+    fun requestAllFilesAccess(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = Uri.parse("package:${context.packageName}")
+            }
+            context.startActivity(intent)
+        }
+    }
+
 }

@@ -3,7 +3,7 @@ package com.desaysv.aicockpit.demo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.desaysv.aicockpit.data.SoundItemData
-import com.desaysv.aicockpit.demo.interfaces.ResourceUseCase
+import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
