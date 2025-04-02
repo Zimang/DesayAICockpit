@@ -22,10 +22,10 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileReader
 
-class WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
 
-//    private val CONFIG_PATH="/test/config.txt"
-    private val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
+//  val CONFIG_PATH="/test/config.txt"
+val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
+class WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
 
     override suspend fun loadOnce(): List<ThemeItemData>
         =loadFromJSON()
@@ -58,6 +58,7 @@ class WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
 
     suspend fun loadFromJSON()= withContext(Dispatchers.IO){
         Log.d("请求解析WUJI JSON")
+        //这个路径有问题
         val configFile = File(
             Environment.getExternalStorageDirectory(),CONFIG_PATH
         )

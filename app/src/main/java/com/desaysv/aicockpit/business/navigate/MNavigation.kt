@@ -28,8 +28,8 @@ import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
+import com.desaysv.aicockpit.viewmodel.ElesViewModel
+import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 
@@ -64,12 +64,19 @@ fun MainNavigation() {
     val currentRoute = rememberNavControllerCurrentRoute(navController)
 
     val rp=app.themeRepository
+    val eRp=app.elesRepository
     val themeViewModel = remember {
         ViewModelProvider(
             owner = (context as ComponentActivity),
             factory = ThemeItemViewModelFactoryV2(rp)
         )[ThemeItemViewModelV2::class.java]
     }
+//    val elesViewModel = remember {
+//        ViewModelProvider(
+//            owner = (context as ComponentActivity),
+//            factory = ElesViewModelFactory(eRp)
+//        )[ElesViewModel::class.java]
+//    }
 
 
 
@@ -93,14 +100,16 @@ fun MainNavigation() {
 //                .padding(start = 284.pxToDp()) // 为左侧导航栏留出空间
                 .fillMaxSize()
         ) {
-            composable(Route.ScreenCUS.route) { CustomScreen(hue = hue,
-                                        onHueChanged = { hue = it },
-                                saturation = saturation,
-                onSaturationChanged = { saturation = it },{ navigateByTag(it,navController) }) }
-            composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },themeViewModel) }
-            composable(Route.ScreenSAVE.route) { SaveScreen({
-                sendColor(context,hue, saturation)
-            }, themeViewModel, onExit = {navController.navigateUp()}) }
+            composable(Route.ScreenCUS.route) {
+                CustomScreen(hue = hue, onHueChanged = { hue = it }, saturation = saturation,
+                    onSaturationChanged = { saturation = it },{ navigateByTag(it,navController) }) }
+
+            composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
+                themeViewModel) }
+
+            composable(Route.ScreenSAVE.route) { SaveScreen({ sendColor(context,hue, saturation) },
+                themeViewModel, onExit = {navController.navigateUp()}) }
+
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }

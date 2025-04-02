@@ -1,9 +1,9 @@
 package com.desaysv.aicockpit.data.usecase
 
+import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
-import com.desaysv.aicockpit.data.repository.ThemeRepository
-import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,12 +11,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
-class WujiThemeUseCaseImpl(
-    override val rep: ThemeRepository
-):ResourceUseCase<ThemeItemData> {
+class ElesUseCaseImpl(
+    override val rep: ResourceRepository<ElectricityItemData>
+) :ResourceUseCase<ElectricityItemData> {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -25,8 +24,8 @@ class WujiThemeUseCaseImpl(
 //    private val _loadFlow = MutableSharedFlow<ThemeItemData>(extraBufferCapacity = 64)
 //    override val flow: Flow<ThemeItemData> = merge(_observeFlow, _loadFlow)
 
-    private val _flow = MutableSharedFlow<List<ThemeItemData>>(replay = 1)
-    override val flow: Flow<List<ThemeItemData>> = _flow.asSharedFlow()
+    private val _flow = MutableSharedFlow<List<ElectricityItemData>>(replay = 1)
+    override val flow: Flow<List<ElectricityItemData>> = _flow.asSharedFlow()
 
 
     private var observeJob: Job? = null
@@ -37,13 +36,7 @@ class WujiThemeUseCaseImpl(
             rep.observeFlow().collect {
 //                _observeFlow.emit(it)
 //                reload()
-                rep.addTheme(
-                    eId = it.electricityItemId,
-                    sId = it.soundItemId,
-                    themeName = it.themeName,
-                    isDefault = it.isDefault,
-                    isApplied = it.isApplied
-                )
+                rep.insert(it)
             }
         }
     }

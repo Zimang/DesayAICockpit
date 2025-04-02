@@ -11,8 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
+val ID_OP_SAVE_AND_APPLIED=1
+val ID_OP_SWITCH_APPLIED_THEME=2
+
 class ThemeItemViewModelV2(
-    private val repository: ThemeRepository,
+    repository: ThemeRepository,
     private val useCase: ResourceUseCase<ThemeItemData> =WujiThemeUseCaseImpl(repository)
 ) : ViewModel() {
 
@@ -24,11 +28,6 @@ class ThemeItemViewModelV2(
         useCase.load()
         useCase.observe()
 
-//        viewModelScope.launch {
-//            useCase.flow.collect { theme ->
-//                _themes.update { it + theme }
-//            }
-//        }
     }
 
     override fun onCleared() {
@@ -37,12 +36,18 @@ class ThemeItemViewModelV2(
     }
 
     fun addTheme(eId:Int,sId:Int,tName:String,isDefault: Boolean,isApplied:Boolean)=viewModelScope.launch {
-        repository.addTheme(
-            eId,sId,tName,isDefault, isApplied
+        useCase.rep.insert(
+            ThemeItemData(
+                electricityItemId = eId,
+                soundItemId = sId,
+                themeName = tName,
+                isDefault = isDefault,
+                isApplied = isApplied,
+            )
         )
     }
     fun addApplyingTheme(eId:Int,sId:Int,tName:String)=viewModelScope.launch {
-        repository.setNewAppliedTheme(
+        useCase.rep.agileOp(ID_OP_SAVE_AND_APPLIED,
             ThemeItemData(electricityItemId =  eId,
                 soundItemId = sId,
                 themeName =  tName,
@@ -52,11 +57,11 @@ class ThemeItemViewModelV2(
     }
 
     fun deleteTheme(themeItemData: ThemeItemData)=viewModelScope.launch{
-        repository.deleteTheme(themeItemData)
+        useCase.rep.delete(themeItemData)
     }
 
     fun switchAppliedTheme(themeId:Int)=viewModelScope.launch {
-        repository.switchAppliedTheme(themeId)
+        useCase.rep.agileOp(ID_OP_SWITCH_APPLIED_THEME,id= themeId)
     }
 
 }

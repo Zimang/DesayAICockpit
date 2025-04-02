@@ -36,8 +36,7 @@ import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModel
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactory
+import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
 import java.io.File
@@ -156,7 +155,7 @@ fun InspiratonScreen(){
         val app = context.applicationContext as MyApplication
         ViewModelProvider(
             owner = (context as ComponentActivity),
-            factory = ThemeItemViewModelFactory(app.themeRepository)
+            factory = ThemeItemViewModelFactoryV2(app.themeRepository)
         )[ThemeItemViewModelV2::class.java]
     }
 
@@ -216,6 +215,20 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                             }
                         )
                     }
+//                    if (themes.isEmpty()){
+//
+//                        ThemeCard(
+//                            theme,theme.isApplied,
+//                            onApply = {scope.launch {
+//                                viewModel.switchAppliedTheme(it)
+//                            }},
+//                            onDelete = {
+//                                scope.launch {
+//                                    viewModel.deleteTheme(it)
+//                                }
+//                            }
+//                        )
+//                    }
                 }
             }
         }

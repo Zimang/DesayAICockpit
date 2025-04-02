@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.ViewModelProvider
+import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ElectricityItemData
@@ -69,9 +70,12 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
+import com.desaysv.aicockpit.viewmodel.ElesViewModel
+import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
 import com.desaysv.aicockpit.viewmodel.SoundViewModel
 import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /**
@@ -103,7 +107,8 @@ val electricityItemDataList = List(tElectricityPics.size) { index ->
     ElectricityItemData(
         imageName = tElectricityPics[index],
         themeName = tElectricityName[index],
-        imgId = tElectricityImgId[index]
+        imgId = tElectricityImgId[index],
+        imgPath = "$index.png"
     )
 }
 val tSoundPics= listOf("b_1_h.png","b_2_h.png","b_3_h.png","b_4_h.png")
@@ -191,7 +196,8 @@ fun SoundLightElectricitySelectionButtonsV1(
  */
 @Composable
 fun ElectricityItem(
-    @DrawableRes imgPath:Int,
+    @DrawableRes imgId:Int,
+    imgPath:String,
     themeName:String,
     chosen: Boolean,
     modifier: Modifier
@@ -199,10 +205,15 @@ fun ElectricityItem(
     Box(modifier
         .size(472.pxToDp())
     ){
-        Image(painter = painterResource(imgPath),
+        val painter = if (imgPath != null ) {
+            rememberAsyncImagePainter(File(imgPath))
+        } else {
+            painterResource(imgId)
+        }
+        Image(painter = painter,
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier =  modifier
+            modifier =  modifier.fillMaxSize()
         )
 
         Text(
@@ -226,7 +237,7 @@ fun ElectricityItem(
 fun ElectricityList(
     onThemeChosen:(Int)->Unit,
     electricityItemDataList: List<ElectricityItemData>,
-    chosenElectricityData: ElectricityItemData,
+//    chosenElectricityData: ElectricityItemData,
     modifier: Modifier
 ){
     LazyRow(
@@ -234,9 +245,12 @@ fun ElectricityList(
         modifier = modifier
     ) {
         itemsIndexed(electricityItemDataList){index,electItem->
-            ElectricityItem(electItem.imgId
-                ,electItem.themeName
-                ,electItem.imgId==chosenElectricityData.imgId
+            ElectricityItem(
+                electItem.imgId,
+                electItem.imgPath,
+                electItem.themeName
+//                ,electItem.imgId==chosenElectricityData.imgId
+                ,false
                 ,modifier=modifier.clickable {
                     onThemeChosen(index)
                 }
@@ -248,22 +262,17 @@ fun ElectricityList(
 /**
  * ElectricityList
  */
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 595,
-    heightDp = 262
-)
 @Composable
-fun ElectricityList_(){
+fun ElectricityList_(viewModel: ElesViewModel){
+    val eles by viewModel.eles.collectAsState(initial = emptyList())
     Box(Modifier
         .fillMaxSize()
         .padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
         ElectricityList({},
-            electricityItemDataList,
-            electricityItemDataList[0],
+            eles,
+//            eles[0],
             Modifier)
     }
     Text(1236.pxToDpNum().toString(), color = Color.White) //468
@@ -611,12 +620,18 @@ fun CustomScreen(
 //    var saturation by remember { mutableStateOf(0.5f) }
 
     val context = LocalContext.current
+    val app = context.applicationContext as MyApplication
     val soundViewModel = remember {
-        val app = context.applicationContext as MyApplication
         ViewModelProvider(
             owner = (context as ComponentActivity),
             factory = SoundViewModelFactory(app.soundRepository)
         )[SoundViewModel::class.java]
+    }
+    val elesViewModel = remember {
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = ElesViewModelFactory(app.elesRepository)
+        )[ElesViewModel::class.java]
     }
 
 //    val sounds by soundViewModel._soundItems.collectAsState(initial = emptyList())
@@ -657,7 +672,7 @@ fun CustomScreen(
                             onSaturationChanged = { onSaturationChanged(it) }
                         )
                     SoundLightElectricityTag.ELECTRICITY ->
-                        ElectricityList_()
+                        ElectricityList_(elesViewModel)
                 }
             }
 

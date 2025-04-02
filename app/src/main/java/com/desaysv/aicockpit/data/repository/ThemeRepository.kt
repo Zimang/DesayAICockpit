@@ -6,6 +6,8 @@ import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
+import com.desaysv.aicockpit.viewmodel.ID_OP_SAVE_AND_APPLIED
+import com.desaysv.aicockpit.viewmodel.ID_OP_SWITCH_APPLIED_THEME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -18,6 +20,17 @@ class ThemeRepository(
 
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()
 
+    override suspend fun agileOp(opId: Int, item: ThemeItemData?,id:Int) {
+        when (opId){
+            ID_OP_SAVE_AND_APPLIED->
+                item?.apply {
+                    setNewAppliedTheme(this)
+                }
+            ID_OP_SWITCH_APPLIED_THEME->
+                switchAppliedTheme(id)
+            else -> Unit
+        }
+    }
 
     suspend fun addTheme(
         eId: Int,

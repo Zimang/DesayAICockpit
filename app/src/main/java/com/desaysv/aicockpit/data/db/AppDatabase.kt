@@ -12,12 +12,11 @@ import com.desaysv.aicockpit.data.ThemeItemData
 @SuppressLint("RestrictedApi")
 @Database( version = 1,entities = [ElectricityItemData::class,
     SoundItemData::class,
-    ThemeItemData::class,
-    Project::class]
+    ThemeItemData::class]
     , exportSchema = false,
     autoMigrations = [])
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun projectDao(): ProjectDao
+//    abstract fun projectDao(): ProjectDao
     abstract fun electricityItemDao(): ElectricityItemDao
     abstract fun soundItemDao(): SoundItemDao
     abstract fun themeItemDao(): ThemeItemDao

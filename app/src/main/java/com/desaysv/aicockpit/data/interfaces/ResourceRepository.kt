@@ -14,4 +14,7 @@ interface ResourceRepository<T> {
     suspend fun delete(item: T)
     suspend fun deleteAll()
     suspend fun saveAll(items: List<T>)
+
+    //灵活处理特殊操作
+    suspend fun agileOp(opId:Int, item: T? =null,id:Int=0)
 }
