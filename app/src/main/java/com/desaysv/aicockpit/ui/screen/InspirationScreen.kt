@@ -181,7 +181,8 @@ fun InspiratonScreen(){
  */
 @Composable
 fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
-                     viewModel: ThemeItemViewModelV2){
+                     viewModel: ThemeItemViewModelV2
+){
     val contextApp=(LocalContext.current as? Activity)
     val scope = rememberCoroutineScope()
 

@@ -1,7 +1,10 @@
 package com.desaysv.aicockpit.utils
 
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import com.desaysv.aicockpit.R
@@ -36,15 +39,23 @@ object ResourceManager {
             }
         }
     }
-
     fun copyAssetsImagesToSharedPictures(context: Context) {
         val assetManager = context.assets
         val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png")
 
         val resolver = context.contentResolver
+        val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit"
 
         for (filename in imageList) {
-            val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit" // 可以改成你项目名
+
+            // ✅ 检查是否已存在该文件
+            val existingUri = findImageInMediaStore(resolver, filename, relativePath)
+            if (existingUri != null) {
+                Log.d("AssetCopy", "跳过已存在文件: $filename")
+                continue
+            }
+
+            // ✅ 创建 contentValues 并插入新文件
             val contentValues = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, filename)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/png")
@@ -60,9 +71,12 @@ object ResourceManager {
                             inputStream.copyTo(outputStream)
                         }
                     }
+                    Log.d("AssetCopy", "写入成功: $filename")
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
+            } else {
+                Log.e("AssetCopy", "插入失败: $filename")
             }
         }
     }
@@ -94,6 +108,40 @@ object ResourceManager {
 //            contextRef?.get()?.getString(R.string.save)
 //        )
 //    }
+
+    // ✅ 查询 MediaStore 是否存在相同文件
+    fun findImageInMediaStore(
+        resolver: ContentResolver,
+        displayName: String,
+        relativePath: String
+    ): Uri? {
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.RELATIVE_PATH
+        )
+
+        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.RELATIVE_PATH} = ?"
+        val selectionArgs = arrayOf(displayName, "$relativePath/") // 注意路径末尾要带斜杠
+
+        resolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val id = cursor.getLong(idColumn)
+                return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+            }
+        }
+
+        return null
+    }
+
+
     fun getPersonalizedCabin(): String? =
         contextRef?.get()?.getString(R.string.personalized_cabin)
 

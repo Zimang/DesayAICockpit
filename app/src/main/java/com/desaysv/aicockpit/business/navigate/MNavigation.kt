@@ -57,6 +57,7 @@ fun MainNavigation() {
 
     var hue by remember { mutableStateOf(0f) }
     var saturation by remember { mutableStateOf(0.5f) }
+    var eleImgPath by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val app = context.applicationContext as MyApplication
@@ -102,7 +103,11 @@ fun MainNavigation() {
         ) {
             composable(Route.ScreenCUS.route) {
                 CustomScreen(hue = hue, onHueChanged = { hue = it }, saturation = saturation,
-                    onSaturationChanged = { saturation = it },{ navigateByTag(it,navController) }) }
+                    onSaturationChanged = { saturation = it }, imgPath = eleImgPath, onChange = { navigateByTag(it,navController) },
+                    onThemeWallpaperChange = {
+                        com.desaysv.aicockpit.utils.Log.d(it)
+                        eleImgPath=it
+                    }) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
                 themeViewModel) }

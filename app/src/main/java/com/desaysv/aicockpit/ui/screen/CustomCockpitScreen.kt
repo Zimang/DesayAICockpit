@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.MyApplication
@@ -200,10 +201,16 @@ fun ElectricityItem(
     imgPath:String,
     themeName:String,
     chosen: Boolean,
-    modifier: Modifier
+    modifier: Modifier,
+    onChoosen:(path:String)->Unit = {}
 ){
+
     Box(modifier
         .size(472.pxToDp())
+        .border(width = if (chosen) 1f.dp else 0f.dp, color = Color.White)
+        .clickable {
+            onChoosen(imgPath)
+        }
     ){
         val painter = if (imgPath != null ) {
             rememberAsyncImagePainter(File(imgPath))
@@ -235,9 +242,9 @@ fun ElectricityItem(
  */
 @Composable
 fun ElectricityList(
-    onThemeChosen:(Int)->Unit,
+    onThemeChosen:(String)->Unit,
     electricityItemDataList: List<ElectricityItemData>,
-//    chosenElectricityData: ElectricityItemData,
+    imgPath: String,
     modifier: Modifier
 ){
     LazyRow(
@@ -250,9 +257,9 @@ fun ElectricityList(
                 electItem.imgPath,
                 electItem.themeName
 //                ,electItem.imgId==chosenElectricityData.imgId
-                ,false
+                ,imgPath==electItem.imgPath
                 ,modifier=modifier.clickable {
-                    onThemeChosen(index)
+                    onThemeChosen(electItem.imgPath)
                 }
             )
         }
@@ -263,16 +270,22 @@ fun ElectricityList(
  * ElectricityList
  */
 @Composable
-fun ElectricityList_(viewModel: ElesViewModel){
+fun ElectricityList_(
+    viewModel: ElesViewModel,
+    imgPath: String,
+    onClick: (String) -> Unit,
+){
     val eles by viewModel.eles.collectAsState(initial = emptyList())
+
+
     Box(Modifier
         .fillMaxSize()
         .padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
-        ElectricityList({},
+        ElectricityList(onClick,
             eles,
-//            eles[0],
+            imgPath,
             Modifier)
     }
     Text(1236.pxToDpNum().toString(), color = Color.White) //468
@@ -613,8 +626,11 @@ fun CustomScreen(
     hue: Float,
     onHueChanged: (Float) -> Unit,
     saturation: Float,
+    imgPath: String, //选中的图片路径
     onSaturationChanged: (Float) -> Unit,
-    onChange: (ScreenTag) -> Unit={},onExit: () -> Unit={}){
+    onChange: (ScreenTag) -> Unit={},
+    onThemeWallpaperChange: (String) -> Unit={},
+    onExit: () -> Unit={}){
 
 //    var hue by remember { mutableStateOf(0f) }
 //    var saturation by remember { mutableStateOf(0.5f) }
@@ -672,7 +688,10 @@ fun CustomScreen(
                             onSaturationChanged = { onSaturationChanged(it) }
                         )
                     SoundLightElectricityTag.ELECTRICITY ->
-                        ElectricityList_(elesViewModel)
+                        ElectricityList_(elesViewModel,imgPath){
+                            onThemeWallpaperChange(it)
+
+                        }
                 }
             }
 

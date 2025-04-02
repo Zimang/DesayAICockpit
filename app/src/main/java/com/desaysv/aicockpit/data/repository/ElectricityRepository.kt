@@ -1,6 +1,7 @@
 package com.desaysv.aicockpit.data.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ElectricityItemDao
@@ -45,14 +46,28 @@ class ElectricityRepository(
 
     override suspend fun saveAll(items: List<ElectricityItemData>) {
         electricityItemDao.deleteAll()
-        items.forEach{electricityItemDao.insert(it)}
+        items.forEach{
+            try {
+                electricityItemDao.insert(it)
+            } catch (e: SQLiteConstraintException) {
+                Log.e("RoomInsert", "约束冲突：${it.imgPath}")
+            }
+
+//            electricityItemDao.insert(it)
+        }
     }
 
     override suspend fun delete(item: ElectricityItemData) {
-        electricityItemDao.insert(item)
+        electricityItemDao.delete(item)
     }
 
     override suspend fun insert(item: ElectricityItemData) {
-        TODO("Not yet implemented")
+        try {
+            electricityItemDao.insert(item)
+        } catch (e: SQLiteConstraintException) {
+            Log.e("RoomInsert", "约束冲突：${item.imgPath}")
+        }
+
+//        electricityItemDao.insert(item)
     }
 }
