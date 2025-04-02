@@ -24,8 +24,8 @@ import java.io.FileReader
 
 class WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
 
-    private val CONFIG_PATH="/test/config.txt"
-//    private val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
+//    private val CONFIG_PATH="/test/config.txt"
+    private val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 
     override suspend fun loadOnce(): List<ThemeItemData>
         =loadFromJSON()
