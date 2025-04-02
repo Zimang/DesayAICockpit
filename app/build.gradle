@@ -59,6 +59,7 @@ dependencies {
 //    ksp("androidx.room:room-compiler:2.6.1")
 
     implementation "io.coil-kt:coil-compose:2.4.0" //图片加载
+    implementation("com.google.code.gson:gson:2.10.1") //json解析
 //    implementation libs.androidx.material3.icons.extended
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

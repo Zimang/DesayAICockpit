@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "sound_items")
 data class SoundItemData(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val imageName: String,  // 图片名称（如 "el_1.png"）
-    val soundName: String,   // 主题名称（如 "默认主题"）
-    val imgId: Int,   // 主题名称（如 "默认主题"）
-    val imgPath: String,   //主题图片路径（如 "默认主题"）
-    val audioPath: String =""  //主题图片路径（如 "默认主题"）
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,//声的id
+    val imageName: String="",  // 声的图片名称
+    val soundName: String="",   // 声的名称
+    val imgId: Int=0,   // 声的图片id
+    val imgPath: String="",   //声的图片路径
+    val audioPath: String =""  //声的音频路径
 )
