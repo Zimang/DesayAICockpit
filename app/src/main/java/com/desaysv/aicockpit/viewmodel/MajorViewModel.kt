@@ -1,6 +1,7 @@
 package com.desaysv.aicockpit.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.desaysv.aicockpit.business.ImageManager
 import com.desaysv.aicockpit.data.ElectricityItemData
+import com.desaysv.aicockpit.data.ListTheme
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
@@ -18,6 +20,7 @@ import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.data.usecase.ElesUseCaseImpl
 import com.desaysv.aicockpit.data.usecase.WujiThemeUseCaseImpl
 import com.desaysv.aicockpit.utils.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -56,7 +59,9 @@ class MajorViewModel(
         tName: String,
         imP: String,
         soudId:Int,
-//        eleId:Int
+        hue:Float,
+        sat:Float,
+        context: Context //用于发送广播
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
@@ -67,6 +72,19 @@ class MajorViewModel(
                 isApplied = false,
                 ele.imgPath
             )
+            val listTheme=ListTheme(
+                wallpaperPath = ele.imgPath,
+                title = tName,
+                hue = hue,
+                saturation = sat,
+                sId = soudId
+            )
+            val json=Gson().toJson(listTheme)
+            val intent = Intent("com.desaysv.aicockpit.THEME_SEND_ACTION").apply {
+                putExtra("themeJson", json)
+            }
+            context.sendBroadcast(intent)
+            Log.d("发送广播 $intent json为 $json")
             Log.d("onSave ViewModel")
         }
     }

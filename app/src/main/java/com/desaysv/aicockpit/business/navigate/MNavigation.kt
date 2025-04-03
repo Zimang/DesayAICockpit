@@ -151,7 +151,8 @@ fun MainNavigation() {
                      majorViewModel.genTheme(
                          name,
                          eleImgPath,
-                         selSoundItemData.id
+                         selSoundItemData.id,
+                         hue,saturation,context
                      )
                      Log.d("onSaveApplying")
                      sendColor(context,hue, saturation)
@@ -160,7 +161,8 @@ fun MainNavigation() {
                    majorViewModel.genTheme(
                        name,
                        eleImgPath,
-                       selSoundItemData.id
+                       selSoundItemData.id,
+                       hue,saturation,context
                    )
                 },
                 majorViewModel, onExit = {navController.navigateUp()}) }
