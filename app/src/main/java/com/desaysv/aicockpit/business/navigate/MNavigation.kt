@@ -32,6 +32,8 @@ import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.viewmodel.ElesViewModel
 import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
+import com.desaysv.aicockpit.viewmodel.MajorViewModel
+import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
 import com.desaysv.aicockpit.viewmodel.SoundViewModel
 import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
@@ -74,14 +76,24 @@ fun MainNavigation() {
 
     val rp=app.themeRepository
     val eRp=app.elesRepository
+
+    val majorViewModel= remember {
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = MajorViewModelFactory(
+                app.soundRepository,
+                app.elesRepository,
+                app.themeRepository
+            )
+        )[MajorViewModel::class.java]
+    }
+
     val themeViewModel = remember {
         ViewModelProvider(
             owner = (context as ComponentActivity),
             factory = ThemeItemViewModelFactoryV2(rp)
         )[ThemeItemViewModelV2::class.java]
     }
-
-
     val soundViewModel = remember {
         ViewModelProvider(
             owner = (context as ComponentActivity),
@@ -125,7 +137,7 @@ fun MainNavigation() {
                     hue = hue, onHueChanged = { hue = it }, saturation = saturation,
                     onSaturationChanged = { saturation = it }, imgPath = eleImgPath, onChange = { navigateByTag(it,navController) },
                     onThemeWallpaperChange = {
-                        com.desaysv.aicockpit.utils.Log.d(it)
+                        Log.d(it)
                         eleImgPath=it
                     }, onSoundChosen = {
                         Log.d(selSoundItemData.toString())
