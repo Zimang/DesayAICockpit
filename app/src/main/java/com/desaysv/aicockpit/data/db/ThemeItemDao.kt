@@ -85,5 +85,7 @@ interface ThemeItemDao {
 
     @Query("SELECT * FROM themes WHERE themeName = :name LIMIT 1")
     suspend fun getByName(name: String): ThemeItemData?
+    @Query("SELECT * FROM themes WHERE imgPath = :path LIMIT 1")
+    suspend fun getByPath(path: String): ThemeItemData?
 
 }

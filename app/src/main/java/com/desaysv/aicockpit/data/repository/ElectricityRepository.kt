@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
 
+val OP_ID_GET_BY_IMGE_SOURCE=1
+
 class ElectricityRepository(
     private val electricityItemDao: ElectricityItemDao,
     private val context: Context,
@@ -36,12 +38,22 @@ class ElectricityRepository(
         return electricityItemDao.getAll()
     }
 
+    override suspend fun getByPath(p: String): ElectricityItemData? {
+        return electricityItemDao.getByPath(p)
+    }
+
     override suspend fun deleteAll() {
         electricityItemDao.deleteAll()
     }
 
     override suspend fun agileOp(opId: Int, item: ElectricityItemData?, id: Int) {
         Log.d("电，没有拓展方法")
+        when(opId){
+            OP_ID_GET_BY_IMGE_SOURCE->
+            {}
+            else->
+            {}
+        }
     }
 
     override suspend fun saveAll(items: List<ElectricityItemData>) {

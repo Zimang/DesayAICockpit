@@ -20,6 +20,8 @@ interface SoundItemDao {
 
     @Query("SELECT * FROM sound_items WHERE id = :id")
     suspend fun getById(id: Int): SoundItemData?
+    @Query("SELECT * FROM sound_items WHERE imgPath = :p")
+    suspend fun getByImgPath(p: String): SoundItemData?
 
     @Delete
     suspend fun delete(soundItem: SoundItemData)

@@ -6,6 +6,7 @@ import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.viewmodel.ID_OP_SAVE_AND_APPLIED
 import com.desaysv.aicockpit.viewmodel.ID_OP_SWITCH_APPLIED_THEME
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 class ThemeRepository(
     private val themeItemDao: ThemeItemDao,
     private val context: Context,
-    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader(),
+    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader,
 ):ResourceRepository<ThemeItemData>{
 
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()
@@ -37,7 +38,9 @@ class ThemeRepository(
         sId: Int,
         themeName:String,
         isDefault: Boolean,
-        isApplied:Boolean) {
+        isApplied:Boolean)
+    {
+        Log.d("onSave Rep")
         themeItemDao.insert(
             ThemeItemData(
                 electricityItemId = eId,
@@ -45,8 +48,9 @@ class ThemeRepository(
                 themeName = themeName,
                 isDefault = isDefault,
                 isApplied = isApplied
+            )
         )
-        )
+        Log.d("add theme")
     }
 
 
@@ -114,6 +118,10 @@ class ThemeRepository(
 
     override suspend fun getAll(): List<ThemeItemData> {
         return themeItemDao.getAll()
+    }
+
+    override suspend fun getByPath(p: String): ThemeItemData? {
+        return themeItemDao.getByPath(p)
     }
 
     override suspend fun insert(item: ThemeItemData) {

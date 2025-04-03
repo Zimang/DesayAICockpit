@@ -6,6 +6,8 @@ import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
 import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.data.usecase.WujiThemeUseCaseImpl
+import com.desaysv.aicockpit.utils.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -35,14 +37,16 @@ class ThemeItemViewModelV2(
         super.onCleared()
     }
 
-    fun addTheme(eId:Int,sId:Int,tName:String,isDefault: Boolean,isApplied:Boolean)=viewModelScope.launch {
+    fun addTheme(eId:Int,sId:Int,tName:String,isApplied:Boolean,imP:String="")=viewModelScope.launch(Dispatchers.IO) {
+        Log.d("onSave ViewModel")
         useCase.rep.insert(
             ThemeItemData(
                 electricityItemId = eId,
                 soundItemId = sId,
                 themeName = tName,
-                isDefault = isDefault,
+                isDefault = false,
                 isApplied = isApplied,
+                imgPath = imP
             )
         )
     }

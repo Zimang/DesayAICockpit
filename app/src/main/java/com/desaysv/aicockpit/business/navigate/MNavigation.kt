@@ -3,7 +3,6 @@ package com.desaysv.aicockpit.business.navigate
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,14 +24,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.desaysv.aicockpit.MyApplication
+import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.viewmodel.ElesViewModel
 import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
+import com.desaysv.aicockpit.viewmodel.SoundViewModel
+import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 sealed class Route(val route: String) {
     object ScreenCUS : Route("custom") // 对应CUS
@@ -58,8 +64,10 @@ fun MainNavigation() {
     var hue by remember { mutableStateOf(0f) }
     var saturation by remember { mutableStateOf(0.5f) }
     var eleImgPath by remember { mutableStateOf("") }
+    var selSoundItemData by remember { mutableStateOf(SoundItemData()) }
 
     val context = LocalContext.current
+    val scop = rememberCoroutineScope()
     val app = context.applicationContext as MyApplication
     val navController = rememberNavController()
     val currentRoute = rememberNavControllerCurrentRoute(navController)
@@ -72,12 +80,21 @@ fun MainNavigation() {
             factory = ThemeItemViewModelFactoryV2(rp)
         )[ThemeItemViewModelV2::class.java]
     }
-//    val elesViewModel = remember {
-//        ViewModelProvider(
-//            owner = (context as ComponentActivity),
-//            factory = ElesViewModelFactory(eRp)
-//        )[ElesViewModel::class.java]
-//    }
+
+
+    val soundViewModel = remember {
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = SoundViewModelFactory(app.soundRepository)
+        )[SoundViewModel::class.java]
+    }
+    val elesViewModel = remember {
+        ViewModelProvider(
+            owner = (context as ComponentActivity),
+            factory = ElesViewModelFactory(app.elesRepository)
+        )[ElesViewModel::class.java]
+    }
+
 
 
 
@@ -102,23 +119,60 @@ fun MainNavigation() {
                 .fillMaxSize()
         ) {
             composable(Route.ScreenCUS.route) {
-                CustomScreen(hue = hue, onHueChanged = { hue = it }, saturation = saturation,
+                CustomScreen(
+                    elesViewModel=elesViewModel,
+                    soundViewModel=soundViewModel,
+                    hue = hue, onHueChanged = { hue = it }, saturation = saturation,
                     onSaturationChanged = { saturation = it }, imgPath = eleImgPath, onChange = { navigateByTag(it,navController) },
                     onThemeWallpaperChange = {
                         com.desaysv.aicockpit.utils.Log.d(it)
                         eleImgPath=it
+                    }, onSoundChosen = {
+                        Log.d(selSoundItemData.toString())
+                        selSoundItemData=it
                     }) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
                 themeViewModel) }
 
-            composable(Route.ScreenSAVE.route) { SaveScreen({ sendColor(context,hue, saturation) },
+            composable(Route.ScreenSAVE.route) { SaveScreen(
+                 onSaveApply = {name->
+                    scop.launch(Dispatchers.IO) {
+                        val ele =elesViewModel.getEleByPath(eleImgPath)
+
+                        themeViewModel.addTheme(
+                            ele.id,
+                            selSoundItemData.id,
+                            tName = name,
+                            isApplied = false,
+                            ele.imgPath
+                        )
+                     }
+                     Log.d("onSaveApplying")
+                    sendColor(context,hue, saturation)
+               },
+               onSave =  {name->
+                    scop.launch(Dispatchers.IO) {
+                        val ele =elesViewModel.getEleByPath(eleImgPath)
+
+                        themeViewModel.addTheme(
+                            ele.id,
+                            selSoundItemData.id,
+                            tName = name,
+                            isApplied = false,
+                            ele.imgPath
+                        )
+                        Log.d("onSave")
+                    }
+
+                },
                 themeViewModel, onExit = {navController.navigateUp()}) }
 
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
     }
 }
+
 
 private fun navigateByTag(screenTag: ScreenTag,naviController: NavController){
     Log.d(TAG, "navigateByTag: 点击")
@@ -133,6 +187,8 @@ fun hsvToColorInt(hue: Float, saturation: Float, value: Float = 1f): Int {
     val hsv = floatArrayOf(hue, saturation, value)
     return android.graphics.Color.HSVToColor(hsv)
 }
+
+
 
 
 private fun sendColor(ctx : Context, hue:Float, saturation:Float){
@@ -150,6 +206,9 @@ private fun sendColor(ctx : Context, hue:Float, saturation:Float){
 
 }
 
+private fun saveCurrentTheme(){
+
+}
 
 // 导航逻辑封装
 private fun navigateToIns(navController: NavController) {

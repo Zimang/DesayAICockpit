@@ -205,9 +205,10 @@ fun ElectricityItem(
     onChoosen:(path:String)->Unit = {}
 ){
 
-    Box(modifier
+    val zmodifer=if (chosen) modifier.border(width = 8.dp, color = Color.White) else modifier
+
+    Box(zmodifer
         .size(472.pxToDp())
-        .border(width = if (chosen) 1f.dp else 0f.dp, color = Color.White)
         .clickable {
             onChoosen(imgPath)
         }
@@ -296,7 +297,8 @@ fun ElectricityList_(
  * todo 需要接入数据库数据而非自定义数据
  */
 @Composable
-fun SoundList_(viewModel: SoundViewModel) {
+fun SoundList_(viewModel: SoundViewModel
+,onSoundChosen: (SoundItemData) -> Unit={}) {
 
     val context = LocalContext.current
     val isLoading = viewModel.isLoading
@@ -321,7 +323,7 @@ fun SoundList_(viewModel: SoundViewModel) {
 //                soundItemDataList = soundItems
 //            )
             InfiniteScalingImageList_SoundV2(
-                onThemeChosen = {},
+                onThemeChosen = onSoundChosen,
                 soundItemDataList = soundItems
             )
         }
@@ -623,6 +625,8 @@ fun LightPart(
  */
 @Composable
 fun CustomScreen(
+    elesViewModel: ElesViewModel,
+    soundViewModel: SoundViewModel,
     hue: Float,
     onHueChanged: (Float) -> Unit,
     saturation: Float,
@@ -630,25 +634,12 @@ fun CustomScreen(
     onSaturationChanged: (Float) -> Unit,
     onChange: (ScreenTag) -> Unit={},
     onThemeWallpaperChange: (String) -> Unit={},
+    onSoundChosen: (SoundItemData) -> Unit={},
     onExit: () -> Unit={}){
 
 //    var hue by remember { mutableStateOf(0f) }
 //    var saturation by remember { mutableStateOf(0.5f) }
 
-    val context = LocalContext.current
-    val app = context.applicationContext as MyApplication
-    val soundViewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = SoundViewModelFactory(app.soundRepository)
-        )[SoundViewModel::class.java]
-    }
-    val elesViewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = ElesViewModelFactory(app.elesRepository)
-        )[ElesViewModel::class.java]
-    }
 
 //    val sounds by soundViewModel._soundItems.collectAsState(initial = emptyList())
 
@@ -678,7 +669,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundList_(soundViewModel)
+                        SoundList_(soundViewModel,onSoundChosen)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(

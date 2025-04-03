@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SaveScreen(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
+fun SaveScreen(onSaveApply:(name:String)->Unit,onSave:(name:String)->Unit, viewModel: ThemeItemViewModelV2, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
 
 
     Row(modifier = Modifier.fillMaxSize()) {
@@ -55,7 +55,7 @@ fun SaveScreen(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onChange: 
 
         Box(modifier = Modifier
             .size(width = 1236.pxToDp(), height = 720f.pxToDp())){
-            CockpitNamingScreenV1(onSaveApply,viewModel,onExit)
+            CockpitNamingScreenV1(onSaveApply,onSave,viewModel,onExit)
         }
         Box(modifier = Modifier.size(width = 2320.pxToDp(), height = 720f.pxToDp())){
 
@@ -71,7 +71,10 @@ fun SaveScreen(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onChange: 
 //showBackground = true
 //)
 @Composable
-fun CockpitNamingScreenV1(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
+fun CockpitNamingScreenV1(
+    onSaveApply:(String)->Unit,
+    onSave:(String)->Unit,
+    viewModel: ThemeItemViewModelV2, onExit: () -> Unit) {
     val scope = rememberCoroutineScope()
     var cockpitName by remember { mutableStateOf("梦幻座舱") }
     val maxLength = 10 // 最大输入长度
@@ -105,8 +108,9 @@ fun CockpitNamingScreenV1(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2,
                 ){
                 scope.launch {
                     viewModel.addTheme(
-                        200,200,cockpitName,false,false
+                        200,200,cockpitName,false
                     )
+                    onSave(cockpitName)
                     onExit()
                 }
             }
@@ -116,7 +120,7 @@ fun CockpitNamingScreenV1(onSaveApply:()->Unit, viewModel: ThemeItemViewModelV2,
                     viewModel.addApplyingTheme(
                        200,200,cockpitName
                     )
-                    onSaveApply()
+                    onSaveApply(cockpitName)
                     onExit()
                 }
             }

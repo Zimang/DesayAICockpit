@@ -10,6 +10,7 @@ interface ResourceRepository<T> {
 
     //数据库crud
     suspend fun getAll(): List<T>
+    suspend fun getByPath(p:String): T?
     suspend fun insert(item: T)
     suspend fun delete(item: T)
     suspend fun deleteAll()

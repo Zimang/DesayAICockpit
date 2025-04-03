@@ -16,6 +16,9 @@ interface ElectricityItemDao {
     @Query("SELECT * FROM electricity_items WHERE id = :id")
     suspend fun getById(id: Int): ElectricityItemData?
 
+    @Query("SELECT * FROM electricity_items WHERE imgPath = :imgPath")
+    suspend fun getByPath(imgPath: String): ElectricityItemData?
+
     @Delete
     suspend fun delete(electricityItem: ElectricityItemData)
 

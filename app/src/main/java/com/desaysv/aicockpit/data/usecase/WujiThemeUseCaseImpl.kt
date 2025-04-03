@@ -37,6 +37,7 @@ class WujiThemeUseCaseImpl(
             rep.observeFlow().collect {
 //                _observeFlow.emit(it)
 //                reload()
+                Log.d("observe collect One")
                 rep.addTheme(
                     eId = it.electricityItemId,
                     sId = it.soundItemId,
@@ -56,6 +57,8 @@ class WujiThemeUseCaseImpl(
 
     override fun load() {
         scope.launch {
+            Log.d("load request")
+
             reload()
         }
     }

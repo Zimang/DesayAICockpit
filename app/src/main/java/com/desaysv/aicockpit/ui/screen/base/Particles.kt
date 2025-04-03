@@ -433,7 +433,7 @@ fun InfiniteScalingImageList_SoundV1(
 
 @Composable
 fun InfiniteScalingImageList_SoundV2(
-    onThemeChosen: (Int) -> Unit,
+    onThemeChosen: (SoundItemData) -> Unit,
     soundItemDataList: List<SoundItemData>,
     usingLocalPath: Boolean = true
 ) {
@@ -498,7 +498,7 @@ fun InfiniteScalingImageList_SoundV2(
                     .size(itemSizes[i])
                     .clickable {
                         startIndex = realIndex
-                        onThemeChosen(realIndex)
+                        onThemeChosen(soundItemDataList[realIndex])
                    },
                 contentAlignment = Alignment.Center
             ) {

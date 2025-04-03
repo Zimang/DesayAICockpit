@@ -5,10 +5,14 @@ import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.business.ImageManager
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.db.SoundItemDao
+import com.desaysv.aicockpit.data.interfaces.ResourceRepository
+import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
@@ -21,7 +25,7 @@ import java.io.File
  */
 class SoundRepository(
     private val soundItemDao: SoundItemDao
-) {
+) :ResourceRepository<SoundItemData>{
 
     private val _dataUpdated = MutableSharedFlow<Unit>(replay = 0)
     val dataUpdated: SharedFlow<Unit> = _dataUpdated
@@ -99,5 +103,46 @@ class SoundRepository(
         } else {
             false
         }
+    }
+
+    override fun observeFlow(): Flow<SoundItemData> {
+        Log.d("暂时不开放")
+        return emptyFlow()
+    }
+
+    override suspend fun load(): List<SoundItemData> {
+        Log.d("暂时不开放")
+        return emptyList()
+    }
+
+    override suspend fun getAll(): List<SoundItemData> {
+        return soundItemDao.getAll()
+    }
+
+    override suspend fun getByPath(p: String): SoundItemData? {
+        return soundItemDao.getByImgPath(p)
+    }
+
+    override suspend fun deleteAll() {
+        soundItemDao.deleteAll()
+    }
+
+    override suspend fun agileOp(opId: Int, item: SoundItemData?, id: Int) {
+        Log.d("暂不开放")
+    }
+
+    override suspend fun saveAll(items: List<SoundItemData>) {
+        soundItemDao.deleteAll()
+        items.forEach{
+            soundItemDao.insert(it)
+        }
+    }
+
+    override suspend fun delete(item: SoundItemData) {
+        soundItemDao.delete(item)
+    }
+
+    override suspend fun insert(item: SoundItemData) {
+        soundItemDao.insert(item)
     }
 }
