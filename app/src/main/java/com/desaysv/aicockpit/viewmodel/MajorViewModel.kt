@@ -52,6 +52,25 @@ class MajorViewModel(
         themeUseCaseImpl.observe()
     }
 
+    fun genTheme(
+        tName: String,
+        imP: String,
+        soudId:Int,
+//        eleId:Int
+    ){
+        viewModelScope.launch(Dispatchers.IO) {
+            val ele = getEleByPath(imP) ?: return@launch
+            addTheme(
+                ele.id,
+                soudId,
+                tName = tName,
+                isApplied = false,
+                ele.imgPath
+            )
+            Log.d("onSave ViewModel")
+        }
+    }
+
     private fun observeDatabaseUpdates() {
         viewModelScope.launch {
             soundRepository.dataUpdated.collect {

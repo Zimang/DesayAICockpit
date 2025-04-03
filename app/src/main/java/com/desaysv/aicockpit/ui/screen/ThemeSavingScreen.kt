@@ -108,21 +108,15 @@ fun CockpitNamingScreenV1(
             RegularButton(R.drawable.save_bt_bg,ResourceManager.getSave()!!,
                 ){
                 scope.launch {
-                    viewModel.addTheme(
-                        200,200,cockpitName,false
-                    )
-                    onSave(cockpitName)
                     onExit()
+                    onSave(cockpitName)
                 }
             }
             RegularButton(R.drawable.save_bt_bg,ResourceManager.getSaveApply()!!,
             ){
                 scope.launch {
-                    viewModel.addApplyingTheme(
-                       200,200,cockpitName
-                    )
-                    onSaveApply(cockpitName)
                     onExit()
+                    onSaveApply(cockpitName)
                 }
             }
         }

@@ -148,34 +148,20 @@ fun MainNavigation() {
 
             composable(Route.ScreenSAVE.route) { SaveScreen(
                  onSaveApply = {name->
-                    scop.launch(Dispatchers.IO) {
-                        val ele =majorViewModel.getEleByPath(eleImgPath)
-
-                        majorViewModel.addTheme(
-                            ele.id,
-                            selSoundItemData.id,
-                            tName = name,
-                            isApplied = false,
-                            ele.imgPath
-                        )
-                     }
+                     majorViewModel.genTheme(
+                         name,
+                         eleImgPath,
+                         selSoundItemData.id
+                     )
                      Log.d("onSaveApplying")
-                    sendColor(context,hue, saturation)
+                     sendColor(context,hue, saturation)
                },
                onSave =  {name->
-                    scop.launch(Dispatchers.IO) {
-                        val ele =majorViewModel.getEleByPath(eleImgPath)
-
-                        majorViewModel.addTheme(
-                            ele.id,
-                            selSoundItemData.id,
-                            tName = name,
-                            isApplied = false,
-                            ele.imgPath
-                        )
-                        Log.d("onSave")
-                    }
-
+                   majorViewModel.genTheme(
+                       name,
+                       eleImgPath,
+                       selSoundItemData.id
+                   )
                 },
                 majorViewModel, onExit = {navController.navigateUp()}) }
 
