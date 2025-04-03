@@ -37,8 +37,6 @@ import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -148,39 +146,6 @@ fun ThemeCards_(){
  * 灵感屏幕
  */
 @Composable
-fun InspiratonScreen(){
-
-
-    val context = LocalContext.current
-    val viewModel = remember {
-        val app = context.applicationContext as MyApplication
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = ThemeItemViewModelFactoryV2(app.themeRepository)
-        )[ThemeItemViewModelV2::class.java]
-    }
-
-    val themes by viewModel.themes.collectAsState(initial = emptyList())
-
-    var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
-    Row(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
-            ThemeChangeButtons(ScreenTag.INS)
-        }
-        Box(modifier = Modifier
-            .size(width = (207+1286+143+284+1636).pxToDp(), height = 720f.pxToDp())){
-            Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 200f.pxToDp())){
-//                BigPanel(modifier = Modifier)
-                ThemeCards_()
-            }
-        }
-    }
-}
-
-/**
- * 灵感屏幕
- */
-@Composable
 fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                      viewModel: MajorViewModel
 ){
@@ -235,18 +200,4 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
             }
         }
     }
-}
-
-/**
- * final screen
- */
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xff000000,
-    widthDp = 1396,
-    heightDp = 262
-)
-@Composable
-fun FinalScreenINSPage(){
-    InspiratonScreen()
 }

@@ -25,7 +25,7 @@ class MyApplication : Application() {
 //    val repository by lazy { ProjectRepository(database.projectDao()) }
     val themeRepository by lazy { ThemeRepository(database.themeItemDao(),this) }
     val elesRepository by lazy { ElectricityRepository(database.electricityItemDao(),this) }
-    val soundRepository by lazy { SoundRepository(database.soundItemDao()) }
+    val soundRepository by lazy { SoundRepository(database.soundItemDao(),this) }
 
     override fun onCreate() {
         super.onCreate()

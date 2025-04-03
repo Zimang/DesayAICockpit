@@ -5,6 +5,7 @@ import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
+import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.FileFilter
@@ -15,7 +16,9 @@ enum class ResourceType {
     ELE_RESOURCE,  // 需要处理图片文件
 }
 
-
+/**
+ * FolderFileLoader主要监听一个路径值，路径变动就需要重新加载
+ */
 class FolderFileLoader<T>(
     val type: ResourceType,
     var picPath:String="",
@@ -23,6 +26,7 @@ class FolderFileLoader<T>(
 ) :ResourceLoader<T> {
 
     override suspend fun loadOnce(): List<T> {
+        Log.d("loader load request FolderFileLoader")
         return when(type){
             ResourceType.SOUND_RESOURCE-> loadSoundItems()
             ResourceType.THEME_RESOURCE-> emptyList<T>()
@@ -39,7 +43,12 @@ class FolderFileLoader<T>(
         val picDir = File(picPath)
         val audioDir = File(audioPath)
 
-        if (!picDir.exists() || !audioDir.exists()) return emptyList()
+        if (!picDir.exists() || !audioDir.exists()) {
+            Log.d("音频文件夹 $audioDir ${audioDir.exists()}")
+            Log.d("图片文件夹 $picDir ${picDir.exists()}")
+            Log.d("sounds 的图片与音频文件夹有一个不可访问")
+            return emptyList()
+        }
 
         val imageFiles = picDir.listFiles { f -> f.extension.lowercase() in listOf("png", "jpg", "jpeg") } ?: return emptyList()
         val audioFiles = audioDir.listFiles { f -> f.extension.lowercase() in listOf("wav", "mp3") } ?: return emptyList()
@@ -48,6 +57,9 @@ class FolderFileLoader<T>(
         val audioMap = audioFiles.associateBy { it.nameWithoutExtension }
 
         val commonNames = imageMap.keys.intersect(audioMap.keys)
+        if (commonNames.size==0){
+            Log.d("Sounds的音频与图片名称不匹配,不会存入数据库")
+        }
 
         val result = commonNames.map { name ->
             SoundItemData(

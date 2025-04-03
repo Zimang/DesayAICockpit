@@ -35,8 +35,6 @@ class WujiThemeUseCaseImpl(
         if (observeJob != null) return
         observeJob = scope.launch {
             rep.observeFlow().collect {
-//                _observeFlow.emit(it)
-//                reload()
                 Log.d("observe collect One")
                 rep.addTheme(
                     eId = it.electricityItemId,
@@ -58,7 +56,6 @@ class WujiThemeUseCaseImpl(
     override fun load() {
         scope.launch {
             Log.d("load request")
-
             reload()
         }
     }

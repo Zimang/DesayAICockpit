@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.desaysv.aicockpit.data.SoundItemData
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SoundItemDao {
@@ -14,6 +15,8 @@ interface SoundItemDao {
 
     @Query("SELECT * FROM sound_items")
     suspend fun getAll(): List<SoundItemData>
+    @Query("SELECT * FROM sound_items")
+    fun getAllSounds(): Flow<List<SoundItemData>>
 
     @Query("DELETE FROM sound_items")
     suspend fun deleteAll()

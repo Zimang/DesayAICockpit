@@ -35,8 +35,6 @@ import com.desaysv.aicockpit.ui.screen.base.RegularButton
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
-import com.desaysv.aicockpit.viewmodel.SoundViewModel
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
 
 /**

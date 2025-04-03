@@ -1,10 +1,13 @@
 package com.desaysv.aicockpit.data.interfaces
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 interface ResourceRepository<T> {
     //热流
     fun observeFlow(): Flow<T>
+    //热流
+    fun observeListFlow(): Flow<List<T>> { return emptyFlow() }
     //冷流
     suspend fun load(): List<T>
 

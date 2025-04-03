@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,14 +31,9 @@ import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.utils.Log
-import com.desaysv.aicockpit.viewmodel.ElesViewModel
-import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
+import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
-import com.desaysv.aicockpit.viewmodel.SoundViewModel
-import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
-import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -88,27 +84,8 @@ fun MainNavigation() {
         )[MajorViewModel::class.java]
     }
 
-//    val themeViewModel = remember {
-//        ViewModelProvider(
-//            owner = (context as ComponentActivity),
-//            factory = ThemeItemViewModelFactoryV2(rp)
-//        )[ThemeItemViewModelV2::class.java]
-//    }
-    val soundViewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = SoundViewModelFactory(app.soundRepository)
-        )[SoundViewModel::class.java]
-    }
-//    val elesViewModel = remember {
-//        ViewModelProvider(
-//            owner = (context as ComponentActivity),
-//            factory = ElesViewModelFactory(app.elesRepository)
-//        )[ElesViewModel::class.java]
-//    }
-
-
-
+    //播放器
+    val soundPlayer = rememberSoundPlayerController()
 
     // 将路由映射到ScreenTag
     val chosenTag = when(currentRoute) {
@@ -130,6 +107,7 @@ fun MainNavigation() {
 //                .padding(start = 284.pxToDp()) // 为左侧导航栏留出空间
                 .fillMaxSize()
         ) {
+
             composable(Route.ScreenCUS.route) {
                 CustomScreen(
                     majorViewModel = majorViewModel,
@@ -141,6 +119,7 @@ fun MainNavigation() {
                     }, onSoundChosen = {
                         Log.d(selSoundItemData.toString())
                         selSoundItemData=it
+                        soundPlayer.play(it.audioPath)
                     }) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },

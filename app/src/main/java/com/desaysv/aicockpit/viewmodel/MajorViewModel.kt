@@ -15,9 +15,12 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
 import com.desaysv.aicockpit.data.repository.ElectricityRepository
+import com.desaysv.aicockpit.data.repository.ID_OP_SAVE_AND_APPLIED
+import com.desaysv.aicockpit.data.repository.ID_OP_SWITCH_APPLIED_THEME
 import com.desaysv.aicockpit.data.repository.SoundRepository
 import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.data.usecase.ElesUseCaseImpl
+import com.desaysv.aicockpit.data.usecase.ImageManagerAbsSoundsUseCaseImpl
 import com.desaysv.aicockpit.data.usecase.WujiThemeUseCaseImpl
 import com.desaysv.aicockpit.utils.Log
 import com.google.gson.Gson
@@ -29,7 +32,8 @@ import java.io.File
 class MajorViewModel(
     electricityRepository: ElectricityRepository,
     themeRepository: ThemeRepository,
-    private val soundRepository: SoundRepository,
+    soundRepository: SoundRepository,
+    private val soudsUseCaseImpl: ResourceUseCase<SoundItemData> =ImageManagerAbsSoundsUseCaseImpl(soundRepository),
     private val elesUseCaseImpl: ResourceUseCase<ElectricityItemData> = ElesUseCaseImpl(electricityRepository),
     private val themeUseCaseImpl: ResourceUseCase<ThemeItemData> = WujiThemeUseCaseImpl(themeRepository)
     
@@ -40,95 +44,79 @@ class MajorViewModel(
     private val _soundItems = mutableStateListOf<SoundItemData>()
     val soundItems: List<SoundItemData> = _soundItems
     val themes=themeRepository.allThemes
+    val sounds=soundRepository.allSounds
 
     var isLoading by mutableStateOf(true)
         private set
  
     init {
-        observeDatabaseUpdates()
+//        observeDatabaseUpdates()
         
         elesUseCaseImpl.load()
         elesUseCaseImpl.observe()
 
-
         themeUseCaseImpl.load()
         themeUseCaseImpl.observe()
+
+        soudsUseCaseImpl.load()
+        soudsUseCaseImpl.observe()
     }
 
-    fun genTheme(
-        tName: String,
-        imP: String,
-        soudId:Int,
-        hue:Float,
-        sat:Float,
-        context: Context //用于发送广播
+    fun genTheme(tName: String, imP: String, soudId:Int, hue:Float, sat:Float, context: Context //用于发送广播
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
-            addTheme(
-                ele.id,
-                soudId,
-                tName = tName,
-                isApplied = false,
-                ele.imgPath
-            )
-            val listTheme=ListTheme(
-                wallpaperPath = ele.imgPath,
-                title = tName,
-                hue = hue,
-                saturation = sat,
-                sId = soudId
+            addTheme(ele.id, soudId, tName = tName, isApplied = false, ele.imgPath)
+            val listTheme=ListTheme(wallpaperPath = ele.imgPath, title = tName, hue = hue, saturation = sat, sId = soudId
             )
             val json=Gson().toJson(listTheme)
             val intent = Intent("com.desaysv.aicockpit.THEME_SEND_ACTION").apply {
                 putExtra("themeJson", json)
             }
             context.sendBroadcast(intent)
-            Log.d("发送广播 $intent json为 $json")
-            Log.d("onSave ViewModel")
         }
     }
 
-    private fun observeDatabaseUpdates() {
-        viewModelScope.launch {
-            soundRepository.dataUpdated.collect {
-                val items = soundRepository.getAllSounds()
-                _soundItems.clear()
-                _soundItems.addAll(items)
-            }
-        }
-    }
+//    private fun observeDatabaseUpdates() {
+//        viewModelScope.launch {
+//            soudsUseCaseImpl.rep.dataUpdated.collect {
+//                val items = soundRepository.getAllSounds()
+//                _soundItems.clear()
+//                _soundItems.addAll(items)
+//            }
+//        }
+//    }
 
-    fun startLoadingData(context: Context) {
-        viewModelScope.launch {
-            while (true) {
-                isLoading = true
+//    fun startLoadingData() {
+//        viewModelScope.launch {
+//            while (true) {
+//                isLoading = true
+//
+//                val success = soundRepository.tryUpdateData()
+//                val items = soundRepository.getAllSounds()
+//
+//                val hasInvalidFile = items.any { !File(it.imgPath).exists() }
+//
+//                if (success && items.isNotEmpty() && !hasInvalidFile) {
+//                    _soundItems.clear()
+//                    _soundItems.addAll(items)
+//                    isLoading = false
+//                    break
+//                }
+//
+//                delay(2000L) // 2秒后重试
+//            }
+//        }
+//    }
 
-                val success = soundRepository.tryUpdateData(context)
-                val items = soundRepository.getAllSounds()
-
-                val hasInvalidFile = items.any { !File(it.imgPath).exists() }
-
-                if (success && items.isNotEmpty() && !hasInvalidFile) {
-                    _soundItems.clear()
-                    _soundItems.addAll(items)
-                    isLoading = false
-                    break
-                }
-
-                delay(2000L) // 2秒后重试
-            }
-        }
-    }
-
-    // 注册被动广播接收器，收到广播后根据广播的文件夹路径更新数据
-    fun registerPassiveBroadcast(context: Context) {
-        ImageManager.registerPassiveReceiver(context) { folderPath ->
-            viewModelScope.launch {
-                soundRepository.updateFromFolderPath(folderPath)
-            }
-        }
-    }
+//    // 注册被动广播接收器，收到广播后根据广播的文件夹路径更新数据
+//    fun registerPassiveBroadcast(context: Context) {
+//        ImageManager.registerPassiveReceiver(context) { folderPath ->
+//            viewModelScope.launch {
+//                soundRepository.updateFromFolderPath(folderPath)
+//            }
+//        }
+//    }
 
     fun getElectricityItemByPath(path: String, onResult: (ElectricityItemData?) -> Unit) {
         viewModelScope.launch {
@@ -150,6 +138,7 @@ class MajorViewModel(
     override fun onCleared() {
         themeUseCaseImpl.clear()
         elesUseCaseImpl.clear()
+        soudsUseCaseImpl.clear()
 
         super.onCleared()
     }

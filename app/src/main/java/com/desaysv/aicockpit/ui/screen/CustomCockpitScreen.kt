@@ -71,12 +71,8 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
-import com.desaysv.aicockpit.viewmodel.ElesViewModel
-import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
-import com.desaysv.aicockpit.viewmodel.SoundViewModel
-import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -295,9 +291,7 @@ fun ElectricityList_(
 
 }
 
-/**
- * todo 需要接入数据库数据而非自定义数据
- */
+
 @Composable
 fun SoundList_(viewModel: MajorViewModel
 ,onSoundChosen: (SoundItemData) -> Unit={}) {
@@ -306,11 +300,11 @@ fun SoundList_(viewModel: MajorViewModel
     val isLoading = viewModel.isLoading
     val soundItems = viewModel.soundItems
 
-    LaunchedEffect(Unit) {
-        viewModel.startLoadingData(context)
-        // 注册被动广播接收器，等待外部广播传递新路径
-        viewModel.registerPassiveBroadcast(context)
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.startLoadingData()
+//        // 注册被动广播接收器，等待外部广播传递新路径
+//        viewModel.registerPassiveBroadcast(context)
+//    }
 
     Box(
         Modifier
@@ -320,15 +314,30 @@ fun SoundList_(viewModel: MajorViewModel
         if (isLoading) {
             CircularProgressIndicator()
         } else {
-//            InfiniteScalingImageList_SoundV1(
-//                onThemeChosen = {},
-//                soundItemDataList = soundItems
-//            )
             InfiniteScalingImageList_SoundV2(
                 onThemeChosen = onSoundChosen,
                 soundItemDataList = soundItems
             )
         }
+    }
+}
+
+
+@Composable
+fun SoundListV1_(viewModel: MajorViewModel
+,onSoundChosen: (SoundItemData) -> Unit={}) {
+    val soundItems by viewModel.sounds.collectAsState(initial = emptyList())
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(start = 120.pxToDp(), top = 120.pxToDp())
+    ) {
+
+        InfiniteScalingImageList_SoundV2(
+            onThemeChosen = onSoundChosen,
+            soundItemDataList = soundItems
+        )
     }
 }
 
@@ -670,7 +679,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundList_(majorViewModel,onSoundChosen)
+                        SoundListV1_(majorViewModel,onSoundChosen)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(

@@ -4,6 +4,7 @@ import android.content.Context
 import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.business.ImageManager
 import com.desaysv.aicockpit.data.SoundItemData
+import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.SoundItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
@@ -14,31 +15,34 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
 /**
- * todo 加入支持以下逻辑的接口
- * 1. 尝试使用最新数据 （首先使用广播获取指定路径，其次使用默认路径更新）
- * 2. 没有最新数据或者最新数据没有更新，使用数据库存储的数据
- * 3. 数据有问题->UI根据反馈展示加载组件
+ * 职责
  */
 class SoundRepository(
     private val soundItemDao: SoundItemDao,
+    private val context: Context,
     private val resourceLoader: ResourceLoader<SoundItemData> = SoundLoader
 ) :ResourceRepository<SoundItemData>{
 
 
+    val allSounds: Flow<List<SoundItemData>> = soundItemDao.getAllSounds()
 
     private val _dataUpdated = MutableSharedFlow<Unit>(replay = 0)
     val dataUpdated: SharedFlow<Unit> = _dataUpdated
 
+
+
     //封装的行为
     //hai
-    suspend fun tryUpdateData(context: Context): Boolean {
-        val broadcastSuccess = updateFromBroadcastPath(context)
+    suspend fun tryUpdateData(): Boolean {
+        val broadcastSuccess = updateFromBroadcastPath()
         if (broadcastSuccess) return true
 
         val defaultSuccess = updateFromDefaultPath()
@@ -49,7 +53,7 @@ class SoundRepository(
 
     //主动请求后接收并处理广播接收的指定路径下的图片
     //等待时间是1.5s
-    private suspend fun updateFromBroadcastPath(context: Context): Boolean {
+    private suspend fun updateFromBroadcastPath(): Boolean {
         val completable = CompletableDeferred<List<String>>()
 
         withContext(Dispatchers.Main) {
@@ -110,14 +114,18 @@ class SoundRepository(
         }
     }
 
+
     override fun observeFlow(): Flow<SoundItemData> {
-        Log.d("暂时不开放")
-        return emptyFlow()
+        return resourceLoader.observe(context).flatMapConcat { it.asFlow() }
+    }
+
+    override fun observeListFlow(): Flow<List<SoundItemData>> {
+        return resourceLoader.observe(context)
     }
 
     override suspend fun load(): List<SoundItemData> {
-        Log.d("暂时不开放")
-        return emptyList()
+        Log.d("rep load request")
+        return resourceLoader.loadOnce()
     }
 
     override suspend fun getAll(): List<SoundItemData> {

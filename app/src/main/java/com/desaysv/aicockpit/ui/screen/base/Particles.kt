@@ -437,11 +437,17 @@ fun InfiniteScalingImageList_SoundV2(
     soundItemDataList: List<SoundItemData>,
     usingLocalPath: Boolean = true
 ) {
+    val len =soundItemDataList.size
+    if (len==0) return
+
+
+
     var startIndex by remember { mutableStateOf(0) }
     val dragOffset = remember { mutableStateOf(0f) }
     val threshold = 100f
 
-    val visibleItems = List(4) { i ->
+
+    val visibleItems =  List(len.coerceIn(len,4)) { i ->
         val realIndex = (startIndex + i) % soundItemDataList.size
         soundItemDataList[realIndex] to realIndex
     }

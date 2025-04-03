@@ -30,6 +30,10 @@ class ElectricityRepository(
         return loader.observe(context).flatMapConcat { it.asFlow() }
     }
 
+    override fun observeListFlow(): Flow<List<ElectricityItemData>> {
+        return loader.observe(context)
+    }
+
     override suspend fun load(): List<ElectricityItemData> {
         return loader.loadOnce()
     }

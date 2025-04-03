@@ -7,11 +7,12 @@ import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import com.desaysv.aicockpit.utils.Log
-import com.desaysv.aicockpit.viewmodel.ID_OP_SAVE_AND_APPLIED
-import com.desaysv.aicockpit.viewmodel.ID_OP_SWITCH_APPLIED_THEME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
+
+val ID_OP_SAVE_AND_APPLIED=1
+val ID_OP_SWITCH_APPLIED_THEME=1
 
 class ThemeRepository(
     private val themeItemDao: ThemeItemDao,
@@ -110,6 +111,10 @@ class ThemeRepository(
 
     override fun observeFlow(): Flow<ThemeItemData> {
         return loader.observe(context).flatMapConcat { it.asFlow() }
+    }
+
+    override fun observeListFlow(): Flow<List<ThemeItemData>> {
+        return loader.observe(context)
     }
 
     override suspend fun load(): List<ThemeItemData> {
