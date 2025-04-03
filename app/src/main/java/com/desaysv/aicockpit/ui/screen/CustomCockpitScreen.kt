@@ -73,6 +73,8 @@ import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
 import com.desaysv.aicockpit.viewmodel.ElesViewModel
 import com.desaysv.aicockpit.viewmodel.ElesViewModelFactory
+import com.desaysv.aicockpit.viewmodel.MajorViewModel
+import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
 import com.desaysv.aicockpit.viewmodel.SoundViewModel
 import com.desaysv.aicockpit.viewmodel.SoundViewModelFactory
 import kotlinx.coroutines.launch
@@ -272,7 +274,7 @@ fun ElectricityList(
  */
 @Composable
 fun ElectricityList_(
-    viewModel: ElesViewModel,
+    viewModel: MajorViewModel,
     imgPath: String,
     onClick: (String) -> Unit,
 ){
@@ -297,7 +299,7 @@ fun ElectricityList_(
  * todo 需要接入数据库数据而非自定义数据
  */
 @Composable
-fun SoundList_(viewModel: SoundViewModel
+fun SoundList_(viewModel: MajorViewModel
 ,onSoundChosen: (SoundItemData) -> Unit={}) {
 
     val context = LocalContext.current
@@ -625,8 +627,7 @@ fun LightPart(
  */
 @Composable
 fun CustomScreen(
-    elesViewModel: ElesViewModel,
-    soundViewModel: SoundViewModel,
+    majorViewModel: MajorViewModel,
     hue: Float,
     onHueChanged: (Float) -> Unit,
     saturation: Float,
@@ -669,7 +670,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundList_(soundViewModel,onSoundChosen)
+                        SoundList_(majorViewModel,onSoundChosen)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(
@@ -679,7 +680,7 @@ fun CustomScreen(
                             onSaturationChanged = { onSaturationChanged(it) }
                         )
                     SoundLightElectricityTag.ELECTRICITY ->
-                        ElectricityList_(elesViewModel,imgPath){
+                        ElectricityList_(majorViewModel,imgPath){
                             onThemeWallpaperChange(it)
 
                         }

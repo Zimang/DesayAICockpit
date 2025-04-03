@@ -36,6 +36,7 @@ import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
+import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelFactoryV2
 import com.desaysv.aicockpit.viewmodel.ThemeItemViewModelV2
 import kotlinx.coroutines.launch
@@ -181,7 +182,7 @@ fun InspiratonScreen(){
  */
 @Composable
 fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
-                     viewModel: ThemeItemViewModelV2
+                     viewModel: MajorViewModel
 ){
     val contextApp=(LocalContext.current as? Activity)
     val scope = rememberCoroutineScope()

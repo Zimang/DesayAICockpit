@@ -88,24 +88,24 @@ fun MainNavigation() {
         )[MajorViewModel::class.java]
     }
 
-    val themeViewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = ThemeItemViewModelFactoryV2(rp)
-        )[ThemeItemViewModelV2::class.java]
-    }
+//    val themeViewModel = remember {
+//        ViewModelProvider(
+//            owner = (context as ComponentActivity),
+//            factory = ThemeItemViewModelFactoryV2(rp)
+//        )[ThemeItemViewModelV2::class.java]
+//    }
     val soundViewModel = remember {
         ViewModelProvider(
             owner = (context as ComponentActivity),
             factory = SoundViewModelFactory(app.soundRepository)
         )[SoundViewModel::class.java]
     }
-    val elesViewModel = remember {
-        ViewModelProvider(
-            owner = (context as ComponentActivity),
-            factory = ElesViewModelFactory(app.elesRepository)
-        )[ElesViewModel::class.java]
-    }
+//    val elesViewModel = remember {
+//        ViewModelProvider(
+//            owner = (context as ComponentActivity),
+//            factory = ElesViewModelFactory(app.elesRepository)
+//        )[ElesViewModel::class.java]
+//    }
 
 
 
@@ -132,8 +132,7 @@ fun MainNavigation() {
         ) {
             composable(Route.ScreenCUS.route) {
                 CustomScreen(
-                    elesViewModel=elesViewModel,
-                    soundViewModel=soundViewModel,
+                    majorViewModel = majorViewModel,
                     hue = hue, onHueChanged = { hue = it }, saturation = saturation,
                     onSaturationChanged = { saturation = it }, imgPath = eleImgPath, onChange = { navigateByTag(it,navController) },
                     onThemeWallpaperChange = {
@@ -145,14 +144,14 @@ fun MainNavigation() {
                     }) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
-                themeViewModel) }
+                majorViewModel) }
 
             composable(Route.ScreenSAVE.route) { SaveScreen(
                  onSaveApply = {name->
                     scop.launch(Dispatchers.IO) {
-                        val ele =elesViewModel.getEleByPath(eleImgPath)
+                        val ele =majorViewModel.getEleByPath(eleImgPath)
 
-                        themeViewModel.addTheme(
+                        majorViewModel.addTheme(
                             ele.id,
                             selSoundItemData.id,
                             tName = name,
@@ -165,9 +164,9 @@ fun MainNavigation() {
                },
                onSave =  {name->
                     scop.launch(Dispatchers.IO) {
-                        val ele =elesViewModel.getEleByPath(eleImgPath)
+                        val ele =majorViewModel.getEleByPath(eleImgPath)
 
-                        themeViewModel.addTheme(
+                        majorViewModel.addTheme(
                             ele.id,
                             selSoundItemData.id,
                             tName = name,
@@ -178,7 +177,7 @@ fun MainNavigation() {
                     }
 
                 },
-                themeViewModel, onExit = {navController.navigateUp()}) }
+                majorViewModel, onExit = {navController.navigateUp()}) }
 
             composable(Route.Exit.route) {  (context as Activity).finish() }
         }
