@@ -18,8 +18,8 @@ enum class ResourceType {
 
 class FolderFileLoader<T>(
     val type: ResourceType,
-    val picPath:String,
-    val audioPath:String=""
+    var picPath:String="",
+    var audioPath:String=""
 ) :ResourceLoader<T> {
 
     override suspend fun loadOnce(): List<T> {

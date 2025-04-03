@@ -168,6 +168,7 @@ class MajorViewModel(
             )
         )
     }
+
     fun addApplyingTheme(eId:Int,sId:Int,tName:String)=viewModelScope.launch {
         themeUseCaseImpl.rep.agileOp(ID_OP_SAVE_AND_APPLIED,
             ThemeItemData(electricityItemId =  eId,

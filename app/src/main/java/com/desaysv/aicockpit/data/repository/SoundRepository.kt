@@ -5,7 +5,9 @@ import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.business.ImageManager
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.db.SoundItemDao
+import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
+import com.desaysv.aicockpit.data.loader.SoundLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +26,11 @@ import java.io.File
  * 3. 数据有问题->UI根据反馈展示加载组件
  */
 class SoundRepository(
-    private val soundItemDao: SoundItemDao
+    private val soundItemDao: SoundItemDao,
+    private val resourceLoader: ResourceLoader<SoundItemData> = SoundLoader
 ) :ResourceRepository<SoundItemData>{
+
+
 
     private val _dataUpdated = MutableSharedFlow<Unit>(replay = 0)
     val dataUpdated: SharedFlow<Unit> = _dataUpdated
