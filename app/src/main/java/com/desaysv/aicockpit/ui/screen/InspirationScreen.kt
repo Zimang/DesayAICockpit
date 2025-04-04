@@ -1,7 +1,6 @@
 package com.desaysv.aicockpit.ui.screen
 
 import android.app.Activity
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +28,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
-import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
+import com.desaysv.aicockpit.business.navigate.informingIPC
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
@@ -151,6 +149,7 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                      viewModel: MajorViewModel
 ){
     val contextApp=(LocalContext.current as? Activity)
+    val context=LocalContext.current
     val scope = rememberCoroutineScope()
 
     val themes by viewModel.themes.collectAsState(initial = emptyList())
@@ -175,6 +174,8 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                             onApply = {scope.launch {
                                 Log.d("apply screen")
                                 viewModel.switchAppliedTheme(it)
+
+                                informingIPC(context,theme.hue, theme.saturation,theme.themeName)
                             }},
                             onDelete = {
                                 scope.launch {

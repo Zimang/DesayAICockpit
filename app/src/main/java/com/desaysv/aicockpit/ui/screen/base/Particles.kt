@@ -447,7 +447,7 @@ fun InfiniteScalingImageList_SoundV2(
     val threshold = 100f
 
 
-    val visibleItems =  List(len.coerceIn(len,4)) { i ->
+    val visibleItems =  List(Math.min(len,4)) { i ->
         val realIndex = (startIndex + i) % soundItemDataList.size
         soundItemDataList[realIndex] to realIndex
     }

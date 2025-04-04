@@ -97,6 +97,10 @@ class ThemeRepository(
     suspend fun getCurrentDefaultTheme(): ThemeItemData? {
         return themeItemDao.getCurrentDefaultTheme()
     }
+    // **获取当前应用主题**
+    suspend fun getCurrentApplyingTheme(): ThemeItemData? {
+        return themeItemDao.getCurrentApplyingTheme()
+    }
 
     // **确保至少有一个默认主题**
     suspend fun ensureDefaultThemeExists() {
@@ -117,7 +121,7 @@ class ThemeRepository(
     // **确保至少有一个主题存在--默认主题**
     suspend fun ensureThemeExists() {
         val defaultCount = themeItemDao.countThemes()
-        if (defaultCount == 0) {
+        if (defaultCount == 0||themeItemDao.getById(1)==null ) {
             // 插入默认主题
             themeItemDao.insert(
                 ThemeItemData(
@@ -126,7 +130,7 @@ class ThemeRepository(
                     soundItemId = 1,       // 默认数据
                     themeName = "默认主题",
                     isDefault = true,
-                    isApplied = true,
+                    isApplied = themeItemDao.getCurrentApplyingTheme()==null,
                     imgPath = ImageConstants.DEFAULT_SOUND_PICS_PATH+"/df.png"
                 )
             )
@@ -151,6 +155,9 @@ class ThemeRepository(
 
     override suspend fun getByPath(p: String): ThemeItemData? {
         return themeItemDao.getByPath(p)
+    }
+    suspend fun getByName(p: String): ThemeItemData? {
+        return themeItemDao.getByName(p)
     }
 
     override suspend fun insert(item: ThemeItemData) {

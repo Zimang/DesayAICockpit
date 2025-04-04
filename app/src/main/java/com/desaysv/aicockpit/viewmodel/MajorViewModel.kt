@@ -66,7 +66,7 @@ class MajorViewModel(
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
-            addTheme(ele.id, soudId, tName = tName, isApplied = isApplied, ele.imgPath)
+            addTheme(ele.id, soudId, tName = tName, isApplied = isApplied,imP= ele.imgPath, hue = hue, saturation = sat, )
             val listTheme=ListTheme(wallpaperPath = ele.imgPath, title = tName, hue = hue, saturation = sat, sId = soudId
             )
             val json=Gson().toJson(listTheme)
@@ -112,7 +112,7 @@ class MajorViewModel(
         super.onCleared()
     }
 
-    fun addTheme(eId:Int,sId:Int,tName:String,isApplied:Boolean,imP:String="")=viewModelScope.launch(
+    fun addTheme(eId:Int,sId:Int,tName:String,isApplied:Boolean,hue:Float, saturation :Float, imP:String="")=viewModelScope.launch(
         Dispatchers.IO) {
         Log.d("onSave ViewModel")
         themeUseCaseImpl.rep.insert(
@@ -122,12 +122,17 @@ class MajorViewModel(
                 themeName = tName,
                 isDefault = false,
                 isApplied = isApplied,
-                imgPath = imP
+                imgPath = imP,
+                hue = hue,
+                saturation = saturation
             )
         )
     }
 
     fun deleteTheme(themeItemData: ThemeItemData)=viewModelScope.launch{
+        if (themeItemData.isApplied){
+            switchAppliedTheme(1)
+        }
         themeUseCaseImpl.rep.delete(themeItemData)
     }
 

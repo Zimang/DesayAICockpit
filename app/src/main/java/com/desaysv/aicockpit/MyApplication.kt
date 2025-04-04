@@ -2,6 +2,8 @@ package com.desaysv.aicockpit
 
 import android.app.Application
 import androidx.room.Room
+import com.desaysv.aicockpit.business.navigate.requestApplyingTheme
+import com.desaysv.aicockpit.business.navigate.sendApplyingTheme
 import com.desaysv.aicockpit.data.db.AppDatabase
 import com.desaysv.aicockpit.data.repository.ElectricityRepository
 import com.desaysv.aicockpit.data.repository.SoundRepository
@@ -39,8 +41,31 @@ class MyApplication : Application() {
         // 启动时检查默认主题
         CoroutineScope(Dispatchers.IO).launch {
 //            themeRepository.ensureDefaultThemeExists()
+            //确保至少存在一个默认壁纸
             themeRepository.ensureThemeExists()
+            //确保至少存在一个默认“电”
             elesRepository.ensureEleExists()
+
+            val tname=requestApplyingTheme(this@MyApplication)
+            if(tname.isEmpty()){
+                val apTheme=themeRepository.getCurrentApplyingTheme()
+                if (apTheme==null){
+                    //这一种情况就是，config加载了主题,没有一个主题是applied
+                    //这种情况不可能出现
+                    themeRepository.switchAppliedTheme(1)
+                    sendApplyingTheme(this@MyApplication,"默认主题")
+                }else{
+                    sendApplyingTheme(this@MyApplication,apTheme.themeName)
+                }
+            }else{
+                val apTheme=themeRepository.getByName(tname)
+                if(apTheme!=null){
+                    themeRepository.switchAppliedTheme(apTheme.id)
+                }else{
+                    Log.d("ERROR!!! 找不到当前应用的主题")
+                }
+
+            }
         }
 
 

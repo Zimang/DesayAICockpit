@@ -3,13 +3,13 @@ package com.desaysv.aicockpit.business.navigate
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.data.SoundItemData
+import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
@@ -35,8 +36,6 @@ import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 sealed class Route(val route: String) {
     object ScreenCUS : Route("custom") // 对应CUS
@@ -45,7 +44,7 @@ sealed class Route(val route: String) {
     object Exit : Route("exit")
 }
 val TAG="TEST"
-
+const val THEME_NAME_DEFINE = "theme_name_define" // 主题名称（ai座舱和无极hmi传递过来）
 @Composable
 fun rememberNavControllerCurrentRoute(navController: NavHostController): String? {
     return remember(navController) {
@@ -144,7 +143,7 @@ fun MainNavigation() {
                          hue,saturation,context,true
                      )
                      Log.d("onSaveApplying")
-                     sendColor(context,hue, saturation)
+                     informingIPC(context,hue, saturation,name)
                },
                onSave =  {name->
                    majorViewModel.genTheme(
@@ -179,7 +178,12 @@ fun hsvToColorInt(hue: Float, saturation: Float, value: Float = 1f): Int {
 
 
 
-private fun sendColor(ctx : Context, hue:Float, saturation:Float){
+fun informingIPC(ctx : Context, hue:Float, saturation:Float,tname:String){
+    sendColor(ctx,hue,saturation)
+    sendApplyingTheme(ctx,tname)
+}
+
+fun sendColor(ctx : Context, hue:Float, saturation:Float){
     val colorInt = hsvToColorInt(hue,saturation)
     val hex = String.format("#%06X", 0xFFFFFF and colorInt)
 
@@ -194,8 +198,22 @@ private fun sendColor(ctx : Context, hue:Float, saturation:Float){
 
 }
 
-private fun saveCurrentTheme(){
+fun sendApplyingTheme(ctx : Context,tname: String){
+    Log.d("发送主题$tname")
+    Settings.Global.putString(
+        ctx?.contentResolver,
+        THEME_NAME_DEFINE,
+        tname
+    )
+}
 
+fun requestApplyingTheme(ctx : Context):String{
+    val  tname=Settings.Global.getString(
+        ctx.applicationContext.getContentResolver(),
+        THEME_NAME_DEFINE
+    )?:""
+    Log.d("获取主题$tname")
+    return tname
 }
 
 // 导航逻辑封装

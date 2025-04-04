@@ -78,6 +78,10 @@ interface ThemeItemDao {
     @Query("SELECT * FROM themes WHERE isDefault = 1 LIMIT 1")
     suspend fun getCurrentDefaultTheme(): ThemeItemData?
 
+    // 3. **获取当前应用主题**
+    @Query("SELECT * FROM themes WHERE isApplied = 1 LIMIT 1")
+    suspend fun getCurrentApplyingTheme(): ThemeItemData?
+
     // 4. **计算当前有多少个默认主题**
     @Query("SELECT COUNT(*) FROM themes WHERE isDefault = 1")
     suspend fun countDefaultThemes(): Int
