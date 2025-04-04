@@ -64,19 +64,19 @@ class MainActivity : ComponentActivity() {
         }
         printScreenScaleParams(this)
 
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            while (!StoragePermissionManager.hasAllFilesAccess()) {
-//                Log.d("权限等待", "等待权限中...")
-//                delay(1000L)
-//            }
-//
-//            withContext(Dispatchers.Main) {
-//                Toast.makeText(this@MainActivity, "权限已获取，开始复制文件", Toast.LENGTH_SHORT).show()
-//            }
-//
-//            ResourceManager.copyAssetsImagesToSharedPictures(this@MainActivity)
-//            ResourceManager.copyAssetsAudiosToSharedPictures(this@MainActivity)
-//        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            while (!StoragePermissionManager.hasAllFilesAccess()) {
+                Log.d("权限等待", "等待权限中...")
+                delay(1000L)
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, "权限已获取，开始复制文件", Toast.LENGTH_SHORT).show()
+            }
+
+            ResourceManager.copyAssetsImagesToSharedPictures(this@MainActivity)
+            ResourceManager.copyAssetsAudiosToSharedPictures(this@MainActivity)
+        }
 
 
 
