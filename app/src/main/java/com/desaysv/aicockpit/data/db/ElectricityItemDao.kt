@@ -44,10 +44,15 @@ interface ElectricityItemDao {
     @Query("SELECT * FROM electricity_items")
     fun getAllEles(): Flow<List<ElectricityItemData>>
 
+    // 5. **检查数据库中是否有 theme**
+    @Query("SELECT COUNT(*) FROM electricity_items")
+    suspend fun countEles(): Int
 
     // 查询全部
     @Query("SELECT * FROM electricity_items")
     suspend fun getAll(): List<ElectricityItemData>
+    @Query("DELETE FROM electricity_items WHERE id != 1")
+    suspend fun deleteAllButDefault()
 
 
     // 删除全部

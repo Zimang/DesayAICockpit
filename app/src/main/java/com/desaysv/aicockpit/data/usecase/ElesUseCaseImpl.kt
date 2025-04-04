@@ -33,10 +33,11 @@ class ElesUseCaseImpl(
     override fun observe() {
         if (observeJob != null) return
         observeJob = scope.launch {
-            rep.observeFlow().collect {
+            rep.observeListFlow().collect {
 //                _observeFlow.emit(it)
-//                reload()
-                rep.insert(it)
+                reload()
+//                rep.insert(it)
+
             }
         }
     }

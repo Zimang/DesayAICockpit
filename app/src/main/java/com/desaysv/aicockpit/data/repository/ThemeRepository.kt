@@ -1,6 +1,7 @@
 package com.desaysv.aicockpit.data.repository
 
 import android.content.Context
+import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
@@ -95,7 +96,6 @@ class ThemeRepository(
     suspend fun ensureDefaultThemeExists() {
         val defaultCount = themeItemDao.countDefaultThemes()
         if (defaultCount == 0) {
-            themeItemDao.clearAppliedTheme()
             // 插入默认主题
             themeItemDao.insert(
                 ThemeItemData(
@@ -104,6 +104,24 @@ class ThemeRepository(
                     themeName = "默认主题",
                     isDefault = true,
                     isApplied = true
+                )
+            )
+        }
+    }
+    // **确保至少有一个主题存在--默认主题**
+    suspend fun ensureThemeExists() {
+        val defaultCount = themeItemDao.countThemes()
+        if (defaultCount == 0) {
+            // 插入默认主题
+            themeItemDao.insert(
+                ThemeItemData(
+                    id = 1,
+                    electricityItemId = 1, // 默认数据
+                    soundItemId = 1,       // 默认数据
+                    themeName = "默认主题",
+                    isDefault = true,
+                    isApplied = true,
+                    imgPath = ImageConstants.DEFAULT_SOUND_PICS_PATH+"/df.png"
                 )
             )
         }
@@ -141,8 +159,12 @@ class ThemeRepository(
         themeItemDao.deleteAll()
     }
 
+    override suspend fun deleteAllButDefault() {
+        themeItemDao.deleteAllButDefault()
+    }
+
     override suspend fun saveAll(items: List<ThemeItemData>) {
-        themeItemDao.deleteAll()
+        themeItemDao.deleteAllButDefault()
         items.forEach { themeItemDao.insert(it) }
     }
 

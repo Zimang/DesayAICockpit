@@ -34,6 +34,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
@@ -173,6 +174,7 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                         ThemeCard(
                             theme,theme.isApplied,
                             onApply = {scope.launch {
+                                Log.d("apply viewmodel层")
                                 viewModel.switchAppliedTheme(it)
                             }},
                             onDelete = {

@@ -17,6 +17,7 @@ interface ResourceRepository<T> {
     suspend fun insert(item: T)
     suspend fun delete(item: T)
     suspend fun deleteAll()
+    suspend fun deleteAllButDefault()
     suspend fun saveAll(items: List<T>)
 
     //灵活处理特殊操作

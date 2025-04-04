@@ -3,6 +3,7 @@ package com.desaysv.aicockpit.business.navigate
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -120,6 +121,15 @@ fun MainNavigation() {
                         Log.d(selSoundItemData.toString())
                         selSoundItemData=it
                         soundPlayer.play(it.audioPath)
+                    }, genCockpit = {
+                        if(eleImgPath==""){
+                            Toast.makeText(context,"没有选择壁纸",Toast.LENGTH_LONG).show()
+                        }else{
+                            navigateByTag(
+                                ScreenTag.SAVE,
+                                naviController = navController
+                            )
+                        }
                     }) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
@@ -131,7 +141,7 @@ fun MainNavigation() {
                          name,
                          eleImgPath,
                          selSoundItemData.id,
-                         hue,saturation,context
+                         hue,saturation,context,true
                      )
                      Log.d("onSaveApplying")
                      sendColor(context,hue, saturation)

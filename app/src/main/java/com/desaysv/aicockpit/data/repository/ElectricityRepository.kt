@@ -2,6 +2,7 @@ package com.desaysv.aicockpit.data.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ElectricityItemDao
@@ -50,6 +51,10 @@ class ElectricityRepository(
         electricityItemDao.deleteAll()
     }
 
+    override suspend fun deleteAllButDefault() {
+        electricityItemDao.deleteAllButDefault()
+    }
+
     override suspend fun agileOp(opId: Int, item: ElectricityItemData?, id: Int) {
         Log.d("电，没有拓展方法")
         when(opId){
@@ -61,7 +66,7 @@ class ElectricityRepository(
     }
 
     override suspend fun saveAll(items: List<ElectricityItemData>) {
-        electricityItemDao.deleteAll()
+        electricityItemDao.deleteAllButDefault()
         items.forEach{
             try {
                 electricityItemDao.insert(it)
@@ -86,4 +91,23 @@ class ElectricityRepository(
 
 //        electricityItemDao.insert(item)
     }
+
+    // **确保至少有一个主题存在--默认主题**
+    suspend fun ensureEleExists() {
+        val defaultCount = electricityItemDao.countEles()
+        if (defaultCount == 0) {
+            // 插入默认主题
+            electricityItemDao.insert(
+                ElectricityItemData(
+                    id = 1,
+                    imageName = "默认图片",
+                    themeName = "默认主题",
+                    imgId = 1,
+                    imgPath = ImageConstants.DEFAULT_SOUND_PICS_PATH+"/df.png"
+                )
+            )
+        }
+    }
+
+
 }

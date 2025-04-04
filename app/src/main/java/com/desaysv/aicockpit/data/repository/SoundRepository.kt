@@ -140,12 +140,16 @@ class SoundRepository(
         soundItemDao.deleteAll()
     }
 
+    override suspend fun deleteAllButDefault() {
+        soundItemDao.deleteAllButDefault()
+    }
+
     override suspend fun agileOp(opId: Int, item: SoundItemData?, id: Int) {
         Log.d("暂不开放")
     }
 
     override suspend fun saveAll(items: List<SoundItemData>) {
-        soundItemDao.deleteAll()
+        soundItemDao.deleteAllButDefault()
         items.forEach{
             soundItemDao.insert(it)
         }
@@ -158,4 +162,6 @@ class SoundRepository(
     override suspend fun insert(item: SoundItemData) {
         soundItemDao.insert(item)
     }
+
+
 }

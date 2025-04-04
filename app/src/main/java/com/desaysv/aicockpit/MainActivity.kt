@@ -25,9 +25,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.desaysv.aicockpit.business.navigate.MainNavigation
 import com.desaysv.aicockpit.ui.component.AppPermissionGate
 import com.desaysv.aicockpit.ui.theme.DesayAICockpitTheme
+import com.desaysv.aicockpit.utils.ResourceManager
+import com.desaysv.aicockpit.utils.StoragePermissionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -56,6 +63,20 @@ class MainActivity : ComponentActivity() {
             }
         }
         printScreenScaleParams(this)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            while (!StoragePermissionManager.hasAllFilesAccess()) {
+                Log.d("权限等待", "等待权限中...")
+                delay(1000L)
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, "权限已获取，开始复制文件", Toast.LENGTH_SHORT).show()
+            }
+
+            ResourceManager.copyAssetsImagesToSharedPictures(this@MainActivity)
+            ResourceManager.copyAssetsAudiosToSharedPictures(this@MainActivity)
+        }
 
 
 

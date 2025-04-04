@@ -99,7 +99,7 @@ enum class ScreenTag{
 
 
 val screenTags= listOf("灵感","个性化座舱","保存")
-val tElectricityPics= listOf("el_1.png","el_2.png","el_2.png")
+val tElectricityPics= listOf("df.png","el_2.png","el_2.png")
 val tElectricityName= listOf("默认主题","梦幻XXX","梦幻XXX")
 val tElectricityImgId= listOf(R.drawable.el_1,R.drawable.el_2,R.drawable.el_3)
 val electricityItemDataList = List(tElectricityPics.size) { index ->
@@ -645,6 +645,7 @@ fun CustomScreen(
     onChange: (ScreenTag) -> Unit={},
     onThemeWallpaperChange: (String) -> Unit={},
     onSoundChosen: (SoundItemData) -> Unit={},
+    genCockpit: () -> Unit,
     onExit: () -> Unit={}){
 
 //    var hue by remember { mutableStateOf(0f) }
@@ -667,7 +668,7 @@ fun CustomScreen(
                 .padding(end = 143f.pxToDp(), start =207f.pxToDp())
 //                .background(Color.Red)
             ){
-                BigPanelV1(onChange)
+                BigPanelV1(genCockpit)
             }
         }
         Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())
@@ -706,7 +707,7 @@ fun CustomScreen(
 
 @Composable
 fun BigPanelV1(
-    genCockpit:(ScreenTag)->Unit={}){
+    genCockpit:()->Unit={}){
     Box(Modifier.size(
         1286.pxToDp(),720.pxToDp()
     )){
@@ -719,7 +720,9 @@ fun BigPanelV1(
                     top = 568f.pxToDp()
                 )
                 .size(340f.pxToDp(),80f.pxToDp())
-                .clickable {genCockpit(ScreenTag.SAVE)},
+                .clickable {
+                    genCockpit()
+               },
             contentAlignment = Alignment.Center
         ){
             Image(painter = painterResource(R.drawable.gen_cockpit_bg),

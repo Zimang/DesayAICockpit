@@ -7,10 +7,14 @@ import com.desaysv.aicockpit.data.repository.ElectricityRepository
 import com.desaysv.aicockpit.data.repository.SoundRepository
 import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.utils.LocaleManager
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
+import com.desaysv.aicockpit.utils.StoragePermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Thread.sleep
 
 class MyApplication : Application() {
     // 通过 lazy 延迟初始化数据库（线程安全）
@@ -29,12 +33,17 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ResourceManager.copyAssetsImagesToSharedPictures(this)
-        LocaleManager.init(this)
+
         ResourceManager.init(this)
+        LocaleManager.init(this)
         // 启动时检查默认主题
         CoroutineScope(Dispatchers.IO).launch {
-            themeRepository.ensureDefaultThemeExists()
+//            themeRepository.ensureDefaultThemeExists()
+            themeRepository.ensureThemeExists()
+            elesRepository.ensureEleExists()
         }
+
+
     }
+
 }

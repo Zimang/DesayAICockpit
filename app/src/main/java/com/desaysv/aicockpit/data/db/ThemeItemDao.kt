@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,6 +27,8 @@ interface ThemeItemDao {
 
     @Query("DELETE FROM themes")
     suspend fun deleteAll()
+    @Query("DELETE FROM themes WHERE id != 1")
+    suspend fun deleteAllButDefault()
 
     // 1. 取消所有当前 isApplied = true 的主题
     @Query("UPDATE themes SET isApplied = 0 WHERE isApplied = 1")
@@ -41,8 +44,12 @@ interface ThemeItemDao {
     // 3. 先清除 isApplied，然后把指定的 themeId 设为 isApplied = true（方法 2）
     @Transaction
     suspend fun switchAppliedTheme(themeId: Int) {
+        Log.d("开始替换应用")
         clearAppliedTheme() // 取消所有 isApplied = true
+        Log.d("取消应用")
         updateAppliedTheme(themeId) // 设定新主题
+
+        Log.d("添加应用")
     }
 
     // 4. 将指定 ID 的主题设为 isApplied = true

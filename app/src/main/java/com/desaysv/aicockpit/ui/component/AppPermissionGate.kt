@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.StoragePermissionManager
 
 @Composable
@@ -49,6 +50,7 @@ fun AppPermissionGate(
         if(!StoragePermissionManager.hasAllFilesAccess()){
             StoragePermissionManager.requestAllFilesAccess(context)
         }
+
     }
 
     if (permissionGranted) {

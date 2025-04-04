@@ -62,7 +62,7 @@ class MajorViewModel(
         soudsUseCaseImpl.observe()
     }
 
-    fun genTheme(tName: String, imP: String, soudId:Int, hue:Float, sat:Float, context: Context //用于发送广播
+    fun genTheme(tName: String, imP: String, soudId:Int, hue:Float, sat:Float,context: Context,isApplied: Boolean=false //用于发送广播
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
@@ -173,6 +173,7 @@ class MajorViewModel(
     }
 
     fun switchAppliedTheme(themeId:Int)=viewModelScope.launch {
+        Log.d("apply viewmodel 层")
         themeUseCaseImpl.rep.agileOp(ID_OP_SWITCH_APPLIED_THEME,id= themeId)
     }
 

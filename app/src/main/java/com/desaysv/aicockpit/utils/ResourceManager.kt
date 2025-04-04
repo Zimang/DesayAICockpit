@@ -4,10 +4,12 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import com.desaysv.aicockpit.R
+import com.desaysv.aicockpit.business.ImageConstants
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -41,42 +43,129 @@ object ResourceManager {
     }
     fun copyAssetsImagesToSharedPictures(context: Context) {
         val assetManager = context.assets
-        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png")
+        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png", "df.png")
 
-        val resolver = context.contentResolver
-        val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit"
+//        val resolver = context.contentResolver
+//        val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit"
+        val relativePath = ImageConstants.DEFAULT_SOUND_PICS_PATH
 
         for (filename in imageList) {
+//
+//            // ✅ 检查是否已存在该文件
+//            val existingUri = findImageInMediaStore(resolver, filename, relativePath)
+//            if (existingUri != null) {
+//                Log.d("AssetCopy", "跳过已存在文件: $filename")
+//                continue
+//            }
+//
+//            // ✅ 创建 contentValues 并插入新文件
+//            val contentValues = ContentValues().apply {
+//                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+//                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+//                put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
+//            }
+//
+//            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+//
+//            if (uri != null) {
+//                try {
+//                    assetManager.open("images/$filename").use { inputStream ->
+//                        resolver.openOutputStream(uri)?.use { outputStream ->
+//                            inputStream.copyTo(outputStream)
+//                        }
+//                    }
+//                    Log.d("AssetCopy", "写入成功: $filename")
+//                } catch (e: IOException) {
+//                    e.printStackTrace()
+//                }
+//            } else {
+//                Log.e("AssetCopy", "插入失败: $filename")
+//            }
 
-            // ✅ 检查是否已存在该文件
-            val existingUri = findImageInMediaStore(resolver, filename, relativePath)
-            if (existingUri != null) {
+            val outFile = File(relativePath, filename)
+
+            if (outFile.exists()) {
                 Log.d("AssetCopy", "跳过已存在文件: $filename")
                 continue
             }
 
-            // ✅ 创建 contentValues 并插入新文件
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
+            try {
+                assetManager.open("images/$filename").use { inputStream ->
+                    FileOutputStream(outFile).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                Log.d("AssetCopy", "写入成功: $filename")
+
+                // 通知媒体库刷新
+                MediaScannerConnection.scanFile(context, arrayOf(outFile.absolutePath), arrayOf("image/png"), null)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.e("AssetCopy", "写入失败: $filename")
+            }
+        }
+    }
+    fun copyAssetsAudiosToSharedPictures(context: Context) {
+        val assetManager = context.assets
+        val audioList = listOf("b_1_h.mp3", "b_2_h.mp3", "b_3_h.mp3", "b_4_h.mp3")
+
+        val resolver = context.contentResolver
+        val relativePath = ImageConstants.DEFAULT_SOUND_AUDIO_PATH
+
+        for (filename in audioList) {
+//
+//            // ✅ 检查是否已存在该文件
+//            val existingUri = findAudioInMediaStore(resolver, filename, relativePath)
+//            if (existingUri != null) {
+//                Log.d("AssetCopy", "跳过已存在音频文件: $filename")
+//                continue
+//            }
+//
+//            // ✅ 创建 contentValues 并插入新文件
+//            val contentValues = ContentValues().apply {
+//                put(MediaStore.Audio.Media.DISPLAY_NAME, filename)
+//                put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg")
+//                put(MediaStore.Audio.Media.RELATIVE_PATH, relativePath)
+//                put(MediaStore.Audio.Media.IS_MUSIC, 1)
+//            }
+//
+//            val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
+//
+//            if (uri != null) {
+//                try {
+//                    assetManager.open("audio/$filename").use { inputStream ->
+//                        resolver.openOutputStream(uri)?.use { outputStream ->
+//                            inputStream.copyTo(outputStream)
+//                        }
+//                    }
+//                    Log.d("AssetCopy", "音频写入成功: $filename")
+//                } catch (e: IOException) {
+//                    e.printStackTrace()
+//                }
+//            } else {
+//                Log.e("AssetCopy", "插入音频失败: $filename")
+//            }
+
+            val outFile = File(relativePath, filename)
+
+            if (outFile.exists()) {
+                Log.d("AssetCopy", "跳过已存在音频文件: $filename")
+                continue
             }
 
-            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-            if (uri != null) {
-                try {
-                    assetManager.open("images/$filename").use { inputStream ->
-                        resolver.openOutputStream(uri)?.use { outputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
+            try {
+                assetManager.open("audio/$filename").use { inputStream ->
+                    FileOutputStream(outFile).use { outputStream ->
+                        inputStream.copyTo(outputStream)
                     }
-                    Log.d("AssetCopy", "写入成功: $filename")
-                } catch (e: IOException) {
-                    e.printStackTrace()
                 }
-            } else {
-                Log.e("AssetCopy", "插入失败: $filename")
+                Log.d("AssetCopy", "音频写入成功: $filename")
+
+                // 通知媒体库刷新
+                MediaScannerConnection.scanFile(context, arrayOf(outFile.absolutePath), arrayOf("audio/mpeg"), null)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.e("AssetCopy", "音频写入失败: $filename")
             }
         }
     }
@@ -140,6 +229,39 @@ object ResourceManager {
 
         return null
     }
+
+    // ✅ 查询 MediaStore 是否存在相同音频文件
+    fun findAudioInMediaStore(
+        resolver: ContentResolver,
+        displayName: String,
+        relativePath: String
+    ): Uri? {
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.RELATIVE_PATH
+        )
+
+        val selection = "${MediaStore.Audio.Media.DISPLAY_NAME} = ? AND ${MediaStore.Audio.Media.RELATIVE_PATH} = ?"
+        val selectionArgs = arrayOf(displayName, "$relativePath/") // 注意路径末尾要带斜杠
+
+        resolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                val id = cursor.getLong(idColumn)
+                return ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+            }
+        }
+
+        return null
+    }
+
 
 
     fun getPersonalizedCabin(): String? =
