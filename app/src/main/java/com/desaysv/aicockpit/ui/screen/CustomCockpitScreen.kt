@@ -292,36 +292,6 @@ fun ElectricityList_(
 }
 
 
-@Composable
-fun SoundList_(viewModel: MajorViewModel
-,onSoundChosen: (SoundItemData) -> Unit={}) {
-
-    val context = LocalContext.current
-    val isLoading = viewModel.isLoading
-    val soundItems = viewModel.soundItems
-
-//    LaunchedEffect(Unit) {
-//        viewModel.startLoadingData()
-//        // 注册被动广播接收器，等待外部广播传递新路径
-//        viewModel.registerPassiveBroadcast(context)
-//    }
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(start = 120.pxToDp(), top = 120.pxToDp())
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            InfiniteScalingImageList_SoundV2(
-                onThemeChosen = onSoundChosen,
-                soundItemDataList = soundItems
-            )
-        }
-    }
-}
-
 
 @Composable
 fun SoundListV1_(viewModel: MajorViewModel
@@ -336,7 +306,7 @@ fun SoundListV1_(viewModel: MajorViewModel
 
         InfiniteScalingImageList_SoundV2(
             onThemeChosen = onSoundChosen,
-            soundItemDataList = soundItems
+            soundItemDataList_ = soundItems
         )
     }
 }

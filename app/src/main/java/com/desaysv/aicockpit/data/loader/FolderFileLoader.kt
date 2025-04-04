@@ -42,13 +42,14 @@ class FolderFileLoader<T>(
     private fun loadSoundItems(): List<T> {
         val picDir = File(picPath)
         val audioDir = File(audioPath)
-
+//
         if (!picDir.exists() || !audioDir.exists()) {
             Log.d("音频文件夹 $audioDir ${audioDir.exists()}")
             Log.d("图片文件夹 $picDir ${picDir.exists()}")
             Log.d("sounds 的图片与音频文件夹有一个不可访问")
             return emptyList()
         }
+
 
         val imageFiles = picDir.listFiles { f -> f.extension.lowercase() in listOf("png", "jpg", "jpeg") } ?: return emptyList()
         val audioFiles = audioDir.listFiles { f -> f.extension.lowercase() in listOf("wav", "mp3") } ?: return emptyList()

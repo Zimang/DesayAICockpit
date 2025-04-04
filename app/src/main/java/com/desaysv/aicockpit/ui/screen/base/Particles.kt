@@ -49,9 +49,42 @@ import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import java.io.File
+
+val defaultSoundList= listOf(
+    SoundItemData(
+        id = 1,
+        imageName = "b_1_h",
+        soundName = "b_1_h",
+        imgId =-1,
+        imgPath = "b_1_h.png",
+        audioPath ="b_1_h.mp3"
+    ),
+    SoundItemData(
+        id = 2,
+        imageName = "b_2_h",
+        soundName = "b_2_h",
+        imgId =-1,
+        imgPath = "b_2_h.png",
+        audioPath ="b_2_h.mp3"),
+    SoundItemData(
+        id = 3,
+        imageName = "b_3_h",
+        soundName = "b_3_h",
+        imgId =-1,
+        imgPath = "b_3_h.png",
+        audioPath ="b_3_h.mp3"),
+    SoundItemData(
+        id = 4,
+        imageName = "b_4_h",
+        soundName = "b_4_h",
+        imgId =-1,
+        imgPath = "b_4_h.png",
+        audioPath ="b_4_h.mp3"),
+)
 
 
 @Composable
@@ -176,9 +209,12 @@ fun BackgroundInputFieldV1(
 
                         Text(
                             text=ResourceManager.getThemeName()!!,
-                            modifier=Modifier.alpha(0.8f).padding(
-                                start = 31.34f.pxToDp(),
-                                end = 45.63f.pxToDp()),
+                            modifier=Modifier
+                                .alpha(0.8f)
+                                .padding(
+                                    start = 31.34f.pxToDp(),
+                                    end = 45.63f.pxToDp()
+                                ),
                             fontSize = 24.getSP(),
                             color = Color.White
                         )
@@ -215,6 +251,8 @@ fun PreviewInfiniteCarouselC() {
     InfiniteScalingImageList()
 //    InfiniteCarousel()
 }
+
+
 
 
 
@@ -330,7 +368,7 @@ fun InfiniteScalingImageList_Sound(
                     contentDescription = "",
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
-                        .size(342.pxToDp(),456.pxToDp())
+                        .size(342.pxToDp(), 456.pxToDp())
                         .graphicsLayer(
                             scaleX = scaleFactor,
                             scaleY = scaleFactor,
@@ -405,7 +443,7 @@ fun InfiniteScalingImageList_SoundV1(
                     contentDescription = "",
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
-                        .size(342.pxToDp(),456.pxToDp())
+                        .size(342.pxToDp(), 456.pxToDp())
                         .graphicsLayer(
                             scaleX = scaleFactor,
                             scaleY = scaleFactor,
@@ -434,12 +472,18 @@ fun InfiniteScalingImageList_SoundV1(
 @Composable
 fun InfiniteScalingImageList_SoundV2(
     onThemeChosen: (SoundItemData) -> Unit,
-    soundItemDataList: List<SoundItemData>,
+    soundItemDataList_: List<SoundItemData>,
     usingLocalPath: Boolean = true
 ) {
-    val len =soundItemDataList.size
-    if (len==0) return
-
+    var len =soundItemDataList_.size
+    var soundItemDataList:List<SoundItemData> = emptyList()
+    if (len==0) {
+        soundItemDataList= defaultSoundList
+        len=soundItemDataList.size
+        Log.d("使用默认配置Sounds")
+    } else{
+        soundItemDataList=soundItemDataList_
+    }
 
 
     var startIndex by remember { mutableStateOf(0) }
@@ -473,8 +517,10 @@ fun InfiniteScalingImageList_SoundV2(
                     onDragEnd = {
                         when {
                             dragOffset.value > threshold -> {
-                                startIndex = (startIndex - 1 + soundItemDataList.size) % soundItemDataList.size
+                                startIndex =
+                                    (startIndex - 1 + soundItemDataList.size) % soundItemDataList.size
                             }
+
                             dragOffset.value < -threshold -> {
                                 startIndex = (startIndex + 1) % soundItemDataList.size
                             }
@@ -486,10 +532,12 @@ fun InfiniteScalingImageList_SoundV2(
         contentAlignment = Alignment.CenterStart
     ) {
         visibleItems.forEachIndexed { i, (item, realIndex) ->
-            val painter = if (item.imgPath != null && usingLocalPath) {
+            val painter = if (usingLocalPath&&item.imgId!=-1) {
+                Log.d(item.imgPath)
                 rememberAsyncImagePainter(File(item.imgPath))
             } else {
-                painterResource(id = item.imgId ?: android.R.drawable.ic_menu_gallery)
+                Log.d(item.imgPath)
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
             }
 
             val alpha = when (i) {
@@ -505,7 +553,7 @@ fun InfiniteScalingImageList_SoundV2(
                     .clickable {
                         startIndex = realIndex
                         onThemeChosen(soundItemDataList[realIndex])
-                   },
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -553,21 +601,22 @@ fun ScalingCarousel(
     Box(modifier = modifier
         .fillMaxWidth()
         .height(480.dp)
-        .pointerInput(Unit){
+        .pointerInput(Unit) {
             detectHorizontalDragGestures(
-                onHorizontalDrag = {_,delta->
-                    dragOffset.value+=delta
+                onHorizontalDrag = { _, delta ->
+                    dragOffset.value += delta
                 },
                 onDragEnd = {
-                    when{
-                        dragOffset.value>threshold->{
-                            startIndex=(startIndex-1+data.size)%data.size
+                    when {
+                        dragOffset.value > threshold -> {
+                            startIndex = (startIndex - 1 + data.size) % data.size
                         }
-                        dragOffset.value<-threshold->{
-                            startIndex=(startIndex+1)%data.size
+
+                        dragOffset.value < -threshold -> {
+                            startIndex = (startIndex + 1) % data.size
                         }
                     }
-                    dragOffset.value=0f
+                    dragOffset.value = 0f
                 }
             )
         },
@@ -592,7 +641,9 @@ fun ScalingCarousel(
                 // 示例标题，可以自定义
                 Text(
                     text = "第${(startIndex + i) % data.size}项",
-                    modifier = Modifier.background(Color.Black.copy(alpha = 0.4f)).padding(4.dp),
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.4f))
+                        .padding(4.dp),
                     color = Color.White
                 )
             }

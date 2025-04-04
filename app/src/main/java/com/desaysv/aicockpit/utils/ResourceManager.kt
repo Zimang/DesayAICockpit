@@ -113,39 +113,6 @@ object ResourceManager {
         val relativePath = ImageConstants.DEFAULT_SOUND_AUDIO_PATH
 
         for (filename in audioList) {
-//
-//            // ✅ 检查是否已存在该文件
-//            val existingUri = findAudioInMediaStore(resolver, filename, relativePath)
-//            if (existingUri != null) {
-//                Log.d("AssetCopy", "跳过已存在音频文件: $filename")
-//                continue
-//            }
-//
-//            // ✅ 创建 contentValues 并插入新文件
-//            val contentValues = ContentValues().apply {
-//                put(MediaStore.Audio.Media.DISPLAY_NAME, filename)
-//                put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg")
-//                put(MediaStore.Audio.Media.RELATIVE_PATH, relativePath)
-//                put(MediaStore.Audio.Media.IS_MUSIC, 1)
-//            }
-//
-//            val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
-//
-//            if (uri != null) {
-//                try {
-//                    assetManager.open("audio/$filename").use { inputStream ->
-//                        resolver.openOutputStream(uri)?.use { outputStream ->
-//                            inputStream.copyTo(outputStream)
-//                        }
-//                    }
-//                    Log.d("AssetCopy", "音频写入成功: $filename")
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//            } else {
-//                Log.e("AssetCopy", "插入音频失败: $filename")
-//            }
-
             val outFile = File(relativePath, filename)
 
             if (outFile.exists()) {

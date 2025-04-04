@@ -119,7 +119,11 @@ fun MainNavigation() {
                     }, onSoundChosen = {
                         Log.d(selSoundItemData.toString())
                         selSoundItemData=it
-                        soundPlayer.play(it.audioPath)
+                        if(it.imgId==-1){
+                            soundPlayer.playFromAssets(it.audioPath)
+                        }else{
+                            soundPlayer.play(it.audioPath)
+                        }
                     }, genCockpit = {
                         if(eleImgPath==""){
                             Toast.makeText(context,"没有选择壁纸",Toast.LENGTH_LONG).show()

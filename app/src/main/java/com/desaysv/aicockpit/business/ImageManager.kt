@@ -16,6 +16,9 @@ object ImageConstants {
     val DEFAULT_PATH = "/sdcard/Pictures/aicockpit"
     val DEFAULT_SOUND_PICS_PATH = "/sdcard/Pictures/aicockpit"
     val DEFAULT_SOUND_AUDIO_PATH = "/sdcard/Sounds/aicockpit"
+//    val DEFAULT_SOUND_AUDIO_PATH: String
+//        get() = context.getExternalFilesDir("Sounds/aicockpit")!!.absolutePath
+
     const val ACTION_REQUEST_THEME = "com.desaysv.AI_Cockpit.MY_ACTION"
     const val ACTION_REQUEST_SOUNDS = "com.desaysv.AI_Cockpit.MY_ACTION"
     const val ACTION_RECEIVE_SOUNDS = "com.desaysv.AI_Cockpit.SOUND_RESOURCE_CHANGED"
