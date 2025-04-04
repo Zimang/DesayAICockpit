@@ -168,13 +168,12 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
         Box(modifier = Modifier
             .size(width = (207+1286+143+284+1636).pxToDp(), height = 720f.pxToDp())){
             Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 200f.pxToDp())){
-
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(64f.pxToDp())) {
                     items(themes){ theme->
                         ThemeCard(
                             theme,theme.isApplied,
                             onApply = {scope.launch {
-                                Log.d("apply viewmodel层")
+                                Log.d("apply screen")
                                 viewModel.switchAppliedTheme(it)
                             }},
                             onDelete = {

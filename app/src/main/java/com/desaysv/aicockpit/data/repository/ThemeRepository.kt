@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
 
 val ID_OP_SAVE_AND_APPLIED=1
-val ID_OP_SWITCH_APPLIED_THEME=1
+val ID_OP_SWITCH_APPLIED_THEME=2
 
 class ThemeRepository(
     private val themeItemDao: ThemeItemDao,
@@ -24,14 +24,19 @@ class ThemeRepository(
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()
 
     override suspend fun agileOp(opId: Int, item: ThemeItemData?,id:Int) {
+        Log.d("应用 rep层 $opId")
         when (opId){
             ID_OP_SAVE_AND_APPLIED->
                 item?.apply {
                     setNewAppliedTheme(this)
                 }
-            ID_OP_SWITCH_APPLIED_THEME->
+            ID_OP_SWITCH_APPLIED_THEME-> {
+                Log.d("应用 rep层 进入")
                 switchAppliedTheme(id)
-            else -> Unit
+            }
+            else -> {
+                Log.d("无用opid")
+            }
         }
     }
 
@@ -77,6 +82,7 @@ class ThemeRepository(
 
     // **方法 2：切换某个已有主题为 isApplied = true**
     suspend fun switchAppliedTheme(themeId: Int) {
+
         themeItemDao.switchAppliedTheme(themeId)
     }
 

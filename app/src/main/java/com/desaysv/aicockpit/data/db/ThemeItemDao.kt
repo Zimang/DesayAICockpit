@@ -14,7 +14,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ThemeItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(theme: ThemeItemData): Long
+    suspend fun insert_(theme: ThemeItemData): Long
+
+    suspend fun insert(theme: ThemeItemData): Long{
+        if(theme.isApplied){
+            clearAppliedTheme()
+        }
+        return insert_(theme)
+    }
 
     @Query("SELECT * FROM themes WHERE id = :id")
     suspend fun getById(id: Int): ThemeItemData?
@@ -37,7 +44,9 @@ interface ThemeItemDao {
     // 2. 先清除 isApplied，然后插入新的主题（方法 1）
     @Transaction
     suspend fun replaceAppliedTheme(newTheme: ThemeItemData) {
+        Log.d("取消应用")
         clearAppliedTheme() // 取消所有 isApplied = true
+        Log.d("添加应用")
         insert(newTheme.copy(isApplied = true)) // 插入新的
     }
 

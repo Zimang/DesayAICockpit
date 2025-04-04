@@ -66,7 +66,7 @@ class MajorViewModel(
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
-            addTheme(ele.id, soudId, tName = tName, isApplied = false, ele.imgPath)
+            addTheme(ele.id, soudId, tName = tName, isApplied = isApplied, ele.imgPath)
             val listTheme=ListTheme(wallpaperPath = ele.imgPath, title = tName, hue = hue, saturation = sat, sId = soudId
             )
             val json=Gson().toJson(listTheme)
@@ -77,46 +77,15 @@ class MajorViewModel(
         }
     }
 
-//    private fun observeDatabaseUpdates() {
-//        viewModelScope.launch {
-//            soudsUseCaseImpl.rep.dataUpdated.collect {
-//                val items = soundRepository.getAllSounds()
-//                _soundItems.clear()
-//                _soundItems.addAll(items)
-//            }
-//        }
-//    }
-
-//    fun startLoadingData() {
-//        viewModelScope.launch {
-//            while (true) {
-//                isLoading = true
-//
-//                val success = soundRepository.tryUpdateData()
-//                val items = soundRepository.getAllSounds()
-//
-//                val hasInvalidFile = items.any { !File(it.imgPath).exists() }
-//
-//                if (success && items.isNotEmpty() && !hasInvalidFile) {
-//                    _soundItems.clear()
-//                    _soundItems.addAll(items)
-//                    isLoading = false
-//                    break
-//                }
-//
-//                delay(2000L) // 2秒后重试
-//            }
-//        }
-//    }
-
-//    // 注册被动广播接收器，收到广播后根据广播的文件夹路径更新数据
-//    fun registerPassiveBroadcast(context: Context) {
-//        ImageManager.registerPassiveReceiver(context) { folderPath ->
-//            viewModelScope.launch {
-//                soundRepository.updateFromFolderPath(folderPath)
-//            }
-//        }
-//    }
+    fun addApplyingTheme(eId:Int,sId:Int,tName:String)=viewModelScope.launch {
+        themeUseCaseImpl.rep.agileOp(ID_OP_SAVE_AND_APPLIED,
+            ThemeItemData(electricityItemId =  eId,
+                soundItemId = sId,
+                themeName =  tName,
+                isApplied = true,
+                isDefault = false)
+        )
+    }
 
     fun getElectricityItemByPath(path: String, onResult: (ElectricityItemData?) -> Unit) {
         viewModelScope.launch {
@@ -155,16 +124,6 @@ class MajorViewModel(
                 isApplied = isApplied,
                 imgPath = imP
             )
-        )
-    }
-
-    fun addApplyingTheme(eId:Int,sId:Int,tName:String)=viewModelScope.launch {
-        themeUseCaseImpl.rep.agileOp(ID_OP_SAVE_AND_APPLIED,
-            ThemeItemData(electricityItemId =  eId,
-                soundItemId = sId,
-                themeName =  tName,
-                isApplied = true,
-                isDefault = false)
         )
     }
 
