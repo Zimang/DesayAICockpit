@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.desaysv.aicockpit.business.ImageManager
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ListTheme
 import com.desaysv.aicockpit.data.SoundItemData
