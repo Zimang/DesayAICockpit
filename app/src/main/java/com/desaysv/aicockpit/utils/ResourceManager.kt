@@ -16,72 +16,21 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 
 object ResourceManager {
-    fun copyAssetsImagesToDefImgDir(context: Context) {
-        val assetManager = context.assets
-        val defImgDir = File(context.filesDir, "defImg") // ← 改这里
-
-        if (!defImgDir.exists()) {
-            defImgDir.mkdirs()
-        }
-
-//        val imageList = assetManager.list("images") ?: return // assets/images/
-
-        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png",  "b_4_h.png")
-
-
-        for (filename in imageList) {
-            val targetFile = File(defImgDir, filename)
-
-            if (!targetFile.exists()) {
-                assetManager.open("images/$filename").use { input ->
-                    FileOutputStream(targetFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            }
-        }
-    }
     fun copyAssetsImagesToSharedPictures(context: Context) {
         val assetManager = context.assets
         val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png", "df.png")
 
-//        val resolver = context.contentResolver
-//        val relativePath = Environment.DIRECTORY_PICTURES + "/aicockpit"
         val relativePath = ImageConstants.DEFAULT_SOUND_PICS_PATH
+
+
+        val dirFile = File(relativePath)
+        if (!dirFile.exists()) {
+            val created = dirFile.mkdirs()
+            Log.d("AssetCopy", if (created) "目录创建成功: $relativePath" else "目录创建失败或已存在: $relativePath")
+        }
 
         for (filename in imageList) {
 //
-//            // ✅ 检查是否已存在该文件
-//            val existingUri = findImageInMediaStore(resolver, filename, relativePath)
-//            if (existingUri != null) {
-//                Log.d("AssetCopy", "跳过已存在文件: $filename")
-//                continue
-//            }
-//
-//            // ✅ 创建 contentValues 并插入新文件
-//            val contentValues = ContentValues().apply {
-//                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-//                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-//                put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
-//            }
-//
-//            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-//
-//            if (uri != null) {
-//                try {
-//                    assetManager.open("images/$filename").use { inputStream ->
-//                        resolver.openOutputStream(uri)?.use { outputStream ->
-//                            inputStream.copyTo(outputStream)
-//                        }
-//                    }
-//                    Log.d("AssetCopy", "写入成功: $filename")
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//            } else {
-//                Log.e("AssetCopy", "插入失败: $filename")
-//            }
-
             val outFile = File(relativePath, filename)
 
             if (outFile.exists()) {
@@ -109,8 +58,13 @@ object ResourceManager {
         val assetManager = context.assets
         val audioList = listOf("b_1_h.mp3", "b_2_h.mp3", "b_3_h.mp3", "b_4_h.mp3")
 
-        val resolver = context.contentResolver
         val relativePath = ImageConstants.DEFAULT_SOUND_AUDIO_PATH
+
+        val dirFile = File(relativePath)
+        if (!dirFile.exists()) {
+            val created = dirFile.mkdirs()
+            Log.d("AssetCopy", if (created) "目录创建成功: $relativePath" else "目录创建失败或已存在: $relativePath")
+        }
 
         for (filename in audioList) {
             val outFile = File(relativePath, filename)
@@ -147,23 +101,6 @@ object ResourceManager {
     fun getString(resourceId: Int): String? {
         return contextRef?.get()?.getString(resourceId)
     }
-
-//    // 获取 tags 列表
-//    fun getTags(): List<String?> {
-//        return listOf(
-//            contextRef?.get()?.getString(R.string.sound),
-//            contextRef?.get()?.getString(R.string.light),
-//            contextRef?.get()?.getString(R.string.screen))
-//    }
-//
-//    // 获取 screenTags 列表
-//    fun getScreenTags(): List<String?> {
-//        return listOf(
-//            contextRef?.get()?.getString(R.string.inspiration),
-//            contextRef?.get()?.getString(R.string.personalized_cabin),
-//            contextRef?.get()?.getString(R.string.save)
-//        )
-//    }
 
     // ✅ 查询 MediaStore 是否存在相同文件
     fun findImageInMediaStore(
