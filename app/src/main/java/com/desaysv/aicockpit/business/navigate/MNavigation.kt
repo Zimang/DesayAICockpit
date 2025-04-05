@@ -61,8 +61,8 @@ fun MainNavigation() {
 
     var hue by remember { mutableStateOf(0f) }
     var saturation by remember { mutableStateOf(0.5f) }
-    var eleImgPath by remember { mutableStateOf("") }
-    var selSoundItemData by remember { mutableStateOf(SoundItemData()) }
+    var eleImgPath by remember { mutableStateOf("/sdcard/Pictures/aicockpit/df.png") }
+    var sid by remember { mutableStateOf(1) }
 
     val context = LocalContext.current
     val scop = rememberCoroutineScope()
@@ -87,12 +87,6 @@ fun MainNavigation() {
     //播放器
     val soundPlayer = rememberSoundPlayerController()
 
-    // 将路由映射到ScreenTag
-    val chosenTag = when(currentRoute) {
-        Route.ScreenCUS.route -> ScreenTag.CUS
-        Route.ScreenCUS.route -> ScreenTag.INS
-        else -> ScreenTag.CUS // 默认值
-    }
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -117,8 +111,7 @@ fun MainNavigation() {
                         Log.d(it)
                         eleImgPath=it
                     }, onSoundChosen = {
-                        Log.d(selSoundItemData.toString())
-                        selSoundItemData=it
+                        sid=it.id
                         if(it.imgId==-1){
                             soundPlayer.playFromAssets(it.audioPath)
                         }else{
@@ -143,7 +136,7 @@ fun MainNavigation() {
                      majorViewModel.genTheme(
                          name,
                          eleImgPath,
-                         selSoundItemData.id,
+                         sid,
                          hue,saturation,context,true
                      )
                      Log.d("onSaveApplying")
@@ -153,7 +146,7 @@ fun MainNavigation() {
                    majorViewModel.genTheme(
                        name,
                        eleImgPath,
-                       selSoundItemData.id,
+                       sid,
                        hue,saturation,context
                    )
                 },

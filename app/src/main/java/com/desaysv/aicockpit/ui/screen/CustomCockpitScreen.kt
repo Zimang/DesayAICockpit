@@ -299,11 +299,17 @@ fun SoundListV1_(viewModel: MajorViewModel
     Box(
         Modifier
             .fillMaxSize()
-            .padding(start = 120.pxToDp(), top = 120.pxToDp())
+            .padding(start = 120.pxToDp()
+//                , top = 120.pxToDp()
+            )
     ) {
-        InfiniteCircularLazyList_2(
+        var appliedItems=if( soundItems.isEmpty() ) defaultSoundList else soundItems
+        val visiables= computeVisibleNum(appliedItems.size)
+        InfiniteCircularLazyList_3(
             onItemSelected = onSoundChosen,
-            soundItemDataList = soundItems.ifEmpty { defaultSoundList }
+//            soundItemDataList = soundItems.ifEmpty { defaultSoundList },
+            soundItemDataList_ =  appliedItems ,
+            visiables
         )
 //        InfiniteCircularSoundList(
 //            onThemeChosen = onSoundChosen,
@@ -619,11 +625,6 @@ fun CustomScreen(
     genCockpit: () -> Unit,
     onExit: () -> Unit={}){
 
-//    var hue by remember { mutableStateOf(0f) }
-//    var saturation by remember { mutableStateOf(0.5f) }
-
-
-//    val sounds by soundViewModel._soundItems.collectAsState(initial = emptyList())
 
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {

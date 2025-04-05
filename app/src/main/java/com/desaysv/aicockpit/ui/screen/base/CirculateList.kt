@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,11 +26,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -38,7 +44,9 @@ import androidx.compose.ui.util.lerp
 import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.pxToDp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.abs
@@ -146,17 +154,23 @@ fun MultiSlotImageDemo() {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
+                            dragOffset.snapTo(
+                                (dragOffset.value + delta).coerceIn(
+                                    -threshold,
+                                    threshold
+                                )
+                            )
                         }
                     },
                     onDragEnd = {
                         scope.launch {
-//                            dragOffset.animateTo(0f, tween(300))
                             if (dragOffset.value > threshold * 0.5f) {
                                 dragOffset.animateTo(threshold, tween(150))
+                                delay(100) //等待一帧
                                 startIndex = (startIndex - 1 + allImages.size) % allImages.size
                             } else if (dragOffset.value < -threshold * 0.5f) {
                                 dragOffset.animateTo(-threshold, tween(150))
+                                delay(100)
                                 startIndex = (startIndex + 1) % allImages.size
                             }
                             dragOffset.snapTo(0f) // 立即归位，数据已换
@@ -289,7 +303,8 @@ fun InfiniteCircularLazyList_2(
                     onDragEnd = {
                         scope.launch {
                             if (abs(dragOffset.value) > threshold / 2) {
-                                startIndex = (startIndex + if (dragOffset.value < 0) 1 else -1 + len) % len
+                                startIndex =
+                                    (startIndex + if (dragOffset.value < 0) 1 else -1 + len) % len
                             }
                             dragOffset.animateTo(0f, tween(200))
                         }
@@ -356,3 +371,182 @@ fun InfiniteCircularLazyList_2(
     }
 }
 
+@Composable
+fun InfiniteCircularLazyList_3(
+    onItemSelected: (SoundItemData) -> Unit,
+    soundItemDataList_: List<SoundItemData>,
+    visiableNums:Int=4 ,//可见项
+) {
+    val scope = rememberCoroutineScope()
+    val dragOffset = remember { Animatable(0f) }
+    val threshold = 300f
+    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
+    var startIndex by remember { mutableStateOf(1) }
+
+//    var chosen by remember { mutableStateOf(1) }
+    Log.d("可见项 $visiableNums 数据集 ${soundItemDataList_.size}")
+    val sizes= getLoopedSizes(getBaseSize(),visiableNums)
+    val soundItemDataList= getLoopedItems(soundItemDataList_,visiableNums)
+    val boundsList = with(LocalDensity.current) {
+        val edgeSpacingPx = 120f
+        val slotCount = sizes.size
+        val centers = mutableListOf<Float>()
+
+        var currentCenter = -200f
+
+        for (i in 0 until slotCount) {
+            centers += currentCenter
+            val halfCurrent = sizes[i].width.toPx() / 2
+            if (i < slotCount - 1) {
+                val halfNext = sizes[i + 1].width.toPx() / 2
+                currentCenter += halfCurrent + edgeSpacingPx + halfNext
+            }
+        }
+
+        List(slotCount) { i ->
+            Bounds(
+                x = centers[i] - sizes[i].width.toPx() / 2,
+                dpSize = sizes[i],
+                alpha = when(i){
+                    0,sizes.size-1->0f
+                    1->1f
+                    2->0.75f
+                    else-> 0.4f
+                }
+            )
+        }
+    }
+
+    Log.d("check len")
+    val len = soundItemDataList.size
+//    if (len < 5) {
+//        Log.d("check len")
+//        return
+//    }
+    Log.d("check len pass")
+
+    fun getVisibleItems(): List<SoundItemData> {
+        val indices = listOf(-1, 0, 1, 2, 3, 4).map {
+            (startIndex + it + len) % len
+        }
+        return indices.map { soundItemDataList[it] }
+    }
+
+    val visibleItems = getVisibleItems()
+    val direction = dragOffset.value.compareTo(0f)
+
+    val lastIndex=sizes.size-1
+    val transitions = if (direction >= 0) {
+        sizes.indices.map { i ->
+            if (i == lastIndex) lerpSlotV(boundsList[lastIndex], boundsList[lastIndex], 1f)
+            else lerpSlotV(boundsList[i], boundsList[i + 1], t)
+        }
+    } else {
+        (lastIndex downTo 0).map { i ->
+            if (i == 0) lerpSlotV(boundsList[0], boundsList[0], 1f)
+            else lerpSlotV(boundsList[i], boundsList[i - 1], -t)
+        }.reversed()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, delta ->
+                        scope.launch {
+                            dragOffset.snapTo(
+                                (dragOffset.value + delta).coerceIn(
+                                    -threshold,
+                                    threshold
+                                )
+                            )
+                        }
+                    },
+                    onDragEnd = {
+                        scope.launch {
+                            if (dragOffset.value > threshold * 0.5f) {
+                                dragOffset.animateTo(threshold, tween(150))
+                                delay(100)
+                                startIndex = (startIndex - 1 + len) % len
+                            } else if (dragOffset.value < -threshold * 0.5f) {
+                                dragOffset.animateTo(-threshold, tween(150))
+                                delay(100)
+                                startIndex = (startIndex + 1) % len
+                            }
+                            dragOffset.snapTo(0f)
+                            onItemSelected(visibleItems[startIndex])
+                        }
+                    }
+                )
+            }
+//                .background(color = Color.Gray)
+            .clip(RectangleShape),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        transitions.forEachIndexed { i, state ->
+            val item = visibleItems[i]
+            val painter = if (item.imgId != -1) {
+                rememberAsyncImagePainter(File(item.imgPath))
+            } else {
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
+            }
+
+            Box(
+                Modifier
+//                    .absoluteOffset {
+//                        IntOffset(state.x.roundToInt(), 100)
+//                    }
+                    .size(state.size)
+                    .graphicsLayer {
+                        translationX = state.x
+                        alpha = state.alpha
+                    }
+                    .clickable { onItemSelected(item) },
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+//                    text = item.soundName + " " + item.id,
+                    text = item.soundName ,
+                    style = TextStyle(
+                        fontSize = 24.getSP(),
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
+                )
+            }
+        }
+    }
+}
+
+fun getLoopedItems(data: List<SoundItemData>, visibleCount: Int): List<SoundItemData> {
+    return List(visibleCount ) { i ->
+        when (i) {
+            0 -> data[(visibleCount - 1) % data.size] // 前一个
+            visibleCount + 1 -> data[0 % data.size]    // 后一个
+            else -> data[(i - 1) % data.size]
+        }
+    }
+}
+fun getLoopedSizes(dpSizes: List<DpSize>, visibleCount: Int): List<DpSize> {
+    return List(visibleCount + 2) { i ->
+        when (i) {
+            0 -> dpSizes[(visibleCount - 1) % dpSizes.size]
+            visibleCount + 1 -> dpSizes[0 % dpSizes.size]
+            else -> dpSizes[(i - 1) % dpSizes.size]
+        }
+    }
+}
+
+fun computeVisibleNum(dataSize: Int, maxVisible: Int = 4): Int {
+    Log.d("数据集大小 $dataSize 可见项参数 $maxVisible")
+    return if (dataSize >= maxVisible) maxVisible else dataSize
+}
