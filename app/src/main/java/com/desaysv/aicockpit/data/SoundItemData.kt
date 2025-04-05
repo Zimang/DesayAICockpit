@@ -1,9 +1,13 @@
 package com.desaysv.aicockpit.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "sound_items")
+@Entity(
+    tableName = "sound_items",
+    indices = [Index(value = ["soundName"], unique = true)]
+)
 data class SoundItemData(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,//声的id
     val imageName: String="",  // 声的图片名称

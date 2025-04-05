@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
-import com.desaysv.aicockpit.ui.screen.base.BackgroundInputField
 import com.desaysv.aicockpit.ui.screen.base.BackgroundInputFieldV1
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_Save
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_SaveApply

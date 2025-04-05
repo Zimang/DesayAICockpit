@@ -3,6 +3,7 @@ package com.desaysv.aicockpit.ui.screen.base
 
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,11 +24,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +47,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.SoundItemData
@@ -53,6 +59,8 @@ import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import java.io.File
+import kotlin.math.abs
+import kotlin.math.min
 
 val defaultSoundList= listOf(
     SoundItemData(
@@ -85,79 +93,6 @@ val defaultSoundList= listOf(
         imgPath = "b_4_h.png",
         audioPath ="b_4_h.mp3"),
 )
-
-
-@Composable
-fun BackgroundInputField(
-    @DrawableRes bg:Int,
-    modifier: Modifier=Modifier,
-    onTextChange:(String)->Unit
-) {
-    // 图片资源需放入res/drawable目录
-    val backgroundImage = painterResource(bg)
-    var text by remember { mutableStateOf("") }
-    val maxLength = 20 // 最大输入长度
-
-
-
-    Box(
-        modifier = modifier
-            .size(721f.pxToDp(), 72f.pxToDp()) // 根据背景图尺寸设置
-            .background(Color.Transparent)
-    ) {
-        // 背景图片
-        Image(
-            painter = backgroundImage,
-            contentDescription = "输入框背景",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // 透明输入框
-        BasicTextField(
-            value = text,
-            onValueChange = {
-                if (it.length <= maxLength) text = it
-                onTextChange(it)
-            },
-            textStyle = TextStyle(
-                color = Color.White, // 文字颜色根据背景图区域设置
-                fontSize =24.pxToDp().value.sp,
-            ),
-            cursorBrush = SolidColor(colorResource(R.color.choosen)), // 光标颜色
-            decorationBox = { innerTextField ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 100f.pxToDp())) {
-
-                        //需要修改为文字
-                        Image(painterResource(R.drawable.save_lable),
-                            contentDescription = "",
-                            modifier = Modifier.padding(
-                                start = 31.34f.pxToDp(),
-                                end = 45.63f.pxToDp(),
-                                top = 23.77f.pxToDp()
-                            ))
-//                        )
-                        Box(modifier = Modifier.padding(
-                            top =22.88f.pxToDp(),
-//                            bottom = 25.12f.pxToDp()
-                        )){
-                            innerTextField() // 直接放置系统生成的输入框
-                        }
-                    }
-                }
-            }
-        )
-
-    }
-}
 
 @Composable
 fun BackgroundInputFieldV1(
@@ -235,21 +170,11 @@ fun BackgroundInputFieldV1(
 
 @Preview(
     backgroundColor = 0xff000000,showBackground = true,
-    widthDp = 700
-)
-@Composable
-fun PreviewInfiniteCarousel() {
-//    InfiniteCarousel()
-}
-@Preview(
-    backgroundColor = 0xff000000,showBackground = true,
     widthDp = 650
 )
 @Composable
 fun PreviewInfiniteCarouselC() {
-//    InfiniteScalingImageListD()
     InfiniteScalingImageList()
-//    InfiniteCarousel()
 }
 
 
@@ -562,6 +487,128 @@ fun InfiniteScalingImageList_SoundV2(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.FillBounds,
                     alpha = alpha
+                )
+
+                Text(
+                    text = item.soundName,
+                    style = TextStyle(
+                        fontSize = 24.getSP(),
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
+                )
+            }
+        }
+    }
+}
+@Composable
+fun InfiniteCircularSoundList(
+    onThemeChosen: (SoundItemData) -> Unit,
+    soundItemDataList_: List<SoundItemData>,
+    usingLocalPath: Boolean = true
+) {
+    val soundItemDataList = if (soundItemDataList_.isEmpty()) {
+        Log.d("使用默认配置Sounds")
+        defaultSoundList
+    } else soundItemDataList_
+
+    val len = soundItemDataList.size
+    if (len < 5) return // 至少要 5 个元素
+
+    var startIndex by remember { mutableStateOf(0) }
+    val dragOffset = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+
+    val thresholdPx = 342f  // 拖动到一个 item 的宽度就切换
+    val edgeSpacing = 120.pxToDp()
+    val slotCount = 5       // 固定 5 个 slot
+
+    // 各个 slot 的大小和透明度（slot0 最大，slot4 最小）
+    val baseSizes = listOf(
+        DpSize(342.pxToDp(), 456.pxToDp()),
+        DpSize(258.pxToDp(), 344.pxToDp()),
+        DpSize(168.pxToDp(), 224.pxToDp()),
+        DpSize(168.pxToDp(), 224.pxToDp()),
+        DpSize(168.pxToDp(), 224.pxToDp())
+    )
+    val baseAlphas = listOf(1f, 0.75f, 0.4f, 0.4f, 0.4f)
+
+    val visibleItems = List(slotCount) { i ->
+        val realIndex = (startIndex + i) % len
+        soundItemDataList[realIndex] to realIndex
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(456.pxToDp())
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, delta ->
+                        scope.launch {
+                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-thresholdPx, thresholdPx))
+                        }
+                    },
+                    onDragEnd = {
+                        scope.launch {
+                            val endOffset = dragOffset.value
+                            if (endOffset > thresholdPx / 2) {
+                                // 向右滑
+                                dragOffset.animateTo(thresholdPx, tween(150))
+                                startIndex = (startIndex - 1 + len) % len
+                            } else if (endOffset < -thresholdPx / 2) {
+                                // 向左滑
+                                dragOffset.animateTo(-thresholdPx, tween(150))
+                                startIndex = (startIndex + 1) % len
+                            }
+                            dragOffset.animateTo(0f, tween(200))
+                        }
+                    }
+                )
+            },
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        visibleItems.forEachIndexed { slotIndex, (item, realIndex) ->
+            // 计算滑动进度：-1（左滑满）~ +1（右滑满）
+            val progress = (dragOffset.value / thresholdPx).coerceIn(-1f, 1f)
+
+            // 计算当前 slotIndex 在拖动方向下要过渡到哪个 slot
+            val fromSlot = slotIndex
+            val toSlot = if (progress < 0f) slotIndex + 1 else slotIndex - 1
+
+            val clampedToSlot = toSlot.coerceIn(0, slotCount - 1)
+            val size = lerp(baseSizes[fromSlot], baseSizes[clampedToSlot], abs(progress))
+            val alpha = lerp(baseAlphas[fromSlot], baseAlphas[clampedToSlot], abs(progress))
+
+            val painter = if (usingLocalPath && item.imgId != -1) {
+                rememberAsyncImagePainter(File(item.imgPath))
+            } else {
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
+            }
+
+            Box(
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = size.width.value / baseSizes[0].width.value
+                        scaleY = size.height.value / baseSizes[0].height.value
+                        this.alpha = alpha
+                    }
+                    .padding(horizontal = edgeSpacing / 2)
+                    .size(baseSizes[0]) // 每个 Box 占位大小固定，用 scale 实现视觉变化
+                    .clickable {
+                        startIndex = realIndex
+                        onThemeChosen(soundItemDataList[realIndex])
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds
                 )
 
                 Text(

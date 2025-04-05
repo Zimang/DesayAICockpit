@@ -62,9 +62,7 @@ import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
-import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_SoundV1
-import com.desaysv.aicockpit.ui.screen.base.InfiniteScalingImageList_SoundV2
-import com.desaysv.aicockpit.ui.screen.base.PicWithText
+import com.desaysv.aicockpit.ui.screen.base.*
 import com.desaysv.aicockpit.ui.theme.Choosen
 import com.desaysv.aicockpit.utils.LocaleManager
 import com.desaysv.aicockpit.utils.ResourceManager
@@ -303,11 +301,14 @@ fun SoundListV1_(viewModel: MajorViewModel
             .fillMaxSize()
             .padding(start = 120.pxToDp(), top = 120.pxToDp())
     ) {
-
-        InfiniteScalingImageList_SoundV2(
-            onThemeChosen = onSoundChosen,
-            soundItemDataList_ = soundItems
+        InfiniteCircularLazyList_2(
+            onItemSelected = onSoundChosen,
+            soundItemDataList = soundItems.ifEmpty { defaultSoundList }
         )
+//        InfiniteCircularSoundList(
+//            onThemeChosen = onSoundChosen,
+//            soundItemDataList_ = soundItems
+//        )
     }
 }
 
