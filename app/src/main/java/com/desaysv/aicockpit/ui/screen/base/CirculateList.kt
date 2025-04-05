@@ -64,14 +64,40 @@ fun MultiSlotImageDemo() {
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
 
     val dpSizes = getBaseSize()
-    val boundsList = listOf(
-        Bounds(200f, dpSizes[3], 0f),
-        Bounds(700f, dpSizes[0], 1f),
-        Bounds(1200f, dpSizes[1], 1f),
-        Bounds(1700f, dpSizes[2], 1f),
-        Bounds(2200f, dpSizes[3], 1f),
-        Bounds(2700f, dpSizes[0], 0f)
-    )
+    val boundsList = with(LocalDensity.current) {
+        val sizes = listOf(
+            dpSizes[3], // slot0 - 隐藏
+            dpSizes[0], // slot1 - 最大
+            dpSizes[1], // slot2
+            dpSizes[2], // slot3
+            dpSizes[3], // slot4
+            dpSizes[0], // slot5 - 隐藏
+        )
+        val edgeSpacingPx = 120f
+        val slotCount = sizes.size
+        val centers = mutableListOf<Float>()
+
+        // 初始化 slot1 的中心起点（slot0 稍微在左侧）
+        var currentCenter = 700f
+
+        for (i in 0 until slotCount) {
+            centers += currentCenter
+            val halfCurrent = sizes[i].width.toPx() / 2
+            if (i < slotCount - 1) {
+                val halfNext = sizes[i + 1].width.toPx() / 2
+                currentCenter += halfCurrent + edgeSpacingPx + halfNext
+            }
+        }
+
+        // 构造 Bounds 列表
+        List(slotCount) { i ->
+            Bounds(
+                x = centers[i] - sizes[i].width.toPx() / 2,
+                dpSize = sizes[i],
+                alpha = if (i == 0 || i == 5) 0f else 1f
+            )
+        }
+    }
 
     val imageUrls = listOf(
         "https://picsum.photos/id/1001/300/300",
@@ -142,204 +168,6 @@ fun MultiSlotImageDemo() {
 }
 
 
-@Preview
-@Composable
-fun TwoSlotTwoImageDemo() {
-    val scope = rememberCoroutineScope()
-    val dragOffset = remember { Animatable(0f) }
-    val threshold = 300f
-    val t = (dragOffset.value / threshold).coerceIn(0f, 1f)
-
-    // 槽点位置
-    val slot0 = Slot(x = 600f, scale = 1f, alpha = 1f)
-    val slot1 = Slot(x = 800f, scale = 0.4f, alpha = 0.4f)
-
-    val dpSizes= getBaseSize()
-
-    val p1Bounds=Bounds(600f,dpSizes[3],1f)
-    val p2Bounds=Bounds(800f,dpSizes[0],1f)
-    val p3Bounds=Bounds(1000f,dpSizes[1],1f)
-    val p4Bounds=Bounds(1200f,dpSizes[2],1f)
-    val p5Bounds=Bounds(1400f,dpSizes[3],1f)
-    val p6Bounds=Bounds(1600f,dpSizes[0],1f)
-
-    val directionP2P1= lerpSlot(p2Bounds,p1Bounds,t)
-    val directionP1P2= lerpSlot(p1Bounds,p2Bounds,t)
-    val directionP3P2= lerpSlot(p3Bounds,p2Bounds,t)
-    val directionP2P3= lerpSlot(p2Bounds,p3Bounds,t)
-    val directionP4P3= lerpSlot(p4Bounds,p3Bounds,t)
-    val directionP3P4= lerpSlot(p3Bounds,p4Bounds,t)
-    val directionP5P4= lerpSlot(p5Bounds,p4Bounds,t)
-    val directionP4P5= lerpSlot(p4Bounds,p5Bounds,t)
-    val directionP6P5= lerpSlot(p6Bounds,p5Bounds,t)
-    val directionP5P6= lerpSlot(p5Bounds,p6Bounds,t)
-
-    val stateA = lerpSlot(slot0, slot1, t) // A 从 0 -> 1
-    val stateB = lerpSlot(slot1, slot0, t) // B 从 1 -> 0（反向）
-
-    LaunchedEffect(dragOffset.value) {
-        println("A: x=${stateA.x}, scale=${stateA.scale}, alpha=${stateA.alpha}")
-        println("B: x=${stateB.x}, scale=${stateB.scale}, alpha=${stateB.alpha}")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, delta ->
-                        scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            dragOffset.animateTo(0f, tween(300))
-                        }
-                    }
-                )
-            }
-    ) {
-
-        // 图片 A（从槽0滑向槽1）
-        Box(
-            Modifier
-                .absoluteOffset { IntOffset(stateA.x.roundToInt(), 300) }
-                .size(200.dp)
-                .graphicsLayer {
-                    scaleX = stateA.scale
-                    scaleY = stateA.scale
-                    alpha = stateA.alpha
-                }
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter("https://picsum.photos/id/1015/300/300"),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        // 图片 B（从槽1滑向槽0）
-        Box(
-            Modifier
-                .absoluteOffset { IntOffset(stateB.x.roundToInt(), 300) }
-                .size(200.dp)
-                .graphicsLayer {
-                    scaleX = stateB.scale
-                    scaleY = stateB.scale
-                    alpha = stateB.alpha
-                }
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter("https://picsum.photos/id/1025/300/300"),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-        // 槽点红圈
-        listOf(slot0, slot1).forEach {
-            Box(
-                Modifier
-                    .offset { IntOffset(it.x.roundToInt(), 400) }
-                    .size(10.dp)
-                    .background(Color.Red, CircleShape)
-            )
-        }
-    }
-}
-
-
-
-
-@Preview
-@Composable
-fun OneSlotOneImageDemo() {
-    val scope = rememberCoroutineScope()
-    val dragOffset = remember { Animatable(0f) }
-    val threshold = 300f
-    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-
-
-    // 槽点位置（固定在屏幕中间偏左）
-    val anchorX = 600f
-    val anchorY = 200f
-
-    val dpSizes= getBaseSize()
-    val p1Bounds=Bounds(anchorX,dpSizes[3],1f)
-    val p2Bounds=Bounds(anchorX,dpSizes[0],1f)
-    val p3Bounds=Bounds(anchorX,dpSizes[1],1f)
-    val p4Bounds=Bounds(anchorX,dpSizes[2],1f)
-    val p5Bounds=Bounds(anchorX,dpSizes[3],1f)
-    val p6Bounds=Bounds(anchorX,dpSizes[0],1f)
-
-    // 初始状态（图片偏移 0，scale=1f）
-    val start = Slot(x = anchorX, scale = 1f, alpha = 1f)
-    // 目标状态（图片偏移 +100，缩小，变淡）
-    val end = Slot(x = anchorX + 150f, scale = 0.5f, alpha = 0.3f)
-
-    // 插值结果
-    val state = lerpSlot(start, end, t)
-    LaunchedEffect(dragOffset.value) {
-        println("State: x=${state.x}, scale=${state.scale}, alpha=${state.alpha}")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, delta ->
-                        scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            dragOffset.animateTo(0f, tween(300))
-                        }
-                    }
-                )
-            }
-    ) {
-        // 图片：应用插值状态
-        Box(
-            Modifier
-                .absoluteOffset { IntOffset(anchorX.roundToInt(), anchorY.roundToInt()) }
-                .size(200.dp)
-                .background(Color.Gray)
-        )
-        // 锚点：红圈
-        Box(
-            Modifier
-                .offset { IntOffset(anchorX.roundToInt(), anchorY.roundToInt()) }
-                .size(10.dp)
-                .background(Color.Red, CircleShape)
-        )
-
-        // 图片：应用插值状态
-        Box(
-            Modifier
-                .absoluteOffset { IntOffset(state.x.roundToInt(), anchorY.roundToInt()) }
-                .size(200.dp)
-                .graphicsLayer {
-                    scaleX = state.scale
-                    scaleY = state.scale
-                    alpha = state.alpha
-                }
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter("https://picsum.photos/300/300"),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}
 
 data class Slot(val x: Float, val scale: Float, val alpha: Float)
 data class Bounds(val x: Float, val dpSize: DpSize, val alpha: Float)
@@ -367,17 +195,6 @@ fun lerpSlot(from: Slot, to: Slot, t: Float): Slot {
         alpha = lerp(from.alpha, to.alpha, t)
     )
 }
-fun lerpSlot(from: Bounds, to: Bounds, t: Float): Bounds {
-    Bounds(
-        x = lerp(from.x,to.x,t),
-        dpSize = DpSize(
-            lerp(from.dpSize.width,to.dpSize.width,t),
-            lerp(from.dpSize.height,to.dpSize.height,t)),
-        alpha = TODO()
-    )
-}
-
-fun lerp(a: Float, b: Float, t: Float): Float = a + (b - a) * t
 fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
 
@@ -388,13 +205,6 @@ data class SlotParam(val x: Float, val scale: Float, val alpha: Float)
 
 // 线性插值函数
 fun lerpFloat(a: Float, b: Float, t: Float): Float = a + (b - a) * t
-fun lerpSlotParam(from: SlotParam, to: SlotParam, t: Float): SlotParam {
-    return SlotParam(
-        x = lerpFloat(from.x, to.x, t),
-        scale = lerpFloat(from.scale, to.scale, t),
-        alpha = lerpFloat(from.alpha, to.alpha, t)
-    )
-}
 
 
 
