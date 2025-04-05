@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,9 +40,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.pxToDp
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.time.format.TextStyle
 import kotlin.math.abs
 import kotlin.math.roundToInt
 @Composable
@@ -55,6 +52,7 @@ fun getBaseSize()= listOf(
 )
 
 
+
 @Preview
 @Composable
 fun MultiSlotImageDemo() {
@@ -62,6 +60,7 @@ fun MultiSlotImageDemo() {
     val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
+    var startIndex by remember { mutableStateOf(1) }
 
     val dpSizes = getBaseSize()
     val boundsList = with(LocalDensity.current) {
@@ -99,14 +98,23 @@ fun MultiSlotImageDemo() {
         }
     }
 
-    val imageUrls = listOf(
+    val allImages = listOf(
+        "https://picsum.photos/id/1000/300/300",
         "https://picsum.photos/id/1001/300/300",
         "https://picsum.photos/id/1002/300/300",
         "https://picsum.photos/id/1003/300/300",
         "https://picsum.photos/id/1004/300/300",
         "https://picsum.photos/id/1005/300/300",
-        "https://picsum.photos/id/1006/300/300"
+        "https://picsum.photos/id/1006/300/300",
+        "https://images.unsplash.com/photo-1741986947217-d1a0ecc39149?q=80&w=1166&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     )
+    fun getVisibleImages(): List<String> {
+        val indices = listOf(-1, 0, 1, 2, 3, 4).map {
+            (startIndex + it + allImages.size) % allImages.size
+        }
+        return indices.map { allImages[it] }
+    }
+    val imagesUrls=getVisibleImages()
 
     val direction = dragOffset.value.compareTo(0f)
 
@@ -143,7 +151,15 @@ fun MultiSlotImageDemo() {
                     },
                     onDragEnd = {
                         scope.launch {
-                            dragOffset.animateTo(0f, tween(300))
+//                            dragOffset.animateTo(0f, tween(300))
+                            if (dragOffset.value > threshold * 0.5f) {
+                                dragOffset.animateTo(threshold, tween(150))
+                                startIndex = (startIndex - 1 + allImages.size) % allImages.size
+                            } else if (dragOffset.value < -threshold * 0.5f) {
+                                dragOffset.animateTo(-threshold, tween(150))
+                                startIndex = (startIndex + 1) % allImages.size
+                            }
+                            dragOffset.snapTo(0f) // 立即归位，数据已换
                         }
                     }
                 )
@@ -157,7 +173,7 @@ fun MultiSlotImageDemo() {
                     .graphicsLayer { alpha = state.alpha }
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(imageUrls[i]),
+                    painter = rememberAsyncImagePainter(imagesUrls[i]),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
