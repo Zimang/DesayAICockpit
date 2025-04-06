@@ -5,7 +5,7 @@ plugins {
 //    id("com.google.devtools.ksp") version "1.9.20-1.0.15"
     id("com.google.devtools.ksp") version "2.0.0-1.0.22"
 }
-
+var koin_version = "3.5.3"
 android {
     namespace 'com.desaysv.aicockpit'
     compileSdk 35
@@ -64,12 +64,21 @@ dependencies {
 
     implementation "io.coil-kt:coil-compose:2.4.0" //图片加载
     implementation("com.google.code.gson:gson:2.10.1") //json解析
-//    implementation libs.androidx.material3.icons.extended
+
+    //koin
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.core)
+
+
+//    testImplementation files('../libs/koin-compose-jvm-1.1.2.jar')
+
     testImplementation libs.junit
+
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
     androidTestImplementation platform(libs.androidx.compose.bom)
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
+    implementation "org.jetbrains.kotlin:kotlin-test:2.0.0"
 }

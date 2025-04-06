@@ -1,16 +1,19 @@
 package com.desaysv.aicockpit.data.repository
 
 import android.content.Context
+import android.os.Environment
 import com.desaysv.aicockpit.business.ImageConstants
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
+import com.desaysv.aicockpit.data.loader.CONFIG_PATH
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
+import java.io.File
 
 val ID_OP_SAVE_AND_APPLIED=1
 val ID_OP_SWITCH_APPLIED_THEME=2
@@ -18,7 +21,9 @@ val ID_OP_SWITCH_APPLIED_THEME=2
 class ThemeRepository(
     private val themeItemDao: ThemeItemDao,
     private val context: Context,
-    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader,
+    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader(
+        File(Environment.getExternalStorageDirectory(), CONFIG_PATH).toString()
+    ),
 ):ResourceRepository<ThemeItemData>{
 
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()

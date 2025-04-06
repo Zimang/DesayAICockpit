@@ -27,7 +27,7 @@ import java.io.File
 class SoundRepository(
     private val soundItemDao: SoundItemDao,
     private val context: Context,
-    private val resourceLoader: ResourceLoader<SoundItemData> = SoundLoader
+    private val resourceLoader: ResourceLoader<SoundItemData> = SoundLoader()
 ) :ResourceRepository<SoundItemData>{
 
 

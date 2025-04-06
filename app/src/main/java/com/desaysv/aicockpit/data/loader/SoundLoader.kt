@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 /**
  *
  */
-object SoundLoader:ResourceLoader<SoundItemData> {
+class SoundLoader:ResourceLoader<SoundItemData> {
 
     var folderFileLoader =FolderFileLoader<SoundItemData>(
         ResourceType.SOUND_RESOURCE,
