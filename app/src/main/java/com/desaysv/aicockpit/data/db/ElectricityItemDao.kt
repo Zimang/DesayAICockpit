@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ElectricityItemDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(electricityItem: ElectricityItemData): Long
 
     @Query("SELECT * FROM electricity_items WHERE id = :id")
@@ -24,7 +24,7 @@ interface ElectricityItemDao {
 
 
     // 插入多条（忽略重复）
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllRaw(items: List<ElectricityItemData>): List<Long>
 
 

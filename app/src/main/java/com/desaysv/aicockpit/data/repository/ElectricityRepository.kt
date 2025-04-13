@@ -10,6 +10,7 @@ import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.AvailablePicsLoader
+import com.desaysv.aicockpit.data.loader.WujiElecLoader
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,7 @@ val OP_ID_GET_BY_IMGE_SOURCE=1
 class ElectricityRepository(
     private val electricityItemDao: ElectricityItemDao,
     private val context: Context,
-    private val loader: ResourceLoader<ElectricityItemData> = AvailablePicsLoader(),
+    private val loader: ResourceLoader<ElectricityItemData> =WujiElecLoader,
 ) :ResourceRepository<ElectricityItemData> {
 
     val allEles:Flow<List<ElectricityItemData>> =electricityItemDao.getAllEles()

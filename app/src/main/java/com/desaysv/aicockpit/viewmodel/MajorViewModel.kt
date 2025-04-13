@@ -66,8 +66,7 @@ class MajorViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val ele = getEleByPath(imP) ?: return@launch
             addTheme(ele.id, soudId, tName = tName, isApplied = isApplied,imP= ele.imgPath, hue = hue, saturation = sat, )
-            val listTheme=ListTheme(wallpaperPath = ele.imgPath, title = tName, hue = hue, saturation = sat, sId = soudId
-            )
+            val listTheme=ListTheme(wallpaperPath = ele.imgPath, title = tName, hue = hue, saturation = sat, sId = soudId)
             val json=Gson().toJson(listTheme)
             val intent = Intent("com.desaysv.aicockpit.THEME_SEND_ACTION").apply {
                 putExtra("themeJson", json)
@@ -141,6 +140,10 @@ class MajorViewModel(
     fun switchAppliedTheme(themeId:Int)=viewModelScope.launch {
         Log.d("apply viewmodel 层")
         themeUseCaseImpl.rep.agileOp(ID_OP_SWITCH_APPLIED_THEME,id= themeId)
+    }
+    fun switchAppliedTheme(themeItemData: ThemeItemData)=viewModelScope.launch {
+        Log.d("apply viewmodel 层")
+        themeUseCaseImpl.rep.agileOp(ID_OP_SWITCH_APPLIED_THEME,id= themeItemData.id)
     }
 
 }

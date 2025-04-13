@@ -75,7 +75,7 @@ object ResourceManager {
             }
 
             try {
-                assetManager.open("audio/$filename").use { inputStream ->
+                assetManager.open("audio/$filename" ).use { inputStream ->
                     FileOutputStream(outFile).use { outputStream ->
                         inputStream.copyTo(outputStream)
                     }

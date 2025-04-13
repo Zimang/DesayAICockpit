@@ -141,6 +141,7 @@ fun MainNavigation() {
                      )
                      Log.d("onSaveApplying")
                      informingIPC(context,hue, saturation,name)
+//                     informingIPC(context,)
                },
                onSave =  {name->
                    majorViewModel.genTheme(
@@ -178,6 +179,11 @@ fun hsvToColorInt(hue: Float, saturation: Float, value: Float = 1f): Int {
 fun informingIPC(ctx : Context, hue:Float, saturation:Float,tname:String){
     sendColor(ctx,hue,saturation)
     sendApplyingTheme(ctx,tname)
+}
+
+fun informingIPC(ctx : Context, themeItemData: ThemeItemData){
+    sendColor(ctx,themeItemData.hue,themeItemData.saturation)
+    sendApplyingTheme(ctx,themeItemData.themeName)
 }
 
 fun sendColor(ctx : Context, hue:Float, saturation:Float){

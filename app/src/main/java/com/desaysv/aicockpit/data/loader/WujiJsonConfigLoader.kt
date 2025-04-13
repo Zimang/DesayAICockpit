@@ -84,12 +84,6 @@ object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
                     ThemeItemData(
                         themeName = it.title,
                         imgPath = it.wallpaperPath,
-                        icon1_Path = it.icon1_Path,
-                        icon2_Path = it.icon2_Path,
-                        icon3_Path = it.icon3_Path,
-                        icon4_Path = it.icon4_Path,
-                        icon5_Path = it.icon5_Path,
-                        layoutType = it.layoutType
                     )
                 }.toList()
             }
