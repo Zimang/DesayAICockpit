@@ -83,15 +83,15 @@ val defaultSoundList= listOf(
         imageName = "b_3_h",
         soundName = "b_3_h",
         imgId =-1,
-        imgPath = "b_3_h.png",
-        audioPath ="b_3_h.mp3"),
+        imgPath = "麋鹿.png",
+        audioPath ="奶牛.mp3"),
     SoundItemData(
         id = 4,
         imageName = "b_4_h",
         soundName = "b_4_h",
         imgId =-1,
-        imgPath = "b_4_h.png",
-        audioPath ="b_4_h.mp3"),
+        imgPath = "奶牛.png",
+        audioPath ="麋鹿.mp3"),
 )
 
 @Composable
