@@ -108,7 +108,7 @@ val electricityItemDataList = List(tElectricityPics.size) { index ->
         imgPath = "$index.png"
     )
 }
-val tSoundPics= listOf("b_1_h.png","b_2_h.png","b_3_h.png","b_4_h.png")
+val tSoundPics= listOf("布谷鸟.png","树叶婆娑.png","b_3_h.png","b_4_h.png")
 val tSoundName= listOf("布谷鸟","梦幻XXX","梦幻XXX","梦幻XXX")
 val tSoundImgId= listOf(R.drawable.b_1_h,R.drawable.b_2_h,R.drawable.b_3_h,R.drawable.b_4_h)
 val soundItemDataList = List(tSoundPics.size) { index ->
@@ -305,7 +305,7 @@ fun SoundListV1_(viewModel: MajorViewModel
     ) {
         var appliedItems=if( soundItems.isEmpty() ) defaultSoundList else soundItems
         val visiables= computeVisibleNum(appliedItems.size)
-        InfiniteCircularLazyList_3(
+        InfiniteCircularLazyList_4(
             onItemSelected = onSoundChosen,
 //            soundItemDataList = soundItems.ifEmpty { defaultSoundList },
             soundItemDataList_ =  appliedItems ,

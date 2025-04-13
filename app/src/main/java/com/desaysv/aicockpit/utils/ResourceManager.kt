@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference
 object ResourceManager {
     fun copyAssetsImagesToSharedPictures(context: Context) {
         val assetManager = context.assets
-        val imageList = listOf("b_1_h.png", "b_2_h.png", "b_3_h.png", "b_4_h.png", "df.png")
+        val imageList = listOf("布谷鸟.png", "树叶婆娑.png", "b_3_h.png", "b_4_h.png", "df.png")
 
         val relativePath = ImageConstants.DEFAULT_SOUND_PICS_PATH
 
@@ -56,7 +56,7 @@ object ResourceManager {
     }
     fun copyAssetsAudiosToSharedPictures(context: Context) {
         val assetManager = context.assets
-        val audioList = listOf("b_1_h.mp3", "b_2_h.mp3", "b_3_h.mp3", "b_4_h.mp3")
+        val audioList = listOf("布谷鸟.mp3", "树叶婆娑.mp3", "b_3_h.mp3", "b_4_h.mp3")
 
         val relativePath = ImageConstants.DEFAULT_SOUND_AUDIO_PATH
 

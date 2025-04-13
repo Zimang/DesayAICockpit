@@ -35,7 +35,7 @@ class SoundPlayerController(
 
 
     /**
-     * 播放 assets/audio 下的文件（如 "b_1_h.mp3"）
+     * 播放 assets/audio 下的文件（如 "布谷鸟.mp3"）
      */
     @OptIn(UnstableApi::class)
     fun playFromAssets(fileName: String) {

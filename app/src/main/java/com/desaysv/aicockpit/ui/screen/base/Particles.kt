@@ -65,19 +65,19 @@ import kotlin.math.min
 val defaultSoundList= listOf(
     SoundItemData(
         id = 1,
-        imageName = "b_1_h",
-        soundName = "b_1_h",
+        imageName = "布谷鸟",
+        soundName = "布谷鸟",
         imgId =-1,
-        imgPath = "b_1_h.png",
-        audioPath ="b_1_h.mp3"
+        imgPath = "布谷鸟.png",
+        audioPath ="布谷鸟.mp3"
     ),
     SoundItemData(
         id = 2,
-        imageName = "b_2_h",
-        soundName = "b_2_h",
+        imageName = "树叶婆娑",
+        soundName = "树叶婆娑",
         imgId =-1,
-        imgPath = "b_2_h.png",
-        audioPath ="b_2_h.mp3"),
+        imgPath = "树叶婆娑.png",
+        audioPath ="树叶婆娑.mp3"),
     SoundItemData(
         id = 3,
         imageName = "b_3_h",

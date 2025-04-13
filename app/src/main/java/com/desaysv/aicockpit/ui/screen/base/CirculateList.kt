@@ -46,6 +46,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.pxToDp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -231,7 +232,7 @@ fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
 
 @Composable
-fun InfiniteCircularLazyList_3(
+fun InfiniteCircularLazyList_4(
     onItemSelected: (SoundItemData) -> Unit,
     soundItemDataList_: List<SoundItemData>,
     visiableNums:Int=4 ,//可见项
@@ -285,6 +286,7 @@ fun InfiniteCircularLazyList_3(
         }
         return indices.map { soundItemDataList[it] }
     }
+
 
     val visibleItems = getVisibleItems()
     val direction = dragOffset.value.compareTo(0f)
@@ -352,7 +354,19 @@ fun InfiniteCircularLazyList_3(
                         translationX = state.x
                         alpha = state.alpha
                     }
-                    .clickable { onItemSelected(item) },
+                    .clickable {
+                        onItemSelected(item)
+
+                        val clickedIndex = i
+                        if (clickedIndex in 1..4) {
+                            val len = soundItemDataList_.size
+                            val indices = listOf(-1, 0, 1, 2, 3, 4).map {
+                                (startIndex + it + len) % len
+                            }
+                            val clickedRealIndex = indices[clickedIndex]
+                            startIndex = clickedRealIndex
+                        }
+                    },
                 contentAlignment = Alignment.TopCenter
             ) {
                 Image(
@@ -377,15 +391,14 @@ fun InfiniteCircularLazyList_3(
     }
 }
 
-
 @Composable
-fun InfiniteCircularLazyList_4(
+fun InfiniteCircularLazyList_3(
     onItemSelected: (SoundItemData) -> Unit,
     soundItemDataList_: List<SoundItemData>,
     visiableNums:Int=4 ,//可见项
 ) {
     val scope = rememberCoroutineScope()
-    val dragOffset = remember { Animatable(0f) }
+    val `dragOffset` = remember { Animatable(0f) }
     val threshold = 300f
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
     var startIndex by remember { mutableStateOf(1) }
@@ -434,6 +447,7 @@ fun InfiniteCircularLazyList_4(
         return indices.map { soundItemDataList[it] }
     }
 
+
     val visibleItems = getVisibleItems()
     val direction = dragOffset.value.compareTo(0f)
 
@@ -457,20 +471,26 @@ fun InfiniteCircularLazyList_4(
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-
-                            val newOffset = dragOffset.value + delta
-                            dragOffset.snapTo(newOffset)
-
-                            val steps = (dragOffset.value / threshold).toInt()
-                            if (steps != 0) {
-                                startIndex = (startIndex - steps + visibleItems.size) % visibleItems.size
-                                dragOffset.snapTo(dragOffset.value - steps * threshold)
-                            }
+                            dragOffset.snapTo(
+                                (dragOffset.value + delta).coerceIn(
+                                    -threshold,
+                                    threshold
+                                )
+                            )
                         }
                     },
                     onDragEnd = {
                         scope.launch {
-                            dragOffset.animateTo(0f, tween(150))
+                            if (dragOffset.value > threshold * 0.5f) {
+                                dragOffset.animateTo(threshold, tween(150))
+                                delay(100)
+                                startIndex = (startIndex - 1 + len) % len
+                            } else if (dragOffset.value < -threshold * 0.5f) {
+                                dragOffset.animateTo(-threshold, tween(150))
+                                delay(100)
+                                startIndex = (startIndex + 1) % len
+                            }
+                            dragOffset.snapTo(0f)
                             onItemSelected(visibleItems[startIndex])
                         }
                     }
@@ -494,7 +514,9 @@ fun InfiniteCircularLazyList_4(
                         translationX = state.x
                         alpha = state.alpha
                     }
-                    .clickable { onItemSelected(item) },
+                    .clickable {
+                        onItemSelected(item)
+                    },
                 contentAlignment = Alignment.TopCenter
             ) {
                 Image(
@@ -518,6 +540,7 @@ fun InfiniteCircularLazyList_4(
         }
     }
 }
+
 
 fun getLoopedItems(data: List<SoundItemData>, visibleCount: Int): List<SoundItemData> {
     return List(visibleCount ) { i ->
