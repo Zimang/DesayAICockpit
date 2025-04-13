@@ -109,7 +109,7 @@ val electricityItemDataList = List(tElectricityPics.size) { index ->
     )
 }
 val tSoundPics= listOf("布谷鸟.png","树叶婆娑.png","麋鹿.png","奶牛.png")
-val tSoundName= listOf("布谷鸟","梦幻XXX","梦幻XXX","梦幻XXX")
+val tSoundName= listOf("布谷鸟","树叶婆娑","麋鹿","奶牛")
 val tSoundImgId= listOf(R.drawable.b_1_h,R.drawable.b_2_h,R.drawable.b_3_h,R.drawable.b_4_h)
 val soundItemDataList = List(tSoundPics.size) { index ->
     SoundItemData(
