@@ -13,12 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="InfiniteCircularLazyListPreviw">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="OneSlotOneImageDemo">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="TwoSlotTwoImageDemo">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

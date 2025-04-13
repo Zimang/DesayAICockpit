@@ -127,6 +127,9 @@ class MajorViewModel(
             )
         )
     }
+    fun sendBroadcastWithExtra(context: Context,themeItemData: ThemeItemData){
+
+    }
 
     fun deleteTheme(themeItemData: ThemeItemData)=viewModelScope.launch{
         if (themeItemData.isApplied){

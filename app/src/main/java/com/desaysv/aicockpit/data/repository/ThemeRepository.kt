@@ -60,6 +60,16 @@ class ThemeRepository(
         Log.d("add theme")
     }
 
+    suspend fun addTheme(
+        theme: ThemeItemData )
+    {
+        Log.d("onSave Rep")
+        themeItemDao.insert(
+            theme
+        )
+        Log.d("add theme")
+    }
+
 
     suspend fun deleteTheme(themeItemData: ThemeItemData) {
         val isDeletingApplied = themeItemData.isApplied

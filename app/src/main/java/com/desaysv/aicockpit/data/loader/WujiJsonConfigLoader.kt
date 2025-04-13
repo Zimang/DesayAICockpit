@@ -22,6 +22,15 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileReader
 
+fun checkConfigDirState(): String {
+    val configDir = File(Environment.getExternalStorageDirectory()?.parent ?: "", "files")
+    return buildString {
+        appendLine("路径: ${configDir.absolutePath}")
+        appendLine("目录存在: ${configDir.exists()}")
+        appendLine("可读: ${configDir.canRead()}")
+        appendLine("可写: ${configDir.canWrite()}")
+    }
+}
 
 //  val CONFIG_PATH="/test/config.txt"
 val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
@@ -44,8 +53,7 @@ object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
                             trySend(data).isSuccess
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                        e.printStackTrace()                    }
                 }
             }
 
@@ -62,7 +70,7 @@ object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
         val configFile = File(
             Environment.getExternalStorageDirectory(),CONFIG_PATH
         )
-
+        checkConfigDirState()
         if (!configFile.exists()) {
             Log.d("Config file not found at: ${configFile.absolutePath}")
             return@withContext emptyList<ThemeItemData>()
@@ -75,7 +83,13 @@ object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
                 themes.map {
                     ThemeItemData(
                         themeName = it.title,
-                        imgPath = it.wallpaperPath
+                        imgPath = it.wallpaperPath,
+                        icon1_Path = it.icon1_Path,
+                        icon2_Path = it.icon2_Path,
+                        icon3_Path = it.icon3_Path,
+                        icon4_Path = it.icon4_Path,
+                        icon5_Path = it.icon5_Path,
+                        layoutType = it.layoutType
                     )
                 }.toList()
             }
