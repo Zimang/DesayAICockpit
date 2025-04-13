@@ -57,7 +57,8 @@ class AvailablePicsLoader:ResourceLoader<ElectricityItemData> {
     suspend fun loadFromJSON()= withContext(Dispatchers.IO){
         Log.d("请求解析WUJI JSON")
         val configFile = File(
-            Environment.getExternalStorageDirectory(),CONFIG_PATH
+//            Environment.getExternalStorageDirectory(),CONFIG_PATH
+            CONFIG_PATH
         )
 
         if (!configFile.exists()) {

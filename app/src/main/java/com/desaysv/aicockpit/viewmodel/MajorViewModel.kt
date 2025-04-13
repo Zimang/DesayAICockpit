@@ -54,13 +54,12 @@ class MajorViewModel(
         elesUseCaseImpl.load()
         elesUseCaseImpl.observe()
 
-        themeUseCaseImpl.load()
-        themeUseCaseImpl.observe()
+//        themeUseCaseImpl.load()
+//        themeUseCaseImpl.observe()
 
         soudsUseCaseImpl.load()
         soudsUseCaseImpl.observe()
     }
-
     fun genTheme(tName: String, imP: String, soudId:Int, hue:Float, sat:Float,context: Context,isApplied: Boolean=false //用于发送广播
     ){
         viewModelScope.launch(Dispatchers.IO) {

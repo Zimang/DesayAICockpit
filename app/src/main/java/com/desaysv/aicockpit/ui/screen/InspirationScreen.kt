@@ -175,7 +175,7 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                                 Log.d("apply screen")
                                 viewModel.switchAppliedTheme(it)
 
-                                informingIPC(context,theme.hue, theme.saturation,theme.themeName)
+                                informingIPC(context,theme.hue, theme.saturation,theme.themeName,viewModel.getEleByPath(theme.imgPath))
                             }},
                             onDelete = {
                                 scope.launch {

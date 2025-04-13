@@ -18,6 +18,7 @@ object ImageConstants {
 
     const val ACTION_REQUEST_THEME = "com.desaysv.AI_Cockpit.MY_ACTION"
     const val ACTION_REQUEST_SOUNDS = "com.desaysv.AI_Cockpit.MY_ACTION"
+    const val ACTION_UPDATE_ELE_LAUNCHER = "com.desaysv.AI_Cockpit.UPDATE_LAUNCHER"
     const val ACTION_RECEIVE_SOUNDS = "com.desaysv.AI_Cockpit.SOUND_RESOURCE_CHANGED"
     const val ACTION_RECEIVE_THEME = "com.desaysv.ip.MY_ACTION"
     const val KEY_AI_PATH = "ai_path"

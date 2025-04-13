@@ -57,7 +57,8 @@ object WujiElecLoader : ResourceLoader<ElectricityItemData> {
         Log.d("请求解析WUJI JSON")
         //这个路径有问题
         val configFile = File(
-            Environment.getExternalStorageDirectory(),CONFIG_PATH
+//            Environment.getExternalStorageDirectory(),CONFIG_PATH
+            CONFIG_PATH
         )
         checkConfigDirState()
         if (!configFile.exists()) {

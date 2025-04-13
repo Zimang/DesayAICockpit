@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.desaysv.aicockpit.MyApplication
+import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
@@ -36,6 +37,7 @@ import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
+import kotlinx.coroutines.launch
 
 sealed class Route(val route: String) {
     object ScreenCUS : Route("custom") // 对应CUS
@@ -140,7 +142,9 @@ fun MainNavigation() {
                          hue,saturation,context,true
                      )
                      Log.d("onSaveApplying")
-                     informingIPC(context,hue, saturation,name)
+                     scop.launch {
+                         informingIPC(context,hue, saturation,name,majorViewModel.getEleByPath(eleImgPath))
+                     }
 //                     informingIPC(context,)
                },
                onSave =  {name->
@@ -179,6 +183,12 @@ fun hsvToColorInt(hue: Float, saturation: Float, value: Float = 1f): Int {
 fun informingIPC(ctx : Context, hue:Float, saturation:Float,tname:String){
     sendColor(ctx,hue,saturation)
     sendApplyingTheme(ctx,tname)
+}
+
+fun informingIPC(ctx : Context, hue:Float, saturation:Float,tname:String,electricityItemData: ElectricityItemData){
+    sendColor(ctx,hue,saturation)
+    sendApplyingTheme(ctx,tname)
+    electricityItemData.send2Wuji(ctx)
 }
 
 fun informingIPC(ctx : Context, themeItemData: ThemeItemData){

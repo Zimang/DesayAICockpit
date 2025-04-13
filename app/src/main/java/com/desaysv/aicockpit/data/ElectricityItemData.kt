@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.desaysv.aicockpit.R
+import com.desaysv.aicockpit.business.ImageConstants.ACTION_UPDATE_ELE_LAUNCHER
 import com.desaysv.aicockpit.utils.Log
 
 const val LAUNCHER_PACKAGE="com.desaysv.ivi.launcher"
@@ -38,17 +39,19 @@ data class ElectricityItemData(
 ){
     fun send2Wuji(context: Context){
         try {
-            val it=Intent("自定义")
+            val it=Intent(ACTION_UPDATE_ELE_LAUNCHER)
             it.putExtra("theme_name",themeName)
-            it.putExtra("theme_path",themeName)
-            it.putExtra("icon1_path",themeName)
-            it.putExtra("icon2_path",themeName)
-            it.putExtra("icon3_path",themeName)
-            it.putExtra("icon4_path",themeName)
-            it.putExtra("icon5_path",themeName)
+            it.putExtra("theme_path",imgPath)
+            it.putExtra("icon1_path",icon1_Path)
+            it.putExtra("icon2_path",icon2_Path)
+            it.putExtra("icon3_path",icon3_Path)
+            it.putExtra("icon4_path",icon4_Path)
+            it.putExtra("icon5_path",icon5_Path)
             it.putExtra("is_layout",layoutType)
-            it.setPackage("")
+            it.setPackage(LAUNCHER_PACKAGE)
             context.sendBroadcast(it)
+            Log.d("发送Launcher壁纸更新广播$this")
+            Log.d("发送Launcher壁纸更新广播intent ${Log.printAllBundleExtra(it)}")
         }catch (e:Exception){
             Log.d("failed to send broadcast:$e")
         }
