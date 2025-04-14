@@ -11,10 +11,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
-class WujiThemeUseCaseImpl(
+class InspirationUseCaseImpl(
     override val rep: ThemeRepository
 ):ResourceUseCase<ThemeItemData> {
 
@@ -34,15 +33,9 @@ class WujiThemeUseCaseImpl(
     override fun observe() {
         if (observeJob != null) return
         observeJob = scope.launch {
-            rep.observeFlow().collect {
-                Log.d("observe collect One")
-                rep.addTheme(
-                    eId = it.electricityItemId,
-                    sId = it.soundItemId,
-                    themeName = it.themeName,
-                    isDefault = it.isDefault,
-                    isApplied = it.isApplied
-                )
+            rep.observeListFlow().collect {
+                Log.d("收到清空的广播")
+                rep.saveAll(it)
             }
         }
     }

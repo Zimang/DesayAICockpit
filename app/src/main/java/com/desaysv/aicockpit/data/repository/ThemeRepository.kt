@@ -6,6 +6,7 @@ import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
+import com.desaysv.aicockpit.data.loader.InspirationLoader
 import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +19,7 @@ val ID_OP_SWITCH_APPLIED_THEME=2
 class ThemeRepository(
     private val themeItemDao: ThemeItemDao,
     private val context: Context,
-    private val loader: ResourceLoader<ThemeItemData> = WujiJsonConfigLoader,
+    private val loader: ResourceLoader<ThemeItemData> = InspirationLoader,
 ):ResourceRepository<ThemeItemData>{
 
     val allThemes: Flow<List<ThemeItemData>> = themeItemDao.getAllThemes()
@@ -188,6 +189,10 @@ class ThemeRepository(
 
     override suspend fun saveAll(items: List<ThemeItemData>) {
         themeItemDao.deleteAllButDefault()
+        val defaultTheme = themeItemDao.getCurrentDefaultTheme()
+        defaultTheme?.let {
+            themeItemDao.updateAppliedTheme(it.id)
+        }
         items.forEach { themeItemDao.insert(it) }
     }
 

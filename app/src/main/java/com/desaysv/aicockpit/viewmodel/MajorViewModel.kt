@@ -20,13 +20,11 @@ import com.desaysv.aicockpit.data.repository.SoundRepository
 import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.data.usecase.ElesUseCaseImpl
 import com.desaysv.aicockpit.data.usecase.ImageManagerAbsSoundsUseCaseImpl
-import com.desaysv.aicockpit.data.usecase.WujiThemeUseCaseImpl
+import com.desaysv.aicockpit.data.usecase.InspirationUseCaseImpl
 import com.desaysv.aicockpit.utils.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 
 class MajorViewModel(
     electricityRepository: ElectricityRepository,
@@ -34,7 +32,7 @@ class MajorViewModel(
     soundRepository: SoundRepository,
     private val soudsUseCaseImpl: ResourceUseCase<SoundItemData> =ImageManagerAbsSoundsUseCaseImpl(soundRepository),
     private val elesUseCaseImpl: ResourceUseCase<ElectricityItemData> = ElesUseCaseImpl(electricityRepository),
-    private val themeUseCaseImpl: ResourceUseCase<ThemeItemData> = WujiThemeUseCaseImpl(themeRepository)
+    private val themeUseCaseImpl: ResourceUseCase<ThemeItemData> = InspirationUseCaseImpl(themeRepository)
     
 ):ViewModel() {
 
@@ -54,8 +52,8 @@ class MajorViewModel(
         elesUseCaseImpl.load()
         elesUseCaseImpl.observe()
 
-//        themeUseCaseImpl.load()
-//        themeUseCaseImpl.observe()
+        themeUseCaseImpl.load()
+        themeUseCaseImpl.observe()
 
         soudsUseCaseImpl.load()
         soudsUseCaseImpl.observe()
