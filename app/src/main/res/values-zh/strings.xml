@@ -16,5 +16,7 @@
     <string name="applied_successfully">应用成功</string>
     <string name="deleted">删除</string>
     <string name="theme_name">主题名称</string>
+    <string name="soud_is_empty_please_record">声音为空，需要采集声音才能生成主题</string>
+    <string name="soud_is_empty_can_not_save">声音为空，需要采集声音才能生成主题</string>
 
 </resources>

@@ -18,7 +18,9 @@ import java.lang.ref.WeakReference
 object ResourceManager {
     fun copyAssetsImagesToSharedPictures(context: Context) {
         val assetManager = context.assets
-        val imageList = listOf("布谷鸟.png", "树叶婆娑.png", "麋鹿.png", "奶牛.png", "df.png")
+        val imageList = listOf(
+//            "布谷鸟.png", "树叶婆娑.png", "麋鹿.png", "奶牛.png",
+            "df.png")
 
         val relativePath = ImageConstants.DEFAULT_SOUND_PICS_PATH
 
@@ -173,6 +175,12 @@ object ResourceManager {
 
     fun getInspiration(): String? =
         contextRef?.get()?.getString(R.string.inspiration)
+
+    fun getSoundEmptyPleaseRecord(): String? =
+        contextRef?.get()?.getString(R.string.soud_is_empty_please_record)
+
+    fun getSoundEmptyCantSave(): String? =
+        contextRef?.get()?.getString(R.string.soud_is_empty_can_not_save)
 
     fun getGenerateMyCabin(): String? =
         contextRef?.get()?.getString(R.string.generate_my_cabin)

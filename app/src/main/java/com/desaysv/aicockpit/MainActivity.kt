@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
             }
 
             ResourceManager.copyAssetsImagesToSharedPictures(this@MainActivity)
-            ResourceManager.copyAssetsAudiosToSharedPictures(this@MainActivity)
+//            ResourceManager.copyAssetsAudiosToSharedPictures(this@MainActivity)
         }
 
 

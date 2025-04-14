@@ -1,6 +1,7 @@
 package com.desaysv.aicockpit.ui.screen
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -176,6 +177,9 @@ fun InspiratonScreen(onChange: (ScreenTag) -> Unit={},
                                 viewModel.switchAppliedTheme(it)
 
                                 informingIPC(context,theme.hue, theme.saturation,theme.themeName,viewModel.getEleByPath(theme.imgPath))
+                                Toast.makeText(context,ResourceManager.getAppliedSuccessfully(),
+                                    Toast.LENGTH_LONG).show()
+
                             }},
                             onDelete = {
                                 scope.launch {

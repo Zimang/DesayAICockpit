@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,6 +36,7 @@ import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.utils.Log
+import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
@@ -64,7 +67,7 @@ fun MainNavigation() {
     var hue by remember { mutableStateOf(0f) }
     var saturation by remember { mutableStateOf(0.5f) }
     var eleImgPath by remember { mutableStateOf("/sdcard/Pictures/aicockpit/df.png") }
-    var sid by remember { mutableStateOf(1) }
+    var sid by remember { mutableStateOf(-1) }
 
     val context = LocalContext.current
     val scop = rememberCoroutineScope()
@@ -74,6 +77,7 @@ fun MainNavigation() {
 
     val rp=app.themeRepository
     val eRp=app.elesRepository
+    val sRp=app.soundRepository
 
     val majorViewModel= remember {
         ViewModelProvider(
@@ -88,6 +92,10 @@ fun MainNavigation() {
 
     //播放器
     val soundPlayer = rememberSoundPlayerController()
+
+    //糟糕的设计，但是没有什么巧妙地办法不这样做
+    val soundItems by majorViewModel.sounds.collectAsState(initial = emptyList())
+
 
 
     Box(modifier = Modifier
@@ -114,14 +122,15 @@ fun MainNavigation() {
                         eleImgPath=it
                     }, onSoundChosen = {
                         sid=it.id
+                        Log.d(it.toString())
                         if(it.imgId==-1){
                             soundPlayer.playFromAssets(it.audioPath)
                         }else{
                             soundPlayer.play(it.audioPath)
                         }
                     }, genCockpit = {
-                        if(eleImgPath==""){
-                            Toast.makeText(context,"没有选择壁纸",Toast.LENGTH_LONG).show()
+                        if(soundItems.isEmpty()){
+                            Toast.makeText(context,ResourceManager.getSoundEmptyCantSave(),Toast.LENGTH_LONG).show()
                         }else{
                             navigateByTag(
                                 ScreenTag.SAVE,
@@ -135,6 +144,7 @@ fun MainNavigation() {
 
             composable(Route.ScreenSAVE.route) { SaveScreen(
                  onSaveApply = {name->
+
                      majorViewModel.genTheme(
                          name,
                          eleImgPath,
@@ -145,6 +155,8 @@ fun MainNavigation() {
                      scop.launch {
                          informingIPC(context,hue, saturation,name,majorViewModel.getEleByPath(eleImgPath))
                      }
+                     Toast.makeText(context,ResourceManager.getAppliedSuccessfully(),Toast.LENGTH_LONG).show()
+
 //                     informingIPC(context,)
                },
                onSave =  {name->
@@ -154,7 +166,8 @@ fun MainNavigation() {
                        sid,
                        hue,saturation,context
                    )
-                },
+
+               },
                 majorViewModel, onExit = {navController.navigateUp()}) }
 
             composable(Route.Exit.route) {  (context as Activity).finish() }

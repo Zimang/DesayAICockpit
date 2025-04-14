@@ -65,6 +65,7 @@ import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.base.*
 import com.desaysv.aicockpit.ui.theme.Choosen
 import com.desaysv.aicockpit.utils.LocaleManager
+import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
@@ -303,18 +304,24 @@ fun SoundListV1_(viewModel: MajorViewModel
 //                , top = 120.pxToDp()
             )
     ) {
-        var appliedItems=if( soundItems.isEmpty() ) defaultSoundList else soundItems
-        val visiables= computeVisibleNum(appliedItems.size)
-        InfiniteCircularLazyList_4(
-            onItemSelected = onSoundChosen,
+        if(soundItems.isEmpty() ){
+            Text(text = ResourceManager.getSoundEmptyPleaseRecord()!!,
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 40.getSP()
+                ),modifier = Modifier
+                    .align(Alignment.Center)
+            )
+            Log.d("no sounds")
+        }else{
+            val visiables= computeVisibleNum(soundItems.size)
+            InfiniteCircularLazyList_4(
+                onItemSelected = onSoundChosen,
 //            soundItemDataList = soundItems.ifEmpty { defaultSoundList },
-            soundItemDataList_ =  appliedItems ,
-            visiables
-        )
-//        InfiniteCircularSoundList(
-//            onThemeChosen = onSoundChosen,
-//            soundItemDataList_ = soundItems
-//        )
+                soundItemDataList_ =  soundItems ,
+                visiables
+            )
+        }
     }
 }
 

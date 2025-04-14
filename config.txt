@@ -1,0 +1,21 @@
+[
+  {
+    "Url": "",
+    "wallpaperPath": "/storage/emulated/0/test/cut_8_3.png",
+    "title": "哈哈",
+    "Description": true,
+    "icon1": "",
+    "icon1_Path": "/storage/emulated/0/Android/data/com.desaysv.wuji/files/icon1.png",
+    "icon2": "",
+    "icon2_Path": "/storage/emulated/0/Android/data/com.desaysv.wuji/files/icon2.png",
+    "icon3": "",
+    "icon3_Path": "/storage/emulated/0/Android/data/com.desaysv.wuji/files/icon3.png",
+    "icon4": "",
+    "icon4_Path": "/storage/emulated/0/Android/data/com.desaysv.wuji/files/icon4.png",
+    "icon5": "",
+    "icon5_Path": "/storage/emulated/0/Android/data/com.desaysv.wuji/files/icon5.png",
+    "currentWallpaperContent": "星空背景",
+    "currentIconContent": "星空图标",
+    "layoutType": 0
+  }
+]

@@ -17,5 +17,7 @@
     <string name="applied_successfully">Applied successfully</string>
     <string name="deleted">Delete</string>
     <string name="theme_name">Theme Name</string>
+    <string name="soud_is_empty_please_record">Sound is empty. Please record a sound to generate a theme.</string>
+    <string name="soud_is_empty_can_not_save">Sound is empty. Unable to save.</string>
 
 </resources>

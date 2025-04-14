@@ -21,6 +21,7 @@ import com.desaysv.aicockpit.data.repository.ThemeRepository
 import com.desaysv.aicockpit.data.usecase.ElesUseCaseImpl
 import com.desaysv.aicockpit.data.usecase.ImageManagerAbsSoundsUseCaseImpl
 import com.desaysv.aicockpit.data.usecase.InspirationUseCaseImpl
+import com.desaysv.aicockpit.ui.screen.soundItemDataList
 import com.desaysv.aicockpit.utils.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +38,6 @@ class MajorViewModel(
 ):ViewModel() {
 
     val eles=electricityRepository.allEles
-
-    private val _soundItems = mutableStateListOf<SoundItemData>()
-    val soundItems: List<SoundItemData> = _soundItems
     val themes=themeRepository.allThemes
     val sounds=soundRepository.allSounds
 
