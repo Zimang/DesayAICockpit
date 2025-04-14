@@ -68,7 +68,7 @@ class SoundRepository(
     }
 
     override suspend fun saveAll(items: List<SoundItemData>) {
-        soundItemDao.deleteAllButDefault()
+        soundItemDao.deleteAll() //Sounds没有默认
         items.forEach{
             soundItemDao.insert(it)
         }

@@ -30,7 +30,6 @@ class ImageManagerAbsSoundsUseCaseImpl(
         observeJob = scope.launch {
             rep.observeListFlow().collect {
                 Log.d("observe collect One")
-//                rep.deleteAll()
                 rep.saveAll(it)
             }
         }
