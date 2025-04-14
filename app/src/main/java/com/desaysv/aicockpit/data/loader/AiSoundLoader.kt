@@ -25,7 +25,7 @@ import java.io.FileReader
 object AiSoundLoader :ResourceLoader<SoundItemData>{
 
     override suspend fun loadOnce(): List<SoundItemData>
-            =loadFromJSON()
+            =loadSoundItemsFromConfig()
 
 
     override fun observe(context: Context): Flow<List<SoundItemData>> = callbackFlow {
@@ -84,4 +84,80 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
             emptyList()
         }
     }
+    val allSounds = listOf(
+        SoundItemData(
+            soundName = "鸟叫",
+            imageName = "鸟叫",
+            imgId = -1,
+            imgPath = "鸟叫.png",
+            audioPath = "鸟叫.mp3"
+        ),
+        SoundItemData(
+            soundName = "跑步",
+            imageName = "跑步",
+            imgId = -1,
+            imgPath = "跑步.png",
+            audioPath = "跑步.wav"
+        ),
+        SoundItemData(
+            soundName = "汽车鸣笛",
+            imageName = "汽车鸣笛",
+            imgId = -1,
+            imgPath = "汽车鸣笛.png",
+            audioPath = "汽车鸣笛.mp2"
+        ),
+        SoundItemData(
+            soundName = "瀑布",
+            imageName = "瀑布",
+            imgId = -1,
+            imgPath = "瀑布.png",
+            audioPath = "瀑布.mp3"
+        ),
+        SoundItemData(
+            soundName = "鸟群拍打翅膀",
+            imageName = "鸟群拍打翅膀",
+            imgId = -1,
+            imgPath = "鸟群拍打翅膀.png",
+            audioPath = "鸟群拍打翅膀.mp3"
+        ),
+        SoundItemData(
+            soundName = "鹿",
+            imageName = "鹿",
+            imgId = -1,
+            imgPath = "鹿.png",
+            audioPath = "鹿.mp3"
+        ),
+        SoundItemData(
+            soundName = "丛林",
+            imageName = "丛林",
+            imgId = -1,
+            imgPath = "丛林.png",
+            audioPath = "丛林.wav"
+        ),
+        SoundItemData(
+            soundName = "奶牛",
+            imageName = "奶牛",
+            imgId = -1,
+            imgPath = "奶牛.png",
+            audioPath = "奶牛.mp3"
+        )
+    )
+    suspend fun loadSoundItemsFromConfig(): List<SoundItemData> = withContext(Dispatchers.IO) {
+        val configFile = File("/sdcard/test/config_sounds.txt")
+        if (!configFile.exists()) {
+            Log.e("AISOUND", "Config file not found at: ${configFile.absolutePath}")
+            return@withContext allSounds
+        }
+
+        val bitmask = configFile.readText().trim().toIntOrNull() ?: return@withContext emptyList()
+
+
+        val selectedSounds = allSounds.filterIndexed { index, _ ->
+            (bitmask shr index) and 1 == 1
+        }
+
+        Log.d("AISOUND", "Bitmask=$bitmask 选中了 ${selectedSounds.size} 个音频")
+        return@withContext selectedSounds
+    }
+
 }
