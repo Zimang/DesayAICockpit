@@ -32,7 +32,8 @@ fun checkConfigDirState(): String {
     }
 }
 
-val CONFIG_PATH="/sdcard/test/config.txt"
+val CONFIG_ELE_PATH="/sdcard/test/config.txt"
+val CONFIG_SOUNDS_PATH="/sdcard/test/config_sounds.txt"
 ///storage/emula/Android/data/com.desaysv.wuji/files/config.txt
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
@@ -70,7 +71,7 @@ object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
         //这个路径有问题
         val configFile = File(
 //            Environment.getExternalStorageDirectory(),CONFIG_PATH
-            CONFIG_PATH
+            CONFIG_ELE_PATH
         )
         checkConfigDirState()
         if (!configFile.exists()) {
