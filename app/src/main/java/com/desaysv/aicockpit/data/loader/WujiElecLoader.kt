@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Environment
 import androidx.core.content.ContextCompat
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ListTheme
@@ -55,8 +56,8 @@ object WujiElecLoader : ResourceLoader<ElectricityItemData> {
         Log.d("请求解析WUJI JSON")
         //这个路径有问题
         val configFile = File(
-//            Environment.getExternalStorageDirectory(),CONFIG_PATH
-            CONFIG_ELE_PATH
+            Environment.getExternalStorageDirectory(),CONFIG_ELE_PATH
+//            CONFIG_ELE_PATH
         )
         checkConfigDirState()
         if (!configFile.exists()) {

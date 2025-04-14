@@ -315,7 +315,7 @@ fun SoundListV1_(viewModel: MajorViewModel
             Log.d("no sounds")
         }else{
             val visiables= computeVisibleNum(soundItems.size)
-            InfiniteCircularLazyList_4(
+            InfiniteCircularLazyList_5(
                 onItemSelected = onSoundChosen,
 //            soundItemDataList = soundItems.ifEmpty { defaultSoundList },
                 soundItemDataList_ =  soundItems ,

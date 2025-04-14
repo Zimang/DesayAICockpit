@@ -238,10 +238,10 @@ fun InfiniteCircularLazyList_4(
     visiableNums:Int=4 ,//可见项
 ) {
     val scope = rememberCoroutineScope()
-    val `dragOffset` = remember { Animatable(0f) }
+    val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-    var startIndex by remember { mutableStateOf(1) }
+    var startIndex by remember { mutableStateOf(1) } //不用提前剪裁而是全局取模
 
     Log.d("可见项 $visiableNums 数据集 ${soundItemDataList_.size}")
     val sizes= getLoopedSizes(getBaseSize(),visiableNums)
@@ -278,14 +278,15 @@ fun InfiniteCircularLazyList_4(
 
     Log.d("check len")
     val len = soundItemDataList.size
-    Log.d("check len pass")
-
+    Log.d("check len pass $len")
+//
     fun getVisibleItems(): List<SoundItemData> {
-        val indices = listOf(-1, 0, 1, 2, 3, 4).map {
-            (startIndex + it + len) % len
+        return List(visiableNums + 2) { i ->
+            val index = (startIndex + i - 1 + len) % len
+            soundItemDataList_[index]
         }
-        return indices.map { soundItemDataList[it] }
     }
+
 
 
     val visibleItems = getVisibleItems()
@@ -390,76 +391,70 @@ fun InfiniteCircularLazyList_4(
         }
     }
 }
-
 @Composable
-fun InfiniteCircularLazyList_3(
+fun InfiniteCircularLazyList_5(
     onItemSelected: (SoundItemData) -> Unit,
     soundItemDataList_: List<SoundItemData>,
-    visiableNums:Int=4 ,//可见项
+    visibleNums: Int = 4,
 ) {
     val scope = rememberCoroutineScope()
-    val `dragOffset` = remember { Animatable(0f) }
+    val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
+    var startIndex by remember { mutableStateOf(0) }
+
+    val baseSizes = getBaseSize()
+    val sizes = getLoopedSizes(baseSizes, visibleNums)
+
+    val len = soundItemDataList_.size
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-    var startIndex by remember { mutableStateOf(1) }
+    val direction = dragOffset.value.compareTo(0f)
 
-    Log.d("可见项 $visiableNums 数据集 ${soundItemDataList_.size}")
-    val sizes= getLoopedSizes(getBaseSize(),visiableNums)
-    val soundItemDataList= getLoopedItems(soundItemDataList_,visiableNums)
+    fun getVisibleItems(): List<SoundItemData> {
+        return List(visibleNums + 2) { i ->
+            val index = (startIndex + i - 1 + len) % len
+            soundItemDataList_[index]
+        }
+    }
+
+    val visibleItems = getVisibleItems()
+
     val boundsList = with(LocalDensity.current) {
-        val edgeSpacingPx = 120f
-        val slotCount = sizes.size
+        val spacing = 120f
         val centers = mutableListOf<Float>()
-
         var currentCenter = -200f
 
-        for (i in 0 until slotCount) {
+        for (i in sizes.indices) {
             centers += currentCenter
-            val halfCurrent = sizes[i].width.toPx() / 2
-            if (i < slotCount - 1) {
-                val halfNext = sizes[i + 1].width.toPx() / 2
-                currentCenter += halfCurrent + edgeSpacingPx + halfNext
+            val half = sizes[i].width.toPx() / 2
+            if (i < sizes.lastIndex) {
+                val nextHalf = sizes[i + 1].width.toPx() / 2
+                currentCenter += half + spacing + nextHalf
             }
         }
 
-        List(slotCount) { i ->
+        List(sizes.size) { i ->
             Bounds(
                 x = centers[i] - sizes[i].width.toPx() / 2,
                 dpSize = sizes[i],
-                alpha = when(i){
-                    0,sizes.size-1->0f
-                    1->1f
-                    2->0.75f
-                    else-> 0.4f
+                alpha = when (i) {
+                    0, sizes.size - 1 -> 0f
+                    1 -> 1f
+                    2 -> 0.75f
+                    else -> 0.4f
                 }
             )
         }
     }
 
-    Log.d("check len")
-    val len = soundItemDataList.size
-    Log.d("check len pass")
-
-    fun getVisibleItems(): List<SoundItemData> {
-        val indices = listOf(-1, 0, 1, 2, 3, 4).map {
-            (startIndex + it + len) % len
-        }
-        return indices.map { soundItemDataList[it] }
-    }
-
-
-    val visibleItems = getVisibleItems()
-    val direction = dragOffset.value.compareTo(0f)
-
-    val lastIndex=sizes.size-1
+    val lastIndex = sizes.lastIndex
     val transitions = if (direction >= 0) {
         sizes.indices.map { i ->
-            if (i == lastIndex) lerpSlotV(boundsList[lastIndex], boundsList[lastIndex], 1f)
+            if (i == lastIndex) lerpSlotV(boundsList[i], boundsList[i], 1f)
             else lerpSlotV(boundsList[i], boundsList[i + 1], t)
         }
     } else {
         (lastIndex downTo 0).map { i ->
-            if (i == 0) lerpSlotV(boundsList[0], boundsList[0], 1f)
+            if (i == 0) lerpSlotV(boundsList[i], boundsList[i], 1f)
             else lerpSlotV(boundsList[i], boundsList[i - 1], -t)
         }.reversed()
     }
@@ -471,27 +466,25 @@ fun InfiniteCircularLazyList_3(
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-                            dragOffset.snapTo(
-                                (dragOffset.value + delta).coerceIn(
-                                    -threshold,
-                                    threshold
-                                )
-                            )
+                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
                         }
                     },
                     onDragEnd = {
                         scope.launch {
-                            if (dragOffset.value > threshold * 0.5f) {
-                                dragOffset.animateTo(threshold, tween(150))
-                                delay(100)
-                                startIndex = (startIndex - 1 + len) % len
-                            } else if (dragOffset.value < -threshold * 0.5f) {
-                                dragOffset.animateTo(-threshold, tween(150))
-                                delay(100)
-                                startIndex = (startIndex + 1) % len
+                            when {
+                                dragOffset.value > threshold * 0.5f -> {
+                                    dragOffset.animateTo(threshold, tween(150))
+                                    delay(100)
+                                    startIndex = (startIndex - 1 + len) % len
+                                }
+                                dragOffset.value < -threshold * 0.5f -> {
+                                    dragOffset.animateTo(-threshold, tween(150))
+                                    delay(100)
+                                    startIndex = (startIndex + 1) % len
+                                }
                             }
                             dragOffset.snapTo(0f)
-                            onItemSelected(visibleItems[startIndex])
+                            onItemSelected(soundItemDataList_[startIndex])
                         }
                     }
                 )
@@ -508,14 +501,16 @@ fun InfiniteCircularLazyList_3(
             }
 
             Box(
-                Modifier
+                modifier = Modifier
                     .size(state.size)
                     .graphicsLayer {
                         translationX = state.x
                         alpha = state.alpha
                     }
                     .clickable {
-                        onItemSelected(item)
+                        val clickedIndex = (startIndex + i - 1 + len) % len
+                        startIndex = clickedIndex
+                        onItemSelected(soundItemDataList_[clickedIndex])
                     },
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -526,12 +521,8 @@ fun InfiniteCircularLazyList_3(
                     contentScale = ContentScale.Crop
                 )
                 Text(
-//                    text = item.soundName + " " + item.id,
-                    text = item.soundName ,
-                    style = TextStyle(
-                        fontSize = 24.getSP(),
-                        color = Color.White
-                    ),
+                    text = item.soundName,
+                    style = TextStyle(fontSize = 24.getSP(), color = Color.White),
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())

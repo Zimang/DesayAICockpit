@@ -146,6 +146,7 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
         val configFile = File("/sdcard/test/config_sounds.txt")
         if (!configFile.exists()) {
             Log.e("AISOUND", "Config file not found at: ${configFile.absolutePath}")
+            Log.d("AISOUND", "default all sounds: ${allSounds.size}")
             return@withContext allSounds
         }
 
