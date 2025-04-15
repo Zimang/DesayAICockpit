@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +46,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -56,6 +61,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
@@ -238,37 +244,118 @@ fun ElectricityItem(
 
 /**
  * ElectricityList
- */
-@Composable
+ */@Composable
 fun ElectricityList(
-    onThemeChosen:(String)->Unit,
+    onThemeChosen: (String) -> Unit,
     electricityItemDataList: List<ElectricityItemData>,
     imgPath: String,
-    modifier: Modifier
-){
+    modifier: Modifier = Modifier
+) {
+    // 假定每个 ElectricityItem 的宽度（你需要与实际布局一致）
+    val itemWidthDp = 100.dp
+    // 使用你已有的 pxToDp() 方法转换间距，假设 spacing 为 64 像素所对应的 dp 值
+    val spacing = 64.pxToDp()
 
-    // 使用 LazyListState 用于控制滚动
+    // LazyRow 的状态与协程作用域
     val listState = rememberLazyListState()
-    // 协程作用域用于启动滚动动画
     val coroutineScope = rememberCoroutineScope()
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(64.pxToDp()),
-        modifier = modifier
-    ) {
-        itemsIndexed(electricityItemDataList){index,electItem->
-            ElectricityItem(
-                electItem.imgId,
-                electItem.imgPath,
-                electItem.themeName
-//                ,electItem.imgId==chosenElectricityData.imgId
-                ,imgPath==electItem.imgPath
-                ,modifier=modifier.clickable {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(index)
+
+    // 记录容器宽度（以像素为单位）
+    var rowWidthPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+    // 将容器宽度转换为 dp
+    val rowWidthDp = with(density) { rowWidthPx.toDp() }
+
+    // 计算内容总宽度（不含尾部填充项），
+    // 注意：假定所有项宽度固定，且项与项之间使用 spacing 分隔
+    val itemCount = electricityItemDataList.size
+    val totalContentWidth = if (itemCount > 0) {
+       ( itemCount * itemWidthDp.value + (itemCount - 1) * spacing.value).pxToDp()
+    } else {
+        0.dp
+    }
+
+    // 如果内容总宽度不足容器宽度，则计算需要额外填充多少宽度，至少填充使得目标项可以滑到最左侧
+    val trailingSpacerWidth = if (totalContentWidth < rowWidthDp) {
+        rowWidthDp - totalContentWidth
+    } else 0.dp
+
+    // 判断“到底”状态：当左侧第一可见项就是数据的最后一项时
+    val isAtEnd by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index == electricityItemDataList.lastIndex
+        }
+    }
+
+    // 使用 NestedScrollConnection 限制拖拽时向左滚动（负方向的滚动量）
+    val nestedScrollConnection = remember(isAtEnd, listState) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                // available.x < 0 表示用户拖拽使内容向左移动
+                if (isAtEnd && available.x < 0f) {
+                    // 取第一可见项
+                    val firstVisible = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+                    if (firstVisible != null && firstVisible.offset <= 0) {
+                        // 消费所有向左的滚动，使内容左边缘不再向左移
+                        return available
                     }
-                    onThemeChosen(electItem.imgPath)
                 }
-            )
+                return Offset.Zero
+            }
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                if (isAtEnd && available.x < 0f) {
+                    return available.copy(x = 0f)
+                }
+                return Velocity.Zero
+            }
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (isAtEnd && available.x < 0f) {
+                    return available.copy(x = 0f)
+                }
+                return Velocity.Zero
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            // 测量容器宽度
+            .onSizeChanged { rowWidthPx = it.width }
+    ) {
+        LazyRow(
+            state = listState,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            modifier = Modifier
+                .fillMaxWidth()
+                .nestedScroll(nestedScrollConnection)
+        ) {
+            // 列出所有 ElectricityItem
+            itemsIndexed(electricityItemDataList) { index, electItem ->
+                ElectricityItem(
+                    imgId = electItem.imgId,
+                    imgPath = electItem.imgPath,
+                    themeName = electItem.themeName,
+                    chosen = (imgPath == electItem.imgPath),
+                    // 点击时使用动画滚动，让目标项变为第一可见项（左侧）
+                    modifier = Modifier.clickable {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index, 0)
+                        }
+                        onThemeChosen(electItem.imgPath)
+                    }
+                )
+            }
+            // 如果内容较少导致不够滚动，则在末尾添加一个隐形 Spacer，
+            // 使得总内容宽度达到至少容器宽度，从而允许点击时的滚动效果
+            if (trailingSpacerWidth > 0.dp) {
+                item {
+                    Spacer(modifier = Modifier.width(trailingSpacerWidth))
+                }
+            }
         }
     }
 }

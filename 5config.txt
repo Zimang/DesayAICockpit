@@ -1,0 +1,47 @@
+[
+  {
+    "wallpaperPath": "/sdcard/Pictures/aicockpit/奶牛.png",
+    "title": "主题A",
+    "icon1": "1",
+    "icon1_Path": "icon1_path_A",
+    "icon2": "2",
+    "icon2_Path": "icon2_path_A",
+    "icon3": "",
+    "icon3_Path": "",
+    "icon4": "",
+    "icon4_Path": "",
+    "icon5": "",
+    "icon5_Path": "",
+    "layoutType": 1
+  },
+  {
+    "wallpaperPath": "/sdcard/Pictures/aicockpit/奶牛1.png",
+    "title": "主题B",
+    "icon1": "",
+    "icon1_Path": "",
+    "icon2": "",
+    "icon2_Path": "",
+    "icon3": "",
+    "icon3_Path": "",
+    "icon4": "",
+    "icon4_Path": "",
+    "icon5": "",
+    "icon5_Path": "",
+    "layoutType": 2
+  },
+  {
+    "wallpaperPath": "/sdcard/Pictures/aicockpit/奶牛2.png",
+    "title": "主题B",
+    "icon1": "",
+    "icon1_Path": "",
+    "icon2": "",
+    "icon2_Path": "",
+    "icon3": "",
+    "icon3_Path": "",
+    "icon4": "",
+    "icon4_Path": "",
+    "icon5": "",
+    "icon5_Path": "",
+    "layoutType": 2
+  }
+]

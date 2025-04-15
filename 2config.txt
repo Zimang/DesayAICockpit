@@ -1,7 +1,7 @@
 [
   {
     "Url": "",
-    "wallpaperPath": "/storage/emulated/0/test/cut_8_3.png",
+    "wallpaperPath": "/sdcard/Pictures/aicockpit/奶牛.png",
     "title": "哈哈",
     "Description": true,
     "icon1": "",
