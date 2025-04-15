@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,6 +40,8 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -193,7 +198,15 @@ fun MainNavigation() {
                 toastMsg = toastAppliedSuccessMsg
             ) }
 
-            composable(Route.Exit.route) {  (context as Activity).finish() }
+            composable(Route.Exit.route) {
+//                (context as Activity).finish()
+                backHome(context)
+                LaunchedEffect(Unit) {
+                    val time = System.currentTimeMillis()
+                    delay(3000)
+                    Log.d("后台存活", "3秒后仍活着，时间戳=${System.currentTimeMillis() - time}")
+                }
+            }
 
         }
     }
@@ -288,3 +301,11 @@ private fun navigateToSave(navController: NavController,) {
     }
 }
 
+private fun backHome(ctx: Context){
+    val intent = Intent(Intent.ACTION_MAIN).apply {
+        addCategory(Intent.CATEGORY_HOME)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+    ctx.startActivity(intent)
+
+}
