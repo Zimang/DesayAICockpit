@@ -22,20 +22,14 @@ import kotlinx.coroutines.withContext
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 const val ACTION_DELETE_INSPIRAION_1="RECEIVER_VPA_TYPE_ACTION"
 const val ACTION_DELETE_INSPIRAION_2="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
-
+//
 object GlobalInspirationReceiverHolder {
-    private var registered = false
+    private var receiver: BroadcastReceiver? = null
 
-    fun register(context: Context,
-                 onReceiveInspirationCallback:(List<ThemeItemData>)->Unit) {
-        if (registered) return
+    fun register(context: Context,onReceiveInspirationCallback:(List<ThemeItemData>)->Unit ) {
+        if (receiver != null) return // 避免重复注册
 
-        val filter = IntentFilter().apply {
-            addAction(ACTION_DELETE_INSPIRAION_1)
-            addAction(ACTION_DELETE_INSPIRAION_2)
-        }
-
-        val receiver = object : BroadcastReceiver() {
+        receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
                 Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
                 if (intent?.getIntExtra("VPA_TYPE", 0) != 0) {
@@ -47,10 +41,15 @@ object GlobalInspirationReceiverHolder {
             }
         }
 
-        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
-        registered = true
-        Log.d("GlobalReceiver", "已注册广播接收器")
+        val filter = IntentFilter().apply {
+            addAction(ACTION_DELETE_INSPIRAION_1)
+            addAction(ACTION_DELETE_INSPIRAION_2)
+        }
+
+        ContextCompat.registerReceiver(context, receiver!!, filter, ContextCompat.RECEIVER_EXPORTED)
+        Log.d("GlobalReceiver", "广播接收器已注册")
     }
+
 }
 
 

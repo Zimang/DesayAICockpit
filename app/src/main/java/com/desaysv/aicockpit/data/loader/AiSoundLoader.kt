@@ -53,38 +53,6 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
             Log.d("AiSoundLoader", "BroadcastReceiver unregistered")
         }
     }
-    //android.permission.WRITE_SECURE_SETTINGS
-    suspend fun loadFromJSON()= withContext(Dispatchers.IO){
-        Log.d("请求解析AISOUND JSON")
-        //这个路径有问题
-        val configFile = File(
-//            Environment.getExternalStorageDirectory(),CONFIG_PATH
-            CONFIG_SOUNDS_PATH
-        )
-        if (!configFile.exists()) {
-            Log.d("Config file not found at: ${configFile.absolutePath}")
-            return@withContext emptyList<SoundItemData>()
-        }
-        return@withContext try {
-            FileReader(configFile).use { reader ->
-                val type = object : TypeToken<MutableList<ListSound>>() {}.type
-                val themes: MutableList<ListSound> = Gson().fromJson(reader, type)
-                Log.d(themes.toString())
-                themes.map {
-                    SoundItemData(
-                        soundName = it.title,
-                        imageName = it.title,
-                        imgPath = it.wallpaperPath,
-                        audioPath = it.audioPath,
-                    )
-                }.toList()
-            }
-        } catch (e: Exception) {
-
-            e.printStackTrace()
-            emptyList()
-        }
-    }
     val allSounds = listOf(
         SoundItemData(
             soundName = "鸟叫",

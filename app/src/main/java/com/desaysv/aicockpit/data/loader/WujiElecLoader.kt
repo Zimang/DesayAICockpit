@@ -58,7 +58,6 @@ object WujiElecLoader : ResourceLoader<ElectricityItemData> {
         //这个路径有问题
         val configFile = File(
             Environment.getExternalStorageDirectory(),CONFIG_ELE_PATH
-//            CONFIG_ELE_PATH
         )
         if (!configFile.exists()) {
             Log.d("Config file not found at: ${configFile.absolutePath}")
