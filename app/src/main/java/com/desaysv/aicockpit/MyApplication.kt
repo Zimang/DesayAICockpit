@@ -44,7 +44,11 @@ class MyApplication : Application() {
         ResourceManager.init(this)
         LocaleManager.init(this)
 
-        GlobalInspirationReceiverHolder.register(this)
+        GlobalInspirationReceiverHolder.register(this){
+            CoroutineScope(Dispatchers.IO).launch {
+                themeRepository.saveAll(emptyList())
+            }
+        }
 
         // 启动时检查默认主题
         CoroutineScope(Dispatchers.IO).launch {

@@ -31,6 +31,7 @@ class InspirationUseCaseImpl(
     private var observeJob: Job? = null
 
     override fun observe() {
+        Log.e("不要使用灵感Loader的observe")
         if (observeJob != null) return
         observeJob = scope.launch {
             rep.observeListFlow().collect {

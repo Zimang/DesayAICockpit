@@ -51,7 +51,7 @@ class MajorViewModel(
         elesUseCaseImpl.observe()
 
 //        themeUseCaseImpl.load()
-        themeUseCaseImpl.observe()
+//        themeUseCaseImpl.observe()
 
         soudsUseCaseImpl.load()
         soudsUseCaseImpl.observe()

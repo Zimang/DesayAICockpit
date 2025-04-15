@@ -5,14 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Environment
 import androidx.core.content.ContextCompat
-import com.desaysv.aicockpit.data.ListTheme
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.utils.Log
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -21,21 +17,17 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileReader
 
 ///storage/emula/Android/data/com.desaysv.wuji/files/config.txt
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 const val ACTION_DELETE_INSPIRAION_1="RECEIVER_VPA_TYPE_ACTION"
 const val ACTION_DELETE_INSPIRAION_2="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
 
-object InspirationEventBus {
-    val flow = MutableSharedFlow<List<ThemeItemData>>(replay = 1)
-}
 object GlobalInspirationReceiverHolder {
     private var registered = false
 
-    fun register(context: Context) {
+    fun register(context: Context,
+                 onReceiveInspirationCallback:(List<ThemeItemData>)->Unit) {
         if (registered) return
 
         val filter = IntentFilter().apply {
@@ -49,7 +41,7 @@ object GlobalInspirationReceiverHolder {
                 if (intent?.getIntExtra("VPA_TYPE", 0) != 0) {
                     CoroutineScope(Dispatchers.IO).launch {
                         val data = InspirationLoader.loadOnce()
-                        InspirationEventBus.flow.emit(data)
+                        onReceiveInspirationCallback(data)
                     }
                 }
             }
@@ -69,40 +61,37 @@ object InspirationLoader :ResourceLoader<ThemeItemData>{
     override suspend fun loadOnce(): List<ThemeItemData>
             =loadFromJSON()
 
-    override fun observe(context: Context): Flow<List<ThemeItemData>> {
-        return InspirationEventBus.flow
-    }
 
-//
-//    override fun observe(context: Context): Flow<List<ThemeItemData>> = callbackFlow {
-//        val filter = IntentFilter()
-//        filter.addAction(ACTION_DELETE_INSPIRAION_1)
-//        filter.addAction(ACTION_DELETE_INSPIRAION_2)
-//
-//        val receiver = object : BroadcastReceiver() {
-//            override fun onReceive(ctx: Context?, intent: Intent?) {
-//                Log.d("Broadcast received, delete all inspiration")
-//                try {
-//                    // 加载数据并发送到 flow
-//
-//                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            val data = loadOnce()
-//                            trySend(data).isSuccess
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()                    }
-//            }
-//        }
-//
-//        Log.d("注册广播接受器")
-//        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
-//        awaitClose {
-//            context.unregisterReceiver(receiver)
-//            Log.d("注销 InspirationLoader 广播接受器")
-//        }
-//    }
+
+    override fun observe(context: Context): Flow<List<ThemeItemData>> = callbackFlow {
+        val filter = IntentFilter()
+        filter.addAction(ACTION_DELETE_INSPIRAION_1)
+        filter.addAction(ACTION_DELETE_INSPIRAION_2)
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                Log.d("Broadcast received, delete all inspiration")
+                try {
+                    // 加载数据并发送到 flow
+
+                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val data = loadOnce()
+                            trySend(data).isSuccess
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()                    }
+            }
+        }
+
+        Log.d("注册广播接受器")
+        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        awaitClose {
+            context.unregisterReceiver(receiver)
+            Log.d("注销 InspirationLoader 广播接受器")
+        }
+    }
 
     //置空了
 suspend fun loadFromJSON()= withContext(Dispatchers.IO){
