@@ -28,6 +28,7 @@ import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.base.BackgroundInputFieldV1
+import com.desaysv.aicockpit.ui.screen.base.CustomToastHost
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_Save
 import com.desaysv.aicockpit.ui.screen.base.PicWithPic_SaveApply
 import com.desaysv.aicockpit.ui.screen.base.RegularButton
@@ -41,7 +42,12 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SaveScreen(onSaveApply:(name:String)->Unit,onSave:(name:String)->Unit, viewModel: MajorViewModel, onChange: (ScreenTag) -> Unit={}, onExit:()->Unit){
+fun SaveScreen(onSaveApply:(name:String)->Unit,onSave:(name:String)->Unit,
+               viewModel: MajorViewModel,
+               onChange: (ScreenTag) -> Unit={},
+               onExit:()->Unit,
+               toastMsg:String?=null
+){
 
 
     Row(modifier = Modifier.fillMaxSize()) {
@@ -54,6 +60,9 @@ fun SaveScreen(onSaveApply:(name:String)->Unit,onSave:(name:String)->Unit, viewM
         Box(modifier = Modifier
             .size(width = 1236.pxToDp(), height = 720f.pxToDp())){
             CockpitNamingScreenV1(onSaveApply,onSave,viewModel,onExit)
+            CustomToastHost(
+                toastMessage = toastMsg,
+            )
         }
         Box(modifier = Modifier.size(width = 2320.pxToDp(), height = 720f.pxToDp())){
 

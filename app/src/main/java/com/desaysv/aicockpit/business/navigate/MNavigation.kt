@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -29,7 +27,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.data.ElectricityItemData
-import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
@@ -40,6 +37,7 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 sealed class Route(val route: String) {
@@ -96,6 +94,8 @@ fun MainNavigation() {
     //糟糕的设计，但是没有什么巧妙地办法不这样做
     val soundItems by majorViewModel.sounds.collectAsState(initial = emptyList())
 
+    var toastSaveAndAppliedMsg by remember { mutableStateOf<String?>(null) }
+    var toastAppliedSuccessMsg by remember { mutableStateOf<String?>(null) }
 
 
     Box(modifier = Modifier
@@ -130,17 +130,32 @@ fun MainNavigation() {
                         }
                     }, genCockpit = {
                         if(soundItems.isEmpty()){
-                            Toast.makeText(context,ResourceManager.getSoundEmptyCantSave(),Toast.LENGTH_LONG).show()
+//                            Toast.makeText(context,ResourceManager.getSoundEmptyCantSave(),Toast.LENGTH_LONG).show()
+                            scop.launch {
+                                toastSaveAndAppliedMsg=ResourceManager.getSoundEmptyCantSave()
+                                delay(2000)
+                                toastSaveAndAppliedMsg=null
+                            }
                         }else{
                             navigateByTag(
                                 ScreenTag.SAVE,
                                 naviController = navController
                             )
                         }
-                    }) }
+                    }, toastMsg = toastSaveAndAppliedMsg) }
 
-            composable(Route.ScreenINS.route) { InspiratonScreen({ navigateByTag(it,navController) },
-                majorViewModel) }
+            composable(Route.ScreenINS.route) { InspiratonScreen(
+                { navigateByTag(it,navController) },
+                majorViewModel,
+                toastMsg = toastAppliedSuccessMsg,
+                onApplyUIChange = {
+                    scop.launch {
+                        toastAppliedSuccessMsg=ResourceManager.getAppliedSuccessfully()
+                        delay(2000)
+                        toastAppliedSuccessMsg=null
+                    }
+                }
+            ) }
 
             composable(Route.ScreenSAVE.route) { SaveScreen(
                  onSaveApply = {name->
@@ -154,8 +169,13 @@ fun MainNavigation() {
                      Log.d("onSaveApplying")
                      scop.launch {
                          informingIPC(context,hue, saturation,name,majorViewModel.getEleByPath(eleImgPath))
+
+                         toastSaveAndAppliedMsg=ResourceManager.getAppliedSuccessfully()
+                         delay(2000)
+                         toastSaveAndAppliedMsg=null
+
                      }
-                     Toast.makeText(context,ResourceManager.getAppliedSuccessfully(),Toast.LENGTH_LONG).show()
+//                     Toast.makeText(context,ResourceManager.getAppliedSuccessfully(),Toast.LENGTH_LONG).show()
 
 //                     informingIPC(context,)
                },
@@ -168,9 +188,13 @@ fun MainNavigation() {
                    )
 
                },
-                majorViewModel, onExit = {navController.navigateUp()}) }
+                majorViewModel,
+                onExit = {navController.navigateUp()},
+                toastMsg = toastAppliedSuccessMsg
+            ) }
 
             composable(Route.Exit.route) {  (context as Activity).finish() }
+
         }
     }
 }

@@ -25,12 +25,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +60,7 @@ import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.pxToDp
+import kotlinx.coroutines.delay
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.min
@@ -177,6 +180,37 @@ fun PreviewInfiniteCarouselC() {
     InfiniteScalingImageList()
 }
 
+@Composable
+fun CustomToastHost(toastMessage: String?, onDismiss: () -> Unit={}) {
+    // 控制显示时长
+    val visible = rememberUpdatedState(toastMessage != null)
+
+    if (visible.value) {
+        LaunchedEffect(toastMessage) {
+            delay(2000) // 显示2秒
+            onDismiss()
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 100.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.8f), shape = RoundedCornerShape(8.dp))
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = toastMessage ?: "",
+                    color = Color.White,
+                    fontSize = 32.sp
+                )
+            }
+        }
+    }
+}
 
 
 

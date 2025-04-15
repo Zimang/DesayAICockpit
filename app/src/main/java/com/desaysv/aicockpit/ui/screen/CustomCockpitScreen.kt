@@ -630,9 +630,11 @@ fun CustomScreen(
     onThemeWallpaperChange: (String) -> Unit={},
     onSoundChosen: (SoundItemData) -> Unit={},
     genCockpit: () -> Unit,
+    toastMsg:String?=null,
     onExit: () -> Unit={}){
 
 
+//    var toastMsg by remember { mutableStateOf<String?>(null) }
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
     Row(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())){
@@ -649,6 +651,9 @@ fun CustomScreen(
             ){
                 BigPanelV1(genCockpit)
             }
+            CustomToastHost(
+                toastMessage = toastMsg
+            )
         }
         Box(modifier = Modifier.size(width = (284+1636).pxToDp(), height = 720f.pxToDp())
 //            .background(Color.Blue)
