@@ -33,7 +33,7 @@ fun checkConfigDirState(): String {
 }
 
 val CONFIG_ELE_PATH="/Android/data/com.desaysv.wuji/files/config.txt"
-val CONFIG_SOUNDS_PATH="/Android/data/com.desaysv.aisound/files/config_sounds.txt"
+val CONFIG_SOUNDS_PATH="/Android/data/com.desaysv.aisound/files/config.txt"
 ///storage/emula/Android/data/com.desaysv.wuji/files/config.txt
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
