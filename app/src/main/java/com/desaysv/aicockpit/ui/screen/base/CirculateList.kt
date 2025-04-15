@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -394,6 +395,7 @@ fun InfiniteCircularLazyList_4(
 @Composable
 fun InfiniteCircularLazyList_5(
     onItemSelected: (SoundItemData) -> Unit,
+    onItemInt: (SoundItemData) -> Unit={},
     soundItemDataList_: List<SoundItemData>,
     visibleNums: Int = 4,
 ) {
@@ -413,6 +415,12 @@ fun InfiniteCircularLazyList_5(
         return List(visibleNums + 2) { i ->
             val index = (startIndex + i - 1 + len) % len
             soundItemDataList_[index]
+        }
+    }
+
+    LaunchedEffect(soundItemDataList_) {
+        if (!soundItemDataList_.isEmpty()){
+            onItemSelected(soundItemDataList_[startIndex])
         }
     }
 

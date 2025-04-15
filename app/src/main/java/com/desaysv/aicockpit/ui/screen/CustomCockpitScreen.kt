@@ -320,7 +320,8 @@ fun SoundListV1_(viewModel: MajorViewModel
             InfiniteCircularLazyList_5(
                 onItemSelected = onSoundChosen,
                 soundItemDataList_ =  soundItems ,
-                visiables
+                onItemInt = onSoundInit,
+                visibleNums =  visiables
             )
             LaunchedEffect(Unit) {
                 onSoundInit(soundItems[0])
