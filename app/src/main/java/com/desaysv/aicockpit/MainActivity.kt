@@ -111,7 +111,6 @@ fun MyText() {
     Text(
         text = "灵感",
         fontSize = 32.sp,
-//        fontSize = 20.64.sp,
         modifier = Modifier.onSizeChanged { size ->
             textSize = size
         }

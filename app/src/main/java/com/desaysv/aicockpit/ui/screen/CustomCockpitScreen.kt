@@ -294,7 +294,9 @@ fun ElectricityList_(
 
 @Composable
 fun SoundListV1_(viewModel: MajorViewModel
-,onSoundChosen: (SoundItemData) -> Unit={}) {
+,onSoundChosen: (SoundItemData) -> Unit={},
+ onSoundInit: (SoundItemData) -> Unit={}
+                 ) {
     val soundItems by viewModel.sounds.collectAsState(initial = emptyList())
 
     Box(
@@ -317,10 +319,12 @@ fun SoundListV1_(viewModel: MajorViewModel
             val visiables= computeVisibleNum(soundItems.size)
             InfiniteCircularLazyList_5(
                 onItemSelected = onSoundChosen,
-//            soundItemDataList = soundItems.ifEmpty { defaultSoundList },
                 soundItemDataList_ =  soundItems ,
                 visiables
             )
+            LaunchedEffect(Unit) {
+                onSoundInit(soundItems[0])
+            }
         }
     }
 }
@@ -630,6 +634,7 @@ fun CustomScreen(
     onThemeWallpaperChange: (String) -> Unit={},
     onSoundChosen: (SoundItemData) -> Unit={},
     genCockpit: () -> Unit,
+    onSoundInit: (SoundItemData) -> Unit={},
     toastMsg:String?=null,
     onExit: () -> Unit={}){
 
@@ -664,7 +669,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundListV1_(majorViewModel,onSoundChosen)
+                        SoundListV1_(majorViewModel,onSoundChosen,onSoundInit)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(

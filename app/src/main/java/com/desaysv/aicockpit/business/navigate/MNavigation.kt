@@ -147,7 +147,12 @@ fun MainNavigation() {
                                 naviController = navController
                             )
                         }
-                    }, toastMsg = toastSaveAndAppliedMsg) }
+                    }, toastMsg = toastSaveAndAppliedMsg,
+                    onSoundInit = {
+                        sid=it.id
+                        Log.d("默认选择$it")
+                    }
+                ) }
 
             composable(Route.ScreenINS.route) { InspiratonScreen(
                 { navigateByTag(it,navController) },
