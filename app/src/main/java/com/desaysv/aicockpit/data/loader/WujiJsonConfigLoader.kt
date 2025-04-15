@@ -32,10 +32,10 @@ fun checkConfigDirState(): String {
     }
 }
 
-val CONFIG_ELE_PATH="/Android/data/com.desaysv.wuji/files/config.txt"
-val CONFIG_SOUNDS_PATH="/Android/data/com.desaysv.aisound/files/config.txt"
-//val CONFIG_ELE_PATH="/test/config.txt"
-//val CONFIG_SOUNDS_PATH="/test/config_sounds.txt"
+//val CONFIG_ELE_PATH="/Android/data/com.desaysv.wuji/files/config.txt"
+//val CONFIG_SOUNDS_PATH="/Android/data/com.desaysv.aisound/files/config.txt"
+val CONFIG_ELE_PATH="/test/config.txt"
+val CONFIG_SOUNDS_PATH="/test/config_sounds.txt"
 object WujiJsonConfigLoader :ResourceLoader<ThemeItemData>{
 
     override suspend fun loadOnce(): List<ThemeItemData>
