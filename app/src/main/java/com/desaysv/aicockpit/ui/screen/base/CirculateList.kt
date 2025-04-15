@@ -52,6 +52,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
 @Composable
 fun getBaseSize()= listOf(
@@ -231,167 +233,6 @@ fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
 
 
-
-@Composable
-fun InfiniteCircularLazyList_4(
-    onItemSelected: (SoundItemData) -> Unit,
-    soundItemDataList_: List<SoundItemData>,
-    visiableNums:Int=4 ,//可见项
-) {
-    val scope = rememberCoroutineScope()
-    val dragOffset = remember { Animatable(0f) }
-    val threshold = 300f
-    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-    var startIndex by remember { mutableStateOf(1) } //不用提前剪裁而是全局取模
-
-    Log.d("可见项 $visiableNums 数据集 ${soundItemDataList_.size}")
-    val sizes= getLoopedSizes(getBaseSize(),visiableNums)
-    val soundItemDataList= getLoopedItems(soundItemDataList_,visiableNums)
-    val boundsList = with(LocalDensity.current) {
-        val edgeSpacingPx = 120f
-        val slotCount = sizes.size
-        val centers = mutableListOf<Float>()
-
-        var currentCenter = -200f
-
-        for (i in 0 until slotCount) {
-            centers += currentCenter
-            val halfCurrent = sizes[i].width.toPx() / 2
-            if (i < slotCount - 1) {
-                val halfNext = sizes[i + 1].width.toPx() / 2
-                currentCenter += halfCurrent + edgeSpacingPx + halfNext
-            }
-        }
-
-        List(slotCount) { i ->
-            Bounds(
-                x = centers[i] - sizes[i].width.toPx() / 2,
-                dpSize = sizes[i],
-                alpha = when(i){
-                    0,sizes.size-1->0f
-                    1->1f
-                    2->0.75f
-                    else-> 0.4f
-                }
-            )
-        }
-    }
-
-    Log.d("check len")
-    val len = soundItemDataList.size
-    Log.d("check len pass $len")
-//
-    fun getVisibleItems(): List<SoundItemData> {
-        return List(visiableNums + 2) { i ->
-            val index = (startIndex + i - 1 + len) % len
-            soundItemDataList_[index]
-        }
-    }
-
-
-
-    val visibleItems = getVisibleItems()
-    val direction = dragOffset.value.compareTo(0f)
-
-    val lastIndex=sizes.size-1
-    val transitions = if (direction >= 0) {
-        sizes.indices.map { i ->
-            if (i == lastIndex) lerpSlotV(boundsList[lastIndex], boundsList[lastIndex], 1f)
-            else lerpSlotV(boundsList[i], boundsList[i + 1], t)
-        }
-    } else {
-        (lastIndex downTo 0).map { i ->
-            if (i == 0) lerpSlotV(boundsList[0], boundsList[0], 1f)
-            else lerpSlotV(boundsList[i], boundsList[i - 1], -t)
-        }.reversed()
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, delta ->
-                        scope.launch {
-                            dragOffset.snapTo(
-                                (dragOffset.value + delta).coerceIn(
-                                    -threshold,
-                                    threshold
-                                )
-                            )
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            if (dragOffset.value > threshold * 0.5f) {
-                                dragOffset.animateTo(threshold, tween(150))
-                                delay(100)
-                                startIndex = (startIndex - 1 + len) % len
-                            } else if (dragOffset.value < -threshold * 0.5f) {
-                                dragOffset.animateTo(-threshold, tween(150))
-                                delay(100)
-                                startIndex = (startIndex + 1) % len
-                            }
-                            dragOffset.snapTo(0f)
-                            onItemSelected(visibleItems[startIndex])
-                        }
-                    }
-                )
-            }
-            .clip(RectangleShape),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        transitions.forEachIndexed { i, state ->
-            val item = visibleItems[i]
-            val painter = if (item.imgId != -1) {
-                rememberAsyncImagePainter(File(item.imgPath))
-            } else {
-                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
-            }
-
-            Box(
-                Modifier
-                    .size(state.size)
-                    .graphicsLayer {
-                        translationX = state.x
-                        alpha = state.alpha
-                    }
-                    .clickable {
-                        onItemSelected(item)
-
-                        val clickedIndex = i
-                        if (clickedIndex in 1..4) {
-                            val len = soundItemDataList_.size
-                            val indices = listOf(-1, 0, 1, 2, 3, 4).map {
-                                (startIndex + it + len) % len
-                            }
-                            val clickedRealIndex = indices[clickedIndex]
-                            startIndex = clickedRealIndex
-                        }
-                    },
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                Text(
-//                    text = item.soundName + " " + item.id,
-                    text = item.soundName ,
-                    style = TextStyle(
-                        fontSize = 24.getSP(),
-                        color = Color.White
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
-                )
-            }
-        }
-    }
-}
 @Composable
 fun InfiniteCircularLazyList_5(
     onItemSelected: (SoundItemData) -> Unit,
@@ -481,12 +322,12 @@ fun InfiniteCircularLazyList_5(
                         scope.launch {
                             when {
                                 dragOffset.value > threshold * 0.5f -> {
-                                    dragOffset.animateTo(threshold, tween(150))
+                                    dragOffset.animateTo(threshold, tween(200))
                                     delay(100)
                                     startIndex = (startIndex - 1 + len) % len
                                 }
                                 dragOffset.value < -threshold * 0.5f -> {
-                                    dragOffset.animateTo(-threshold, tween(150))
+                                    dragOffset.animateTo(-threshold, tween(200))
                                     delay(100)
                                     startIndex = (startIndex + 1) % len
                                 }
@@ -516,9 +357,34 @@ fun InfiniteCircularLazyList_5(
                         alpha = state.alpha
                     }
                     .clickable {
-                        val clickedIndex = (startIndex + i - 1 + len) % len
-                        startIndex = clickedIndex
-                        onItemSelected(soundItemDataList_[clickedIndex])
+//                        val clickedIndex = (startIndex + i - 1 + len) % len
+////                        startIndex = clickedIndex
+//                        onItemSelected(soundItemDataList_[clickedIndex])
+
+
+                        scope.launch {
+                            // 调用选中回调
+                            onItemSelected(soundItemDataList_[startIndex])
+                            // 计算点击项在 visibleItems 中的位置与活跃项（索引 1）的差值（步数差）
+                            val steps = i - 1
+                            if (steps > 0) {
+                                // 点击项在右侧，向左滑动 steps 次
+                                repeat(steps) {
+                                    dragOffset.animateTo(-threshold, tween(300))
+//                                    delay(30)
+                                    startIndex = (startIndex + 1) % len
+                                    dragOffset.snapTo(0f)
+                                }
+                            } else if (steps < 0) {
+                                // 点击项在左侧，向右滑动 abs(steps) 次
+                                repeat(-steps) {
+                                    dragOffset.animateTo(threshold, tween(300))
+//                                    delay(30)
+                                    startIndex = (startIndex - 1 + len) % len
+                                    dragOffset.snapTo(0f)
+                                }
+                            }
+                        }
                     },
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -531,6 +397,178 @@ fun InfiniteCircularLazyList_5(
                 Text(
                     text = item.soundName,
                     style = TextStyle(fontSize = 24.getSP(), color = Color.White),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun InfiniteCircularLazyList_6(
+    onItemSelected: (SoundItemData) -> Unit,
+    onItemInt: (SoundItemData) -> Unit = {},
+    soundItemDataList_: List<SoundItemData>,
+    visibleNums: Int = 4,
+) {
+    val scope = rememberCoroutineScope()
+    // dragOffset 可累计多格动画，允许超过单步范围
+    val dragOffset = remember { Animatable(0f) }
+    // 单步的阈值（单位像素），点击或拖拽达到此值则移动一格
+    val threshold = 300f
+    // 初始的选中起始索引
+    var startIndex by remember { mutableStateOf(0) }
+    // 获得基本尺寸与循环后用于绘制的尺寸
+    val baseSizes = getBaseSize()
+    val sizes = getLoopedSizes(baseSizes, visibleNums)
+    val len = soundItemDataList_.size
+
+    // 使用 dragOffset 的累计值来计算“连续”进度：
+    // fraction 表示当前拖动了几格（可能带小数）
+    val fraction = dragOffset.value / threshold
+    // fullSteps 为已跨越的完整步数；注意 floor 对负数同样生效（例如 -1.3 -> -2）
+    val fullSteps = floor(fraction).toInt()
+    // 当前步的进度（范围 0~1），例如 0.3 表示当前步完成 30%
+    val progress = (fraction - fullSteps).toFloat()
+    // 基于初始 startIndex 加上已跨越的完整步数，计算当前有效起始索引
+    val effectiveStartIndex = (startIndex + fullSteps + len) % len
+
+    // 生成当前可见项
+    fun getVisibleItems(effectiveStart: Int): List<SoundItemData> {
+        return List(visibleNums + 2) { i ->
+            val index = (effectiveStart + i - 1 + len) % len
+            soundItemDataList_[index]
+        }
+    }
+    val visibleItems = getVisibleItems(effectiveStartIndex)
+
+    // 根据当前可见尺寸计算 slot 的显示边界（位置、尺寸、透明度）
+    val boundsList = with(LocalDensity.current) {
+        val spacing = 120f
+        val centers = mutableListOf<Float>()
+        var currentCenter = -200f
+        for (i in sizes.indices) {
+            centers += currentCenter
+            val half = sizes[i].width.toPx() / 2
+            if (i < sizes.lastIndex) {
+                val nextHalf = sizes[i + 1].width.toPx() / 2
+                currentCenter += half + spacing + nextHalf
+            }
+        }
+        List(sizes.size) { i ->
+            Bounds(
+                x = centers[i] - sizes[i].width.toPx() / 2,
+                dpSize = sizes[i],
+                alpha = when (i) {
+                    0, sizes.size - 1 -> 0f
+                    1 -> 1f
+                    2 -> 0.75f
+                    else -> 0.4f
+                }
+            )
+        }
+    }
+
+    // 根据 current dragOffset 的方向与当前进度计算过渡动画效果
+    val transitions = if (dragOffset.value >= 0f) {
+        sizes.indices.map { i ->
+            if (i == sizes.lastIndex)
+                lerpSlotV(boundsList[i], boundsList[i], 1f)
+            else
+                lerpSlotV(boundsList[i], boundsList[i + 1], progress)
+        }
+    } else {
+        sizes.indices.map { i ->
+            if (i == 0)
+                lerpSlotV(boundsList[i], boundsList[i], 1f)
+            else
+                lerpSlotV(boundsList[i], boundsList[i - 1], progress)
+        }
+    }
+
+    // 初始化时通知当前选中项（未拖拽或点击前）
+    LaunchedEffect(soundItemDataList_) {
+        if (soundItemDataList_.isNotEmpty()) {
+            onItemSelected(soundItemDataList_[startIndex])
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            // 处理横向拖拽，允许 dragOffset 超出单步范围
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, delta ->
+                        scope.launch {
+                            // 累加拖拽偏移，不做硬性限制，让其超出 threshold
+                            dragOffset.snapTo(dragOffset.value + delta)
+                        }
+                    },
+                    onDragEnd = {
+                        scope.launch {
+                            // 结束拖拽时，依据当前进度自动滚动到最近的整格
+                            val targetFraction = if (progress >= 0.5f) ceil(fraction) else floor(fraction)
+                            dragOffset.animateTo(targetFraction * threshold, tween(durationMillis = 150))
+                            // 更新 startIndex 为原始 startIndex 加上整格偏移量（四舍五入）
+                            val deltaSteps = targetFraction.toInt()
+                            startIndex = (startIndex + deltaSteps + len) % len
+                            // 重置拖拽偏移量为 0
+                            dragOffset.snapTo(0f)
+                            onItemSelected(soundItemDataList_[startIndex])
+                        }
+                    }
+                )
+            }
+            .clip(RectangleShape),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        // 绘制每个可见项
+        transitions.forEachIndexed { i, state ->
+            val item = visibleItems[i]
+            val painter = if (item.imgId != -1) {
+                // 如果使用本地文件加载图片
+                rememberAsyncImagePainter(java.io.File(item.imgPath))
+            } else {
+                // 否则从 assets 加载图片
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
+            }
+            Box(
+                modifier = Modifier
+                    .size(state.size)
+                    .graphicsLayer {
+                        translationX = state.x
+                        alpha = state.alpha
+                    }
+                    .clickable {
+                        scope.launch {
+                            // 点击时计算点击项与当前活跃项（visibleItems 中索引 1）的步数差
+                            val steps = i - 1
+                            // 目标拖拽偏移量为 steps * (-threshold)
+                            // 注意：当点击项在右侧时 steps > 0，此时目标为负，反之亦然
+                            val target = steps * (-threshold)
+                            // 一次连续动画，将 dragOffset 从 0 动画到目标值
+                            dragOffset.animateTo(target, tween(durationMillis = abs(steps) * 150))
+                            // 更新 startIndex（点击后，相对于原始 startIndex 直接加上整步数）
+                            startIndex = (startIndex + steps + len) % len
+                            // 重置拖拽偏移量
+                            dragOffset.snapTo(0f)
+                            onItemSelected(soundItemDataList_[startIndex])
+                        }
+                    },
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+                    text = item.soundName,
+                    style = androidx.compose.ui.text.TextStyle(fontSize = 24.getSP(), color = androidx.compose.ui.graphics.Color.White),
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())

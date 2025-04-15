@@ -32,7 +32,7 @@ object GlobalInspirationReceiverHolder {
         receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
                 Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
-                if (intent?.getIntExtra("VPA_TYPE", 0) != 0) {
+                if (intent?.getStringExtra("VPA_TYPE") != "0") {
                     CoroutineScope(Dispatchers.IO).launch {
                         val data = InspirationLoader.loadOnce()
                         onReceiveInspirationCallback(data)

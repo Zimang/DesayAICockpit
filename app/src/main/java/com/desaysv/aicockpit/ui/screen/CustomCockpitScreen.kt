@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -245,6 +246,11 @@ fun ElectricityList(
     imgPath: String,
     modifier: Modifier
 ){
+
+    // 使用 LazyListState 用于控制滚动
+    val listState = rememberLazyListState()
+    // 协程作用域用于启动滚动动画
+    val coroutineScope = rememberCoroutineScope()
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(64.pxToDp()),
         modifier = modifier
@@ -257,6 +263,9 @@ fun ElectricityList(
 //                ,electItem.imgId==chosenElectricityData.imgId
                 ,imgPath==electItem.imgPath
                 ,modifier=modifier.clickable {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(index)
+                    }
                     onThemeChosen(electItem.imgPath)
                 }
             )
