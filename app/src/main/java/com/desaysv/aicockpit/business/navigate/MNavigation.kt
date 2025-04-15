@@ -134,9 +134,7 @@ fun MainNavigation() {
                             soundPlayer.play(it.audioPath)
                         }
                     }, genCockpit = {
-
                         if(soundItems.isEmpty()){
-//                            Toast.makeText(context,ResourceManager.getSoundEmptyCantSave(),Toast.LENGTH_LONG).show()
                             scop.launch {
                                 toastSaveAndAppliedMsg=ResourceManager.getSoundEmptyCantSave()
                                 delay(2000)

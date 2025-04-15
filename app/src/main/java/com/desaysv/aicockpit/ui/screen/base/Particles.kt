@@ -194,7 +194,7 @@ fun CustomToastHost(toastMessage: String?, onDismiss: () -> Unit={}) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 100.dp),
+                .padding(bottom = 200.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             Box(

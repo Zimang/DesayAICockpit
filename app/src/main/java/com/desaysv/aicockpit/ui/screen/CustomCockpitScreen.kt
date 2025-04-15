@@ -648,12 +648,10 @@ fun CustomScreen(
         }
         Box(modifier = Modifier
             .size(width = (207+1286+143).pxToDp(), height = 720f.pxToDp())
-//            .background(Color.White)
+
         ){
             Row(modifier = Modifier
-//                .align(Alignment.CenterEnd)
                 .padding(end = 143f.pxToDp(), start =207f.pxToDp())
-//                .background(Color.Red)
             ){
                 BigPanelV1(genCockpit)
             }
