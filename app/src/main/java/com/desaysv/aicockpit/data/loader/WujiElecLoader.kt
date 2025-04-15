@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Environment
 import androidx.core.content.ContextCompat
+import com.desaysv.aicockpit.business.ImageConstants.CONFIG_ELE_PATH
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ListTheme
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
@@ -59,7 +60,6 @@ object WujiElecLoader : ResourceLoader<ElectricityItemData> {
             Environment.getExternalStorageDirectory(),CONFIG_ELE_PATH
 //            CONFIG_ELE_PATH
         )
-        checkConfigDirState()
         if (!configFile.exists()) {
             Log.d("Config file not found at: ${configFile.absolutePath}")
             return@withContext emptyList<ElectricityItemData>()

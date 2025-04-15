@@ -8,7 +8,6 @@ import com.desaysv.aicockpit.data.db.SoundItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.AiSoundLoader
-import com.desaysv.aicockpit.data.loader.SoundLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers

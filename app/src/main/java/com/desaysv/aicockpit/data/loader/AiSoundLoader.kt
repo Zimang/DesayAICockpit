@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Environment
 import androidx.core.content.ContextCompat
+import com.desaysv.aicockpit.business.ImageConstants.CONFIG_SOUNDS_PATH
 import com.desaysv.aicockpit.data.ListSound
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
@@ -60,7 +61,6 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
 //            Environment.getExternalStorageDirectory(),CONFIG_PATH
             CONFIG_SOUNDS_PATH
         )
-        checkConfigDirState()
         if (!configFile.exists()) {
             Log.d("Config file not found at: ${configFile.absolutePath}")
             return@withContext emptyList<SoundItemData>()

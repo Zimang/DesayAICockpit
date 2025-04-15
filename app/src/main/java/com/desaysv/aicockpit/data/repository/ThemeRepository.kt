@@ -7,7 +7,6 @@ import com.desaysv.aicockpit.data.db.ThemeItemDao
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.loader.InspirationLoader
-import com.desaysv.aicockpit.data.loader.WujiJsonConfigLoader
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow

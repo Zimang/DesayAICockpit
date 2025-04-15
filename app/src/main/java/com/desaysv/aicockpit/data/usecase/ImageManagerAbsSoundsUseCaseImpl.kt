@@ -3,7 +3,6 @@ package com.desaysv.aicockpit.data.usecase
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceRepository
 import com.desaysv.aicockpit.data.interfaces.ResourceUseCase
-import com.desaysv.aicockpit.data.loader.SoundLoader
 import com.desaysv.aicockpit.data.repository.SoundRepository
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CoroutineScope
