@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Environment
 import androidx.core.content.ContextCompat
 import com.desaysv.aicockpit.data.ListSound
 import com.desaysv.aicockpit.data.SoundItemData
@@ -143,7 +144,12 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
         )
     )
     suspend fun loadSoundItemsFromConfig(): List<SoundItemData> = withContext(Dispatchers.IO) {
-        val configFile = File("/sdcard/test/config_sounds.txt")
+//        val configFile = File("/sdcard/test/config_sounds.txt")
+        val configFile = File(
+            Environment.getExternalStorageDirectory(), CONFIG_SOUNDS_PATH
+//            CONFIG_ELE_PATH
+        )
+
         if (!configFile.exists()) {
             Log.e("AISOUND", "Config file not found at: ${configFile.absolutePath}")
             Log.d("AISOUND", "default all sounds: ${allSounds.size}")

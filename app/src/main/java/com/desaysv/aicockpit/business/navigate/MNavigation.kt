@@ -200,11 +200,12 @@ fun MainNavigation() {
 
             composable(Route.Exit.route) {
 //                (context as Activity).finish()
-                backHome(context)
                 LaunchedEffect(Unit) {
-                    val time = System.currentTimeMillis()
+                    Log.d("点击返回桌面")
                     delay(3000)
-                    Log.d("后台存活", "3秒后仍活着，时间戳=${System.currentTimeMillis() - time}")
+                    backHome(context)
+                    val time = System.currentTimeMillis()
+                    Log.d("3秒后仍活着，时间戳=${System.currentTimeMillis() - time}")
                 }
             }
 

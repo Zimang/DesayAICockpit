@@ -58,8 +58,6 @@ class MainActivity : ComponentActivity() {
                 AppPermissionGate(this,{}, ) {
                     MainNavigation()
                 }
-
-
             }
         }
         printScreenScaleParams(this)

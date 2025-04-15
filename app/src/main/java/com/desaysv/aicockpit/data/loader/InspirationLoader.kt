@@ -44,9 +44,12 @@ object InspirationLoader :ResourceLoader<ThemeItemData>{
                 Log.d("Broadcast received, delete all inspiration")
                 try {
                     // 加载数据并发送到 flow
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val data = loadOnce()
-                        trySend(data).isSuccess
+
+                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val data = loadOnce()
+                            trySend(data).isSuccess
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()                    }
