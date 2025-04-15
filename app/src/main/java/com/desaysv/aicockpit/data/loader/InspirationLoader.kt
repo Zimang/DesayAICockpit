@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,41 +28,81 @@ import java.io.FileReader
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 const val ACTION_DELETE_INSPIRAION_1="RECEIVER_VPA_TYPE_ACTION"
 const val ACTION_DELETE_INSPIRAION_2="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
+
+object InspirationEventBus {
+    val flow = MutableSharedFlow<List<ThemeItemData>>(replay = 1)
+}
+object GlobalInspirationReceiverHolder {
+    private var registered = false
+
+    fun register(context: Context) {
+        if (registered) return
+
+        val filter = IntentFilter().apply {
+            addAction(ACTION_DELETE_INSPIRAION_1)
+            addAction(ACTION_DELETE_INSPIRAION_2)
+        }
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
+                if (intent?.getIntExtra("VPA_TYPE", 0) != 0) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val data = InspirationLoader.loadOnce()
+                        InspirationEventBus.flow.emit(data)
+                    }
+                }
+            }
+        }
+
+        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        registered = true
+        Log.d("GlobalReceiver", "已注册广播接收器")
+    }
+}
+
+
+
 object InspirationLoader :ResourceLoader<ThemeItemData>{
 
     //无需load,直接从数据库读就可以了
     override suspend fun loadOnce(): List<ThemeItemData>
             =loadFromJSON()
 
-
-    override fun observe(context: Context): Flow<List<ThemeItemData>> = callbackFlow {
-        val filter = IntentFilter()
-        filter.addAction(ACTION_DELETE_INSPIRAION_1)
-        filter.addAction(ACTION_DELETE_INSPIRAION_2)
-
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context?, intent: Intent?) {
-                Log.d("Broadcast received, delete all inspiration")
-                try {
-                    // 加载数据并发送到 flow
-
-                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val data = loadOnce()
-                            trySend(data).isSuccess
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()                    }
-            }
-        }
-
-        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
-        awaitClose {
-            context.unregisterReceiver(receiver)
-            Log.d("InspirationLoader", "BroadcastReceiver unregistered")
-        }
+    override fun observe(context: Context): Flow<List<ThemeItemData>> {
+        return InspirationEventBus.flow
     }
+
+//
+//    override fun observe(context: Context): Flow<List<ThemeItemData>> = callbackFlow {
+//        val filter = IntentFilter()
+//        filter.addAction(ACTION_DELETE_INSPIRAION_1)
+//        filter.addAction(ACTION_DELETE_INSPIRAION_2)
+//
+//        val receiver = object : BroadcastReceiver() {
+//            override fun onReceive(ctx: Context?, intent: Intent?) {
+//                Log.d("Broadcast received, delete all inspiration")
+//                try {
+//                    // 加载数据并发送到 flow
+//
+//                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            val data = loadOnce()
+//                            trySend(data).isSuccess
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()                    }
+//            }
+//        }
+//
+//        Log.d("注册广播接受器")
+//        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
+//        awaitClose {
+//            context.unregisterReceiver(receiver)
+//            Log.d("注销 InspirationLoader 广播接受器")
+//        }
+//    }
 
     //置空了
 suspend fun loadFromJSON()= withContext(Dispatchers.IO){

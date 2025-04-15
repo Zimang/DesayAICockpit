@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.desaysv.aicockpit.business.navigate.requestApplyingTheme
 import com.desaysv.aicockpit.business.navigate.sendApplyingTheme
 import com.desaysv.aicockpit.data.db.AppDatabase
+import com.desaysv.aicockpit.data.loader.GlobalInspirationReceiverHolder
 import com.desaysv.aicockpit.data.repository.ElectricityRepository
 import com.desaysv.aicockpit.data.repository.SoundRepository
 import com.desaysv.aicockpit.data.repository.ThemeRepository
@@ -14,7 +15,9 @@ import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.StoragePermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.lang.Thread.sleep
 
@@ -27,6 +30,8 @@ class MyApplication : Application() {
         ).build()
     }
 
+
+
     // 初始化 Repository（依赖数据库 DAO）
 //    val repository by lazy { ProjectRepository(database.projectDao()) }
     val themeRepository by lazy { ThemeRepository(database.themeItemDao(),this) }
@@ -38,6 +43,9 @@ class MyApplication : Application() {
 
         ResourceManager.init(this)
         LocaleManager.init(this)
+
+        GlobalInspirationReceiverHolder.register(this)
+
         // 启动时检查默认主题
         CoroutineScope(Dispatchers.IO).launch {
 //            themeRepository.ensureDefaultThemeExists()
@@ -68,6 +76,15 @@ class MyApplication : Application() {
 
             }
         }
+
+
+        CoroutineScope(SupervisorJob()+ Dispatchers.IO).launch {
+            while (isActive) {
+                Log.d("aicockpit heartbeat: alive at ${System.currentTimeMillis()}")
+                delay(10_000)
+            }
+        }
+
 
 
     }

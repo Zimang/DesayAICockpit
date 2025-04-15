@@ -134,7 +134,7 @@ fun MainNavigation() {
                             soundPlayer.play(it.audioPath)
                         }
                     }, genCockpit = {
-                        if(soundItems.isEmpty()){
+                        if(soundItems.isEmpty()||sid==-1){
                             scop.launch {
                                 toastSaveAndAppliedMsg=ResourceManager.getSoundEmptyCantSave()
                                 delay(2000)
@@ -267,12 +267,12 @@ fun sendColor(ctx : Context, hue:Float, saturation:Float){
 }
 
 fun sendApplyingTheme(ctx : Context,tname: String){
-    Log.d("发送主题$tname")
-    Settings.Global.putString(
-        ctx?.contentResolver,
-        THEME_NAME_DEFINE,
-        tname
-    )
+//    Log.d("发送主题$tname")
+//    Settings.Global.putString(
+//        ctx?.contentResolver,
+//        THEME_NAME_DEFINE,
+//        tname
+//    )
 }
 
 fun requestApplyingTheme(ctx : Context):String{
