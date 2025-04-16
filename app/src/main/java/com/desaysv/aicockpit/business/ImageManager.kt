@@ -23,8 +23,8 @@ object ImageConstants {
     const val ACTION_RECEIVE_THEME = "com.desaysv.ip.MY_ACTION"
     const val KEY_AI_PATH = "ai_path"
     const val TARGET_PACKAGE = "com.desaysv.wuji"
-    val CONFIG_ELE_PATH=   "/Android/data/com.desaysv.wuji/files/config.txt"
-//    val CONFIG_ELE_PATH=   "/test/config.txt"
+//    val CONFIG_ELE_PATH=   "/Android/data/com.desaysv.wuji/files/config.txt"
+    val CONFIG_ELE_PATH=   "/test/config.txt"
     val CONFIG_SOUNDS_PATH="/Android/data/com.desaysv.aisound/files/config.txt"
 }
 

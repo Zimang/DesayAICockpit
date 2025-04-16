@@ -55,60 +55,60 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
     }
     val allSounds = listOf(
         SoundItemData(
-            soundName = "鸟叫",
-            imageName = "鸟叫",
+            soundName = "布谷鸟",
+            imageName = "布谷鸟",
             imgId = -1,
-            imgPath = "鸟叫.png",
-            audioPath = "鸟叫.mp3"
+            imgPath = "29@2x.png",
+            audioPath = "布谷鸟.mp3"
         ),
         SoundItemData(
-            soundName = "跑步",
-            imageName = "跑步",
+            soundName = "花瓣",
+            imageName = "花瓣",
             imgId = -1,
-            imgPath = "跑步.png",
-            audioPath = "跑步.wav"
+            imgPath = "20@2x.png",
+            audioPath = "花瓣.mp3"
         ),
         SoundItemData(
-            soundName = "汽车鸣笛",
-            imageName = "汽车鸣笛",
+            soundName = "树叶",
+            imageName = "树叶",
             imgId = -1,
-            imgPath = "汽车鸣笛.png",
-            audioPath = "汽车鸣笛.mp2"
+            imgPath = "26@2x.png",
+            audioPath = "树叶.mp3"
         ),
         SoundItemData(
-            soundName = "瀑布",
-            imageName = "瀑布",
+            soundName = "溪水",
+            imageName = "溪水",
             imgId = -1,
-            imgPath = "瀑布.png",
-            audioPath = "瀑布.mp3"
+            imgPath = "11@2x.png",
+            audioPath = "溪水.mp3"
         ),
         SoundItemData(
-            soundName = "鸟群拍打翅膀",
-            imageName = "鸟群拍打翅膀",
+            soundName = "树叶婆娑",
+            imageName = "树叶婆娑",
             imgId = -1,
-            imgPath = "鸟群拍打翅膀.png",
-            audioPath = "鸟群拍打翅膀.mp3"
+            imgPath = "8@2x.png",
+            audioPath = "树叶婆娑.mp3"
         ),
         SoundItemData(
-            soundName = "鹿",
-            imageName = "鹿",
+            soundName = "滴水",
+            imageName = "滴水",
             imgId = -1,
-            imgPath = "鹿.png",
-            audioPath = "鹿.mp3"
+            imgPath = "14@2x.png",
+            audioPath = "滴水.wav"
         ),
         SoundItemData(
-            soundName = "丛林",
-            imageName = "丛林",
+            soundName = "花叶",
+            imageName = "花叶",
             imgId = -1,
-            imgPath = "丛林.png",
-            audioPath = "丛林.wav"
+            imgPath = "17@2x.png",
+            audioPath = "花叶.mp3"
         ),
         SoundItemData(
-            soundName = "奶牛",
-            imageName = "奶牛",
+            soundName = "晶体",
+            imageName = "晶体",
             imgId = -1,
-            imgPath = "奶牛.png",
-            audioPath = "奶牛.mp3"
+            imgPath = "23@2x.png",
+            audioPath = "晶体.mp3"
         )
     )
     suspend fun loadSoundItemsFromConfig(): List<SoundItemData> = withContext(Dispatchers.IO) {
