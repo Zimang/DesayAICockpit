@@ -363,3 +363,123 @@ fun InspiratonScreenV2(
         }
     }
 }
+
+@Composable
+fun InspiratonScreenV3(
+    onChange: (ScreenTag) -> Unit = {},
+    viewModel: MajorViewModel,
+    toastMsg: String? = null,
+    onApplyUIChange: () -> Unit = {},
+) {
+    val contextApp = (LocalContext.current as? Activity)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val themes by viewModel.themes.collectAsState(initial = emptyList())
+    var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        // 左侧部分：按钮区域保持不变
+        Box(modifier = Modifier.size(width = 284.pxToDp(), height = 720f.pxToDp())) {
+            ThemeChangeButtons(
+                ScreenTag.INS,
+                onChange = onChange,
+                onExit = { scope.launch { contextApp?.finish() } }
+            )
+        }
+
+        // 右侧区域：无限循环的主题卡列表
+        Box(
+            modifier = Modifier.size(
+                width = (207 + 1286 + 143 + 284 + 1636).pxToDp(),
+                height = 720f.pxToDp()
+            )
+        ) {
+            // 当 themes 不为空时启用无限循环列表
+            if (themes.isNotEmpty()) {
+                val listSize = themes.size
+                val infiniteItemCount = Int.MAX_VALUE
+                val initialIndex = (Int.MAX_VALUE / 2) - ((Int.MAX_VALUE / 2) % listSize)
+                val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+
+                // 定义每项宽度和项间间隔
+                val itemWidth = 300.pxToDp()
+                val spacing = 64f.pxToDp()
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 200f.pxToDp())
+                ) {
+
+
+
+                    var wwith=(472*listSize+64*(listSize-1)).pxToDp()
+                    if(themes.size==1){
+
+                        ThemeCard(
+                            themes[0],
+                            isApplied = themes[0].isApplied,
+                            onApply = {
+                                scope.launch {
+                                    viewModel.switchAppliedTheme(it)
+                                    informingIPC(
+                                        context,
+                                        themes[0].hue,
+                                        themes[0].saturation,
+                                        themes[0].themeName,
+                                        viewModel.getEleByPath(themes[0].imgPath)
+                                    )
+                                    onApplyUIChange()
+                                }
+                            }
+                        )
+
+                        return
+                    }
+
+
+                    LazyRow(
+                        state = listState,
+                        horizontalArrangement = Arrangement.spacedBy(spacing),
+                        modifier = Modifier.width(wwith)
+                    ) {
+                        // 利用无限项列表，并通过取模获得实际项的数据
+                        items(infiniteItemCount) { index ->
+                            val realIndex = index % listSize
+                            val theme = themes[realIndex]
+                            ThemeCard(
+                                theme,
+                                isApplied = theme.isApplied,
+                                onApply = {
+                                    scope.launch {
+                                        viewModel.switchAppliedTheme(it)
+                                        informingIPC(
+                                            context,
+                                            theme.hue,
+                                            theme.saturation,
+                                            theme.themeName,
+                                            viewModel.getEleByPath(theme.imgPath)
+                                        )
+                                        onApplyUIChange()
+                                    }
+                                },
+                                onDelete = {
+                                    scope.launch { viewModel.deleteTheme(it) }
+                                },
+                                onClicked = {
+                                    // 动画滚动，将当前点击项滚动至容器最左侧
+                                    scope.launch {
+                                        listState.animateScrollToItem(index, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            CustomToastHost(toastMsg)
+        }
+    }
+}
+

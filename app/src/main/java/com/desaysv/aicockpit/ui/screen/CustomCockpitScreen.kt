@@ -1,7 +1,6 @@
 package com.desaysv.aicockpit.ui.screen
 
 import android.app.Activity
-import androidx.activity.ComponentActivity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -13,7 +12,6 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,19 +24,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -63,9 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
-import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.R
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.SoundItemData
@@ -78,7 +71,6 @@ import com.desaysv.aicockpit.utils.pxToDp
 import com.desaysv.aicockpit.utils.pxToDpNum
 import com.desaysv.aicockpit.utils.pxToSp
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
-import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -244,16 +236,15 @@ fun ElectricityItem(
 
 /**
  * ElectricityList
- */@Composable
+ */
+@Composable
 fun ElectricityList(
     onThemeChosen: (String) -> Unit,
     electricityItemDataList: List<ElectricityItemData>,
     imgPath: String,
     modifier: Modifier = Modifier
 ) {
-    // 假定每个 ElectricityItem 的宽度（你需要与实际布局一致）
     val itemWidthDp = 100.dp
-    // 使用你已有的 pxToDp() 方法转换间距，假设 spacing 为 64 像素所对应的 dp 值
     val spacing = 64.pxToDp()
 
     // LazyRow 的状态与协程作用域
@@ -345,7 +336,14 @@ fun ElectricityList(
                         coroutineScope.launch {
                             listState.animateScrollToItem(index, 0)
                         }
-                        onThemeChosen(electItem.imgPath)
+                        val offsetOfClickedItem = listState.layoutInfo.visibleItemsInfo
+                            .firstOrNull { it.index == index }?.offset ?: 0
+                        if(index==listState.firstVisibleItemIndex
+                            ||(index+1== soundItemDataList.size&&offsetOfClickedItem==56)
+                                    ){
+                            onThemeChosen(electItem.imgPath)
+                        }
+                        Log.d(" 点击 $index 第一可见项${listState.firstVisibleItemIndex} offset $offsetOfClickedItem ")
                     }
                 )
             }
@@ -355,6 +353,77 @@ fun ElectricityList(
                 item {
                     Spacer(modifier = Modifier.width(trailingSpacerWidth))
                 }
+            }
+        }
+    }
+}
+
+
+/**
+ * ElectricityList
+ */
+@Composable
+fun ElectricityListV2(
+    onThemeChosen: (String) -> Unit,
+    electricityItemDataList: List<ElectricityItemData>,
+    imgPath: String,
+    modifier: Modifier = Modifier
+) {
+
+    if (electricityItemDataList.isEmpty()) return
+    // 原始列表大小
+    val itemCount = electricityItemDataList.size
+    // 定义无限列表元素个数（利用 LazyRow 的惰性加载特性可直接传入极大数）
+    val infiniteItemCount = Int.MAX_VALUE
+    // 将初始滚动位置定位在无限列表中段，保证左右无限滚动
+    val initialIndex = (Int.MAX_VALUE / 2) - ((Int.MAX_VALUE / 2) % itemCount)
+
+    var wwith=0.pxToDp()
+    if(electricityItemDataList.size==2){
+        wwith=(472*2+64).pxToDp()
+        Log.d("size为1")
+    }else if(electricityItemDataList.size==1){
+        val electItem=electricityItemDataList[0]
+        ElectricityItem(
+            imgId = electItem.imgId,
+            imgPath = electItem.imgPath,
+            themeName = electItem.themeName,
+            chosen = (imgPath == electItem.imgPath),
+            modifier = Modifier
+        )
+        return
+    }
+    // 使用初始位置创建 LazyListState
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+    val coroutineScope = rememberCoroutineScope()
+    val itemWidthDp = 100.dp
+    val spacing = 64.pxToDp()
+
+    Box(modifier = if(wwith==0.pxToDp()) modifier.fillMaxWidth()else modifier.width(wwith)) {
+        LazyRow(
+            state = listState,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            //根据 index 对真实列表取模
+            items(infiniteItemCount) { index ->
+                val realIndex = index % itemCount
+                val electItem = electricityItemDataList[realIndex]
+                ElectricityItem(
+                    imgId = electItem.imgId,
+                    imgPath = electItem.imgPath,
+                    themeName = electItem.themeName,
+                    chosen = (imgPath == electItem.imgPath),
+                    modifier = Modifier.clickable {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index, 0)
+                        }
+                        if (index == listState.firstVisibleItemIndex) {
+                            onThemeChosen(electItem.imgPath)
+                        }
+                        Log.d("点击 $index, 第一可见项 ${listState.firstVisibleItemIndex}")
+                    }
+                )
             }
         }
     }
@@ -377,7 +446,7 @@ fun ElectricityList_(
         .padding(start = 120.pxToDp(), top = 120.pxToDp())
 //        ,contentAlignment = Alignment.TopStart
     ){
-        ElectricityList(onClick,
+        ElectricityListV2(onClick,
             eles,
             imgPath,
             Modifier)
@@ -416,7 +485,7 @@ fun SoundListV1_(viewModel: MajorViewModel
             InfiniteCircularLazyList_5(
                 onItemSelected = onSoundChosen,
                 soundItemDataList_ =  soundItems ,
-                onItemInt = onSoundInit,
+                onItemInit = onSoundInit,
                 visibleNums =  visiables
             )
             LaunchedEffect(Unit) {

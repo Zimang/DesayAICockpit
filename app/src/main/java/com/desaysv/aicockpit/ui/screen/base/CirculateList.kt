@@ -9,14 +9,8 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -40,14 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.pxToDp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -236,7 +227,7 @@ fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 @Composable
 fun InfiniteCircularLazyList_5(
     onItemSelected: (SoundItemData) -> Unit,
-    onItemInt: (SoundItemData) -> Unit={},
+    onItemInit: (SoundItemData) -> Unit={},
     soundItemDataList_: List<SoundItemData>,
     visibleNums: Int = 4,
 ) {
@@ -261,7 +252,7 @@ fun InfiniteCircularLazyList_5(
 
     LaunchedEffect(soundItemDataList_) {
         if (!soundItemDataList_.isEmpty()){
-            onItemSelected(soundItemDataList_[startIndex])
+            onItemInit(soundItemDataList_[startIndex])
         }
     }
 
@@ -360,8 +351,11 @@ fun InfiniteCircularLazyList_5(
 //                        val clickedIndex = (startIndex + i - 1 + len) % len
 ////                        startIndex = clickedIndex
 //                        onItemSelected(soundItemDataList_[clickedIndex])
-
-
+                        if(i==1){
+                            onItemInit(soundItemDataList_[startIndex])
+                        }else{
+                            Log.d("$i 并非最左边")
+                        }
                         scope.launch {
                             // 调用选中回调
                             onItemSelected(soundItemDataList_[startIndex])

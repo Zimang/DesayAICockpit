@@ -34,6 +34,7 @@ import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreenV2
+import com.desaysv.aicockpit.ui.screen.InspiratonScreenV3
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.utils.Log
@@ -127,8 +128,8 @@ fun MainNavigation() {
                         Log.d(it)
                         eleImgPath=it
                     }, onSoundChosen = {
-                        sid=it.id
-                        Log.d(it.toString())
+//                        sid=it.id
+                        Log.d("滑动 $it")
                         if(it.imgId==-1){
                             soundPlayer.playFromAssets(it.audioPath)
                         }else{
@@ -149,12 +150,13 @@ fun MainNavigation() {
                         }
                     }, toastMsg = toastSaveAndAppliedMsg,
                     onSoundInit = {
+                        Log.d("选择 $it")
                         sid=it.id
                         Log.d("默认选择$it")
                     }
                 ) }
 
-            composable(Route.ScreenINS.route) { InspiratonScreenV2(
+            composable(Route.ScreenINS.route) { InspiratonScreenV3(
                 { navigateByTag(it,navController) },
                 majorViewModel,
                 toastMsg = toastAppliedSuccessMsg,
