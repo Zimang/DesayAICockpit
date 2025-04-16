@@ -33,6 +33,7 @@ import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreen
+import com.desaysv.aicockpit.ui.screen.InspiratonScreenV2
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
 import com.desaysv.aicockpit.utils.Log
@@ -153,7 +154,7 @@ fun MainNavigation() {
                     }
                 ) }
 
-            composable(Route.ScreenINS.route) { InspiratonScreen(
+            composable(Route.ScreenINS.route) { InspiratonScreenV2(
                 { navigateByTag(it,navController) },
                 majorViewModel,
                 toastMsg = toastAppliedSuccessMsg,
