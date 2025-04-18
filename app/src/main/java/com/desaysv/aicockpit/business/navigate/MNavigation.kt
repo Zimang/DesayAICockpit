@@ -1,6 +1,5 @@
 package com.desaysv.aicockpit.business.navigate
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -25,8 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -36,8 +33,6 @@ import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.ui.screen.CustomScreen
-import com.desaysv.aicockpit.ui.screen.InspiratonScreen
-import com.desaysv.aicockpit.ui.screen.InspiratonScreenV2
 import com.desaysv.aicockpit.ui.screen.InspiratonScreenV3
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
@@ -47,8 +42,6 @@ import com.desaysv.aicockpit.utils.SoundPlayerController
 import com.desaysv.aicockpit.utils.rememberSoundPlayerController
 import com.desaysv.aicockpit.viewmodel.MajorViewModel
 import com.desaysv.aicockpit.viewmodel.MajorViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -132,7 +125,7 @@ fun MainNavigation() {
                     onThemeWallpaperChange = {
                         Log.d(it)
                         eleImgPath=it
-                    }, onSoundChosen = {
+                    }, onSoundInvoke2Play = {
 //                        sid=it.id
                         Log.d("滑动 $it")
                         if(it.imgId==-1){
@@ -154,7 +147,7 @@ fun MainNavigation() {
                             )
                         }
                     }, toastMsg = toastSaveAndAppliedMsg,
-                    onSoundInit = {
+                    onSoundChosen = {
                         Log.d("选择 $it")
                         sid=it.id
                         Log.d("默认选择$it")

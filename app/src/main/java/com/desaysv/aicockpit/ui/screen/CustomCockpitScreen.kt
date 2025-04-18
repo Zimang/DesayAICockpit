@@ -459,8 +459,8 @@ fun ElectricityList_(
 
 @Composable
 fun SoundListV1_(viewModel: MajorViewModel
-,onSoundChosen: (SoundItemData) -> Unit={},
- onSoundInit: (SoundItemData) -> Unit={}
+                 , onSoundInvoke2Play: (SoundItemData) -> Unit={},
+                 onSoundChosen: (SoundItemData) -> Unit={}
                  ) {
     val soundItems by viewModel.sounds.collectAsState(initial = emptyList())
 
@@ -468,6 +468,7 @@ fun SoundListV1_(viewModel: MajorViewModel
         Modifier
             .fillMaxSize()
             .padding(start = 120.pxToDp()
+//                , top = 120.pxToDp()
             )
     ) {
         if(soundItems.isEmpty() ){
@@ -481,14 +482,20 @@ fun SoundListV1_(viewModel: MajorViewModel
             Log.d("no sounds")
         }else{
             val visiables= computeVisibleNum(soundItems.size)
-            InfiniteCircularLazyList_7(
-                onItemSelected = onSoundChosen,
-                soundItemDataList =  soundItems ,
-                onItemInit = onSoundInit,
+//            InfiniteCircularLazyList_7(
+//                onItemInvoke2Play = onSoundInvoke2Play,
+//                soundItemDataList =  soundItems ,
+//                onItemChosen = onSoundChosen,
+//                visibleNums =  visiables
+//            )
+            InfiniteCircularLazyList_5(
+                onItemSelected = onSoundInvoke2Play,
+                soundItemDataList_ =  soundItems ,
+                onItemInit = onSoundChosen,
                 visibleNums =  visiables
             )
             LaunchedEffect(Unit) {
-                onSoundInit(soundItems[0])
+                onSoundChosen(soundItems[0])
             }
         }
     }
@@ -797,9 +804,9 @@ fun CustomScreen(
     onSaturationChanged: (Float) -> Unit,
     onChange: (ScreenTag) -> Unit={},
     onThemeWallpaperChange: (String) -> Unit={},
-    onSoundChosen: (SoundItemData) -> Unit={},
+    onSoundInvoke2Play: (SoundItemData) -> Unit={},
     genCockpit: () -> Unit,
-    onSoundInit: (SoundItemData) -> Unit={},
+    onSoundChosen: (SoundItemData) -> Unit={},
     toastMsg:String?=null,
     onExit: () -> Unit={}){
 
@@ -832,7 +839,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundListV1_(majorViewModel,onSoundChosen,onSoundInit)
+                        SoundListV1_(majorViewModel,onSoundInvoke2Play,onSoundChosen)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(

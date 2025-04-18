@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -45,8 +44,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.floor
 import kotlin.math.roundToInt
 @Composable
 fun getBaseSize()= listOf(
@@ -401,47 +398,56 @@ fun InfiniteCircularLazyList_5(
         }
     }
 }
-
-
 @Composable
 fun InfiniteCircularLazyList_7(
-    onItemSelected: (SoundItemData) -> Unit,
-    onItemInit: (SoundItemData) -> Unit = {},
+    onItemInvoke2Play: (SoundItemData) -> Unit,
+    onItemChosen: (SoundItemData) -> Unit = {},
     soundItemDataList: List<SoundItemData>,
-    visibleNums: Int = 3,  // 只显示中间三项
+    visibleNums: Int = 3,
+    centerShift: Dp = 50.dp // 中间项左移量
 ) {
     val scope = rememberCoroutineScope()
     val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
-    var startIndex by remember { mutableStateOf(0) }
-
     val len = soundItemDataList.size
+    // 当前中心项在数据列表中的下标
+    var centerItemIndex by remember { mutableStateOf(0) }
+
+    // 手势状态
     val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
     val direction = dragOffset.value.compareTo(0f)
 
-    fun getVisibleItems(): List<SoundItemData> {
-        return List(visibleNums + 2) { i ->
-            val idx = (startIndex + i - 1 + len) % len
+    // 取出带两端 buffer 的可见项
+    fun getVisibleItems(): List<SoundItemData> =
+        List(visibleNums + 2) { i ->
+            val idx = (centerItemIndex + i - visibleNums / 2 - 1 + len) % len
             soundItemDataList[idx]
         }
-    }
 
     LaunchedEffect(soundItemDataList) {
         if (soundItemDataList.isNotEmpty()) {
-            onItemInit(soundItemDataList[startIndex])
+            onItemChosen(soundItemDataList.last())
         }
     }
     val visibleItems = getVisibleItems()
 
-    // 定义大小和透明度：中间三项全不透明，其他完全透明
+    // 计算 UI 上槽位数量与中心槽位索引
+    val totalSlots = visibleNums + 2
+    val centerSlot = if (visibleNums % 2 == 0) visibleNums / 2 else totalSlots / 2
+
+    // 尺寸与透明度定义
     val bigSize = DpSize(342.pxToDp(), 456.pxToDp())
     val smallSize = DpSize(258.pxToDp(), 344.pxToDp())
-    val totalSlots = visibleNums + 2
-    val centerIndex = totalSlots / 2 -1
-    val slotDpSizes = List(totalSlots) { if (it == centerIndex) bigSize else smallSize }
-    val slotAlphas = List(totalSlots) { if (it in (centerIndex - 1)..(centerIndex + 1)) 1f else 0f }
+    val slotDpSizes = List(totalSlots) { if (it == centerSlot) bigSize else smallSize }
+    val slotAlphas = List(totalSlots) { i ->
+        when (i) {
+            centerSlot -> 1f
+            centerSlot - 1, centerSlot + 1 -> 0.75f
+            else -> 0.5f
+        }
+    }
 
-    // 计算每个槽位位置，并向左偏移一点
+    // 计算每个槽的基础 Bounds
     val boundsList = with(LocalDensity.current) {
         val spacing = 120f
         val centers = mutableListOf<Float>()
@@ -451,17 +457,18 @@ fun InfiniteCircularLazyList_7(
             val half = slotDpSizes[i].width.toPx() / 2
             currentX += half + spacing + if (i + 1 < totalSlots) slotDpSizes[i + 1].width.toPx() / 2 else half
         }
-//        val shiftPx = 50.dp.toPx()  // 向左偏移量
+        val shiftPx = centerShift.toPx()
         List(totalSlots) { i ->
-            val x = centers[i] - slotDpSizes[i].width.toPx() / 2
+            val baseX = centers[i] - slotDpSizes[i].width.toPx() / 2
+            val x = if (i == centerSlot) baseX - shiftPx else baseX
             Bounds(x = x, dpSize = slotDpSizes[i], alpha = slotAlphas[i])
         }
     }
 
-    // 插值动画
+    // 根据拖动方向插值
     val lastIdx = totalSlots - 1
     val transitions = if (direction >= 0) {
-        (0 until totalSlots).map { i ->
+        (0..lastIdx).map { i ->
             if (i == lastIdx) lerpSlotV(boundsList[i], boundsList[i], 1f)
             else lerpSlotV(boundsList[i], boundsList[i + 1], t)
         }
@@ -478,20 +485,18 @@ fun InfiniteCircularLazyList_7(
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
-                        scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
-                        }
+                        scope.launch { dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold)) }
                     },
                     onDragEnd = {
                         scope.launch {
                             when {
                                 dragOffset.value > threshold * 0.5f -> {
                                     dragOffset.animateTo(threshold, tween(200)); delay(100)
-                                    startIndex = (startIndex - 1 + len) % len
+                                    centerItemIndex = (centerItemIndex - 1 + len) % len
                                 }
                                 dragOffset.value < -threshold * 0.5f -> {
                                     dragOffset.animateTo(-threshold, tween(200)); delay(100)
-                                    startIndex = (startIndex + 1) % len
+                                    centerItemIndex = (centerItemIndex + 1) % len
                                 }
                             }
                             dragOffset.snapTo(0f)
@@ -502,24 +507,36 @@ fun InfiniteCircularLazyList_7(
             .clip(RectangleShape),
         contentAlignment = Alignment.CenterStart
     ) {
-        transitions.forEachIndexed { idx, state ->
-            val item = visibleItems[idx]
+        transitions.forEachIndexed { slotIdx, state ->
             if (state.alpha > 0f) {
-                val painter = if (item.imgId != -1) {
-                    rememberAsyncImagePainter(File(item.imgPath))
-                } else {
-                    rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
-                }
-
+                val item = visibleItems[slotIdx]
+                val painter = rememberAsyncImagePainter(
+                    if (item.imgId != -1) File(item.imgPath) else "file:///android_asset/images/${item.imgPath}"
+                )
                 Box(
                     modifier = Modifier
                         .size(state.size)
-                        .graphicsLayer {
-                            translationX = state.x
-                            alpha = state.alpha
-                        }
-                        .clickable(enabled = idx == centerIndex) {
-                            onItemSelected(visibleItems[centerIndex])
+                        .graphicsLayer { translationX = state.x; alpha = state.alpha }
+                        .clickable {
+                            onItemInvoke2Play(item)
+                            if (slotIdx == centerSlot) {
+                                onItemChosen(item)
+                            } else {
+                                // 非中心，移动到中心后不触发 onItemChosen
+                                val steps = slotIdx - centerSlot
+                                scope.launch {
+                                    repeat(abs(steps)) {
+                                        if (steps > 0) {
+                                            dragOffset.animateTo(-threshold, tween(200)); delay(100)
+                                            centerItemIndex = (centerItemIndex + 1) % len
+                                        } else {
+                                            dragOffset.animateTo(threshold, tween(200)); delay(100)
+                                            centerItemIndex = (centerItemIndex - 1 + len) % len
+                                        }
+                                        dragOffset.snapTo(0f)
+                                    }
+                                }
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -541,6 +558,7 @@ fun InfiniteCircularLazyList_7(
         }
     }
 }
+
 
 
 fun getLoopedItems(data: List<SoundItemData>, visibleCount: Int): List<SoundItemData> {

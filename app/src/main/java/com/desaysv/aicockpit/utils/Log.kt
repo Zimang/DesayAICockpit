@@ -84,7 +84,7 @@ object Log {
         intent?.extras?.let { bundle ->
             for (key in bundle.keySet()) {
                 val value = bundle.get(key)
-                d("key: $key, val: $value", tag = "debugman")
+                d("key: $key, val: $value  }", tag = "debugman")
             }
         }
     }

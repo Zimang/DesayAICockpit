@@ -25,6 +25,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -423,6 +426,27 @@ fun InfiniteScalingImageList_SoundV1(
                     )
                 )
             }
+        }
+    }
+}
+@Composable
+fun LeftShiftedBox(
+    shift: Dp,
+    visibleWidth: Dp,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    if(visibleWidth==0.dp){
+        modifier.fillMaxWidth()
+    }else{
+        modifier.width(visibleWidth)
+    }
+    Box(
+        modifier = modifier
+            .clipToBounds()
+    ) {
+        Box(modifier = Modifier.offset(x = -shift)) {
+            content()
         }
     }
 }

@@ -55,57 +55,57 @@ object AiSoundLoader :ResourceLoader<SoundItemData>{
     }
     val allSounds = listOf(
         SoundItemData(
-            soundName = "布谷鸟",
-            imageName = "布谷鸟",
+            soundName = "林涧晨鸣",
+            imageName = "林涧晨鸣",
             imgId = -1,
             imgPath = "29@2x.png",
             audioPath = "布谷鸟.mp3"
         ),
         SoundItemData(
-            soundName = "花瓣",
-            imageName = "花瓣",
+            soundName = "铃动清响",
+            imageName = "铃动清响",
             imgId = -1,
             imgPath = "20@2x.png",
             audioPath = "花瓣.mp3"
         ),
         SoundItemData(
-            soundName = "树叶",
-            imageName = "树叶",
+            soundName = "振翅群飞",
+            imageName = "振翅群飞",
             imgId = -1,
             imgPath = "26@2x.png",
             audioPath = "树叶.mp3"
         ),
         SoundItemData(
-            soundName = "溪水",
-            imageName = "溪水",
+            soundName = "森湖拂晓",
+            imageName = "森湖拂晓",
             imgId = -1,
             imgPath = "11@2x.png",
             audioPath = "溪水.mp3"
         ),
         SoundItemData(
-            soundName = "树叶婆娑",
-            imageName = "树叶婆娑",
+            soundName = "飞流直下",
+            imageName = "飞流直下",
             imgId = -1,
             imgPath = "8@2x.png",
             audioPath = "树叶婆娑.mp3"
         ),
         SoundItemData(
-            soundName = "滴水",
-            imageName = "滴水",
+            soundName = "丛林声动",
+            imageName = "丛林声动",
             imgId = -1,
             imgPath = "14@2x.png",
             audioPath = "滴水.wav"
         ),
         SoundItemData(
-            soundName = "花叶",
-            imageName = "花叶",
+            soundName = "步履叠光",
+            imageName = "步履叠光",
             imgId = -1,
             imgPath = "17@2x.png",
             audioPath = "花叶.mp3"
         ),
         SoundItemData(
-            soundName = "晶体",
-            imageName = "晶体",
+            soundName = "牧野沉鸣",
+            imageName = "牧野沉鸣",
             imgId = -1,
             imgPath = "23@2x.png",
             audioPath = "晶体.mp3"
