@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,9 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -229,10 +225,11 @@ fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
 @Composable
 fun InfiniteCircularLazyList_5(
-    onItemSelected: (SoundItemData) -> Unit,
-    onItemInit: (SoundItemData) -> Unit={},
+    onSoundInvoke2Play: (SoundItemData) -> Unit,
+    onSoundChosen: (SoundItemData) -> Unit={},
     soundItemDataList_: List<SoundItemData>,
     visibleNums: Int = 4,
+    chosenUI: @Composable (Int)->Unit,
 ) {
     val scope = rememberCoroutineScope()
     val dragOffset = remember { Animatable(0f) }
@@ -255,7 +252,7 @@ fun InfiniteCircularLazyList_5(
 
     LaunchedEffect(soundItemDataList_) {
         if (!soundItemDataList_.isEmpty()){
-            onItemInit(soundItemDataList_[startIndex])
+            onSoundChosen(soundItemDataList_[startIndex])
         }
     }
 
@@ -327,7 +324,7 @@ fun InfiniteCircularLazyList_5(
                                 }
                             }
                             dragOffset.snapTo(0f)
-                            onItemSelected(soundItemDataList_[startIndex])
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
                         }
                     }
                 )
@@ -343,6 +340,13 @@ fun InfiniteCircularLazyList_5(
             } else {
                 rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
             }
+            val modifiedPath = item.imgPath.replace(".png", "_.png")
+
+            val painter_ = if (item.imgId != -1) {
+                rememberAsyncImagePainter(File(item.imgPath+"_"))
+            } else {
+                rememberAsyncImagePainter("file:///android_asset/images/$modifiedPath")
+            }
 
             Box(
                 modifier = Modifier
@@ -353,13 +357,13 @@ fun InfiniteCircularLazyList_5(
                     }
                     .clickable {
                         if(i==1){
-                            onItemInit(soundItemDataList_[startIndex])
+                            onSoundChosen(soundItemDataList_[startIndex])
                         }else{
                             Log.d("$i 并非最左边")
                         }
                         scope.launch {
                             // 调用选中回调
-                            onItemSelected(soundItemDataList_[startIndex])
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
                             // 计算点击项在 visibleItems 中的位置与活跃项（索引 1）的差值（步数差）
                             val steps = i - 1
                             if (steps > 0) {
@@ -403,32 +407,24 @@ fun InfiniteCircularLazyList_5(
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
+                chosenUI(item.id)
+//                    // 选中
+//                    Image(
+//                        painter =  rememberAsyncImagePainter("file:///android_asset/images/xz.png"),
+//                        contentDescription = null,
+//                        modifier = imageModifier,
+//                        contentScale = ContentScale.Crop
+//                    )
 
                 // 倒影
                 Image(
-                    painter = painter,
+                    painter = painter_,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
-                            scaleY = -1f
-                            alpha = 1f
+//                            scaleY = -1f
                             translationY = imageHeightPx * 1.05f
-                        }
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(
-                                brush = Brush.verticalGradient(
-                                    colorStops = arrayOf(
-                                        0.0f to Color.Black.copy(alpha = 0f), // 倒影底部：最亮
-                                        0.5f to Color.Black.copy(alpha = 0f),   // 中线：完全透明
-                                        1.0f to Color.Black.copy(alpha = 0.4f)    // 顶部：依旧透明
-                                    ),
-                                    startY = 0f,
-                                    endY = size.height
-                                ),
-                                blendMode = BlendMode.DstIn
-                            )
                         }
                         .pointerInput(Unit) {}, // 禁用点击
                     contentScale = ContentScale.Crop
