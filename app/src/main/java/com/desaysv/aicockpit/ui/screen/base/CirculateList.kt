@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -333,6 +337,7 @@ fun InfiniteCircularLazyList_5(
     ) {
         transitions.forEachIndexed { i, state ->
             val item = visibleItems[i]
+            val imageHeightPx = with(LocalDensity.current) { state.size.height.toPx() }
             val painter = if (item.imgId != -1) {
                 rememberAsyncImagePainter(File(item.imgPath))
             } else {
@@ -344,12 +349,9 @@ fun InfiniteCircularLazyList_5(
                     .size(state.size)
                     .graphicsLayer {
                         translationX = state.x
-                        alpha = state.alpha
+//                        alpha = state.alpha
                     }
                     .clickable {
-//                        val clickedIndex = (startIndex + i - 1 + len) % len
-////                        startIndex = clickedIndex
-//                        onItemSelected(soundItemDataList_[clickedIndex])
                         if(i==1){
                             onItemInit(soundItemDataList_[startIndex])
                         }else{
@@ -381,12 +383,57 @@ fun InfiniteCircularLazyList_5(
                     },
                 contentAlignment = Alignment.TopCenter
             ) {
+//                Image(
+//                    painter = painter,
+//                    contentDescription = null,
+//                    modifier = Modifier.fillMaxSize(),
+//                    contentScale = ContentScale.Crop
+//                )
+
+                val imageModifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        alpha = state.alpha
+                    }
+
+                // 主图
                 Image(
                     painter = painter,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
+
+                // 倒影
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            scaleY = -1f
+                            alpha = 1f
+                            translationY = imageHeightPx * 1.05f
+                        }
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Black.copy(alpha = 0f), // 倒影底部：最亮
+                                        0.5f to Color.Black.copy(alpha = 0f),   // 中线：完全透明
+                                        1.0f to Color.Black.copy(alpha = 0.4f)    // 顶部：依旧透明
+                                    ),
+                                    startY = 0f,
+                                    endY = size.height
+                                ),
+                                blendMode = BlendMode.DstIn
+                            )
+                        }
+                        .pointerInput(Unit) {}, // 禁用点击
+                    contentScale = ContentScale.Crop
+                )
+
                 Text(
                     text = item.soundName,
                     style = TextStyle(fontSize = 24.getSP(), color = Color.White),
