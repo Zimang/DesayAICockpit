@@ -23,6 +23,10 @@ import kotlinx.coroutines.withContext
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 const val ACTION_DELETE_INSPIRAION_1="RECEIVER_VPA_TYPE_ACTION"
 const val ACTION_DELETE_INSPIRAION_2="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
+const val INSPIRAION_1_SCOPE="VPA_TYPE"
+const val INSPIRAION_1_SCOPE_VAL="0"
+const val INSPIRAION_2_SCOPE="data"
+const val INSPIRAION_2_SCOPE_VAL="4"
 object GlobalInspirationReceiverHolder {
     private var receiver: BroadcastReceiver? = null
 
@@ -32,11 +36,16 @@ object GlobalInspirationReceiverHolder {
         receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
                 Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
+                Log.printAllBundleExtra(intent)
                 intent?.let {
-                    val isIPAD2Change= it.action=="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
-                            && it.getStringExtra("data")!="4"&& it.getStringExtra("data")!=null
-                    val isLauncherChange= it.action=="RECEIVER_VPA_TYPEATION"
-                            && it.getStringExtra("VPA_TYPE")!="0"&& it.getStringExtra("data")!=null
+                    Log.d("getString ${it.getStringExtra(INSPIRAION_2_SCOPE)} ${it.getIntExtra(INSPIRAION_2_SCOPE,-1)}")
+                    Log.d("getString ${it.getStringExtra(INSPIRAION_1_SCOPE)} ${it.getIntExtra(INSPIRAION_1_SCOPE,-1)}")
+                    val isIPAD2Change= it.action==ACTION_DELETE_INSPIRAION_2
+                            && it.getStringExtra(INSPIRAION_2_SCOPE)!=INSPIRAION_2_SCOPE_VAL
+                            && it.getStringExtra(INSPIRAION_2_SCOPE)!=null
+                    val isLauncherChange= it.action==ACTION_DELETE_INSPIRAION_1
+                            && it.getStringExtra(INSPIRAION_1_SCOPE)!=INSPIRAION_1_SCOPE_VAL
+                            && it.getStringExtra(INSPIRAION_1_SCOPE)!=null
                     if(isIPAD2Change||isLauncherChange){
                         CoroutineScope(Dispatchers.IO).launch {
                             val data = loadOnce()
