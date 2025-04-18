@@ -34,9 +34,9 @@ object GlobalInspirationReceiverHolder {
                 Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
                 intent?.let {
                     val isIPAD2Change= it.action=="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
-                            && it.getStringExtra("data")!="4"
+                            && it.getStringExtra("data")!="4"&& it.getStringExtra("data")!=null
                     val isLauncherChange= it.action=="RECEIVER_VPA_TYPEATION"
-                            && it.getStringExtra("VPA_TYPE")!="0"
+                            && it.getStringExtra("VPA_TYPE")!="0"&& it.getStringExtra("data")!=null
                     if(isIPAD2Change||isLauncherChange){
                         CoroutineScope(Dispatchers.IO).launch {
                             val data = loadOnce()
