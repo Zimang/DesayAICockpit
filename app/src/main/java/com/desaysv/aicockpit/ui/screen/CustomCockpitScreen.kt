@@ -459,8 +459,8 @@ fun ElectricityList_(
 
 @Composable
 fun SoundListV1_(viewModel: MajorViewModel
-,onSoundChosen: (SoundItemData) -> Unit={},
- onSoundInit: (SoundItemData) -> Unit={}
+                 , onSoundInvoke2Play: (SoundItemData) -> Unit={},
+                 onSoundChosen: (SoundItemData) -> Unit={}
                  ) {
     val soundItems by viewModel.sounds.collectAsState(initial = emptyList())
 
@@ -482,15 +482,15 @@ fun SoundListV1_(viewModel: MajorViewModel
             Log.d("no sounds")
         }else{
             val visiables= computeVisibleNum(soundItems.size)
-            InfiniteCircularLazyList_5(
-                onItemSelected = onSoundChosen,
-                soundItemDataList_ =  soundItems ,
-                onItemInit = onSoundInit,
-                visibleNums =  visiables
-            )
-            LaunchedEffect(Unit) {
-                onSoundInit(soundItems[0])
+            LeftShiftedBox(0.dp,0.dp) {
+                InfiniteCircularLazyList_7(
+                    onItemInvoke2Play = onSoundInvoke2Play,
+                    soundItemDataList =  soundItems ,
+                    onItemChosen = onSoundChosen,
+                    visibleNums =  visiables
+                )
             }
+
         }
     }
 }
@@ -798,9 +798,9 @@ fun CustomScreen(
     onSaturationChanged: (Float) -> Unit,
     onChange: (ScreenTag) -> Unit={},
     onThemeWallpaperChange: (String) -> Unit={},
-    onSoundChosen: (SoundItemData) -> Unit={},
+    onSoundInvoke2Play: (SoundItemData) -> Unit={},
     genCockpit: () -> Unit,
-    onSoundInit: (SoundItemData) -> Unit={},
+    onSoundChosen: (SoundItemData) -> Unit={},
     toastMsg:String?=null,
     onExit: () -> Unit={}){
 
@@ -833,7 +833,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundListV1_(majorViewModel,onSoundChosen,onSoundInit)
+                        SoundListV1_(majorViewModel,onSoundInvoke2Play,onSoundChosen)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(
