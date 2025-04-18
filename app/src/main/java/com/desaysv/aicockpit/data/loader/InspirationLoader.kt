@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import com.desaysv.aicockpit.data.ThemeItemData
 import com.desaysv.aicockpit.data.interfaces.ResourceLoader
+import com.desaysv.aicockpit.data.loader.InspirationLoader.loadOnce
 import com.desaysv.aicockpit.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +23,6 @@ import kotlinx.coroutines.withContext
 //val CONFIG_PATH="Android/data/com.desaysv.wuji/files/config.txt"
 const val ACTION_DELETE_INSPIRAION_1="RECEIVER_VPA_TYPE_ACTION"
 const val ACTION_DELETE_INSPIRAION_2="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
-//
 object GlobalInspirationReceiverHolder {
     private var receiver: BroadcastReceiver? = null
 
@@ -32,10 +32,16 @@ object GlobalInspirationReceiverHolder {
         receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
                 Log.d("GlobalReceiver", "收到广播: ${intent?.action}")
-                if (intent?.getStringExtra("VPA_TYPE") != "0") {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val data = InspirationLoader.loadOnce()
-                        onReceiveInspirationCallback(data)
+                intent?.let {
+                    val isIPAD2Change= it.action=="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
+                            && it.getStringExtra("data")!="4"
+                    val isLauncherChange= it.action=="RECEIVER_VPA_TYPEATION"
+                            && it.getStringExtra("VPA_TYPE")!="0"
+                    if(isIPAD2Change||isLauncherChange){
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val data = loadOnce()
+                            onReceiveInspirationCallback(data)
+                        }
                     }
                 }
             }
