@@ -325,6 +325,7 @@ fun InfiniteCircularLazyList_5(
                             }
                             dragOffset.snapTo(0f)
                             onSoundInvoke2Play(soundItemDataList_[startIndex])
+                            Log.d("end at $startIndex")
                         }
                     }
                 )
@@ -363,7 +364,6 @@ fun InfiniteCircularLazyList_5(
                         }
                         scope.launch {
                             // 调用选中回调
-                            onSoundInvoke2Play(soundItemDataList_[startIndex])
                             // 计算点击项在 visibleItems 中的位置与活跃项（索引 1）的差值（步数差）
                             val steps = i - 1
                             if (steps > 0) {
@@ -383,6 +383,7 @@ fun InfiniteCircularLazyList_5(
                                     dragOffset.snapTo(0f)
                                 }
                             }
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
                         }
                     },
                 contentAlignment = Alignment.TopCenter
