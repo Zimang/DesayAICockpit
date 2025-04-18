@@ -72,11 +72,16 @@ object InspirationLoader :ResourceLoader<ThemeItemData>{
                 Log.d("Broadcast received, delete all inspiration")
                 try {
                     // 加载数据并发送到 flow
-
-                    if(intent?.getIntExtra("VPA_TYPE",0)!=0){
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val data = loadOnce()
-                            trySend(data).isSuccess
+                    intent?.let {
+                        val isIPAD2Change= it.action=="com.desaysv.sceneengine.ACTION_SCENE_CHANGE_TOAPP"
+                                    && it.getStringExtra("data")!="4"
+                        val isLauncherChange= it.action=="RECEIVER_VPA_TYPEATION"
+                                    && it.getStringExtra("VPA_TYPE")!="0"
+                        if(isIPAD2Change||isLauncherChange){
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val data = loadOnce()
+                                trySend(data).isSuccess
+                            }
                         }
                     }
                 } catch (e: Exception) {

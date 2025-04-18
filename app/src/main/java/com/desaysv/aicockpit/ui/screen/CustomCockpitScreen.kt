@@ -482,13 +482,21 @@ fun SoundListV1_(viewModel: MajorViewModel
             Log.d("no sounds")
         }else{
             val visiables= computeVisibleNum(soundItems.size)
-            InfiniteCircularLazyList_7(
-                onItemInvoke2Play = onSoundInvoke2Play,
-                soundItemDataList =  soundItems ,
-                onItemChosen = onSoundChosen,
+//            InfiniteCircularLazyList_7(
+//                onItemInvoke2Play = onSoundInvoke2Play,
+//                soundItemDataList =  soundItems ,
+//                onItemChosen = onSoundChosen,
+//                visibleNums =  visiables
+//            )
+            InfiniteCircularLazyList_5(
+                onItemSelected = onSoundInvoke2Play,
+                soundItemDataList_ =  soundItems ,
+                onItemInit = onSoundChosen,
                 visibleNums =  visiables
             )
-
+            LaunchedEffect(Unit) {
+                onSoundChosen(soundItems[0])
+            }
         }
     }
 }
