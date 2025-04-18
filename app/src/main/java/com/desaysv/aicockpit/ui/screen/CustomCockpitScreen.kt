@@ -468,7 +468,6 @@ fun SoundListV1_(viewModel: MajorViewModel
         Modifier
             .fillMaxSize()
             .padding(start = 120.pxToDp()
-//                , top = 120.pxToDp()
             )
     ) {
         if(soundItems.isEmpty() ){
@@ -482,9 +481,9 @@ fun SoundListV1_(viewModel: MajorViewModel
             Log.d("no sounds")
         }else{
             val visiables= computeVisibleNum(soundItems.size)
-            InfiniteCircularLazyList_5(
+            InfiniteCircularLazyList_7(
                 onItemSelected = onSoundChosen,
-                soundItemDataList_ =  soundItems ,
+                soundItemDataList =  soundItems ,
                 onItemInit = onSoundInit,
                 visibleNums =  visiables
             )
