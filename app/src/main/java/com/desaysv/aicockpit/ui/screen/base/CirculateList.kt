@@ -15,19 +15,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +42,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.imageLoader
 import coil.request.ImageRequest
@@ -56,144 +65,6 @@ fun getBaseSize()= listOf(
     DpSize(168.pxToDp(), 224.pxToDp()),
     DpSize(168.pxToDp(), 224.pxToDp())
 )
-
-
-
-@Preview
-@Composable
-fun MultiSlotImageDemo() {
-    val scope = rememberCoroutineScope()
-    val dragOffset = remember { Animatable(0f) }
-    val threshold = 300f
-    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-    var startIndex by remember { mutableStateOf(1) }
-
-    val dpSizes = getBaseSize()
-    val boundsList = with(LocalDensity.current) {
-        val sizes = listOf(
-            dpSizes[3], // slot0 - 隐藏
-            dpSizes[0], // slot1 - 最大
-            dpSizes[1], // slot2
-            dpSizes[2], // slot3
-            dpSizes[3], // slot4
-            dpSizes[0], // slot5 - 隐藏
-        )
-        val edgeSpacingPx = 120f
-        val slotCount = sizes.size
-        val centers = mutableListOf<Float>()
-
-        // 初始化 slot1 的中心起点（slot0 稍微在左侧）
-        var currentCenter = 700f
-
-        for (i in 0 until slotCount) {
-            centers += currentCenter
-            val halfCurrent = sizes[i].width.toPx() / 2
-            if (i < slotCount - 1) {
-                val halfNext = sizes[i + 1].width.toPx() / 2
-                currentCenter += halfCurrent + edgeSpacingPx + halfNext
-            }
-        }
-
-        // 构造 Bounds 列表
-        List(slotCount) { i ->
-            Bounds(
-                x = centers[i] - sizes[i].width.toPx() / 2,
-                size = sizes[i],
-                alpha = if (i == 0 || i == 5) 0f else 1f
-            )
-        }
-    }
-
-    val allImages = listOf(
-        "https://picsum.photos/id/1000/300/300",
-        "https://picsum.photos/id/1001/300/300",
-        "https://picsum.photos/id/1002/300/300",
-        "https://picsum.photos/id/1003/300/300",
-        "https://picsum.photos/id/1004/300/300",
-        "https://picsum.photos/id/1005/300/300",
-        "https://picsum.photos/id/1006/300/300",
-        "https://images.unsplash.com/photo-1741986947217-d1a0ecc39149?q=80&w=1166&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    )
-    fun getVisibleImages(): List<String> {
-        val indices = listOf(-1, 0, 1, 2, 3, 4).map {
-            (startIndex + it + allImages.size) % allImages.size
-        }
-        return indices.map { allImages[it] }
-    }
-    val imagesUrls=getVisibleImages()
-
-    val direction = dragOffset.value.compareTo(0f)
-
-    val transitions = if (direction >= 0) {
-        // 左滑：1→2, 2→3, ..., 5→6（第6不动）
-        (0 until 6).map { i ->
-            if(i==5){
-                lerpSlotV(boundsList[5], boundsList[5], 1f)
-            }else{
-                lerpSlotV(boundsList[i], boundsList[i + 1], t)
-            }
-        }
-    } else {
-        // 右滑：6→5, 5→4, ..., 2→1（第1不动）
-        (5 downTo  0).map { i ->
-            if(i==0){
-                lerpSlotV(boundsList[0], boundsList[0], 1f)
-            }else{
-                lerpSlotV(boundsList[i], boundsList[i - 1], -t)
-            }
-        }.reversed() // 重新排成 0~4 顺序对应图片
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, delta ->
-                        scope.launch {
-                            dragOffset.snapTo(
-                                (dragOffset.value + delta).coerceIn(
-                                    -threshold,
-                                    threshold
-                                )
-                            )
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            if (dragOffset.value > threshold * 0.5f) {
-                                dragOffset.animateTo(threshold, tween(150))
-                                delay(100) //等待一帧
-                                startIndex = (startIndex - 1 + allImages.size) % allImages.size
-                            } else if (dragOffset.value < -threshold * 0.5f) {
-                                dragOffset.animateTo(-threshold, tween(150))
-                                delay(100)
-                                startIndex = (startIndex + 1) % allImages.size
-                            }
-                            dragOffset.snapTo(0f) // 立即归位，数据已换
-                        }
-                    }
-                )
-            }
-    ) {
-        transitions.forEachIndexed { i, state ->
-            Box(
-                Modifier
-                    .absoluteOffset { IntOffset(state.x.roundToInt(), 60) }
-                    .size(state.size)
-                    .graphicsLayer { alpha = state.alpha }
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(imagesUrls[i]),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-    }
-}
 
 
 
@@ -225,6 +96,13 @@ fun lerpSlot(from: Slot, to: Slot, t: Float): Slot {
 }
 fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
+@Composable
+fun LogRecompose(tag: String) {
+    // 每次该函数所在的组合阶段被执行，SideEffect 就会跑一次
+    SideEffect {
+        Log.d("Recompose", tag)
+    }
+}
 
 @Composable
 fun RememberPreloadedCoil(context: Context, items: List<SoundItemData>) {
@@ -248,6 +126,9 @@ fun RememberPreloadedCoil(context: Context, items: List<SoundItemData>) {
     }
 }
 
+/**
+ * 1. 每次数据变动的时候都提前预加载，加载之前数据不变
+ */
 @Composable
 fun InfiniteCircularLazyList_5_lt(
     onSoundInvoke2Play: (SoundItemData) -> Unit,
@@ -273,6 +154,18 @@ fun InfiniteCircularLazyList_5_lt(
             val index = (startIndex + i - 1 + len) % len
             soundItemDataList_[index]
         }
+    }
+
+    // 1️  每次重组打印
+    SideEffect {
+        Log.d("Recompose", "InfiniteList startIndex=$startIndex dragOffset=${dragOffset.value}")
+    }
+
+    LaunchedEffect(dragOffset) {
+        snapshotFlow { dragOffset.value }
+            .collect { offset ->
+                Log.d("DragOffset", "value=$offset")
+            }
     }
 
     LaunchedEffect(soundItemDataList_) {
@@ -331,7 +224,12 @@ fun InfiniteCircularLazyList_5_lt(
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
+                            dragOffset.snapTo(
+                                (dragOffset.value + delta).coerceIn(
+                                    -threshold,
+                                    threshold
+                                )
+                            )
                         }
                     },
                     onDragEnd = {
@@ -339,12 +237,13 @@ fun InfiniteCircularLazyList_5_lt(
                             when {
                                 dragOffset.value > threshold * 0.5f -> {
                                     dragOffset.animateTo(threshold, tween(200))
-                                    delay(100)
+//                                    delay(100)
                                     startIndex = (startIndex - 1 + len) % len
                                 }
+
                                 dragOffset.value < -threshold * 0.5f -> {
                                     dragOffset.animateTo(-threshold, tween(200))
-                                    delay(100)
+//                                    delay(100)
                                     startIndex = (startIndex + 1) % len
                                 }
                             }
@@ -359,6 +258,7 @@ fun InfiniteCircularLazyList_5_lt(
         contentAlignment = Alignment.CenterStart
     ) {
         transitions.forEachIndexed { i, state ->
+            Log.d("SlotState", "item#$i → x=${state.x}  alpha=${state.alpha}")
             val item = visibleItems[i]
             val imageHeightPx = with(LocalDensity.current) { state.size.height.toPx() }
             val painter = if (item.imgId != -1) {
@@ -367,7 +267,6 @@ fun InfiniteCircularLazyList_5_lt(
                 rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
             }
             val modifiedPath = item.imgPath.replace(".png", "_.png")
-
             val painter_ = if (item.imgId != -1) {
                 rememberAsyncImagePainter(File(item.imgPath+"_"))
             } else {
@@ -382,9 +281,9 @@ fun InfiniteCircularLazyList_5_lt(
 //                        alpha = state.alpha
                     }
                     .clickable {
-                        if(i==1){
+                        if (i == 1) {
                             onSoundChosen(soundItemDataList_[startIndex])
-                        }else{
+                        } else {
                             Log.d("$i 并非最左边")
                         }
                         scope.launch {
@@ -459,110 +358,110 @@ fun InfiniteCircularLazyList_5_lt(
         }
     }
 }
+//
+//@Composable
+//fun rememberPainterCache(soundItemDataList: List<SoundItemData>): Map<String, AsyncImagePainter> {
+//    val painterCache = remember { mutableStateMapOf<String, AsyncImagePainter>() }
+//
+//    soundItemDataList.forEach { item ->
+//        val mainPath = "file:///android_asset/images/${item.imgPath}"
+//        val refPath = mainPath.replace(".png", "_.png")
+//
+//        if (mainPath !in painterCache) {
+//            painterCache[mainPath] = rememberAsyncImagePainter(mainPath)
+//        }
+//
+//        if (refPath !in painterCache) {
+//            painterCache[refPath] = rememberAsyncImagePainter(refPath)
+//        }
+//    }
+//
+//    return painterCache
+//}
+
 @Composable
-fun InfiniteCircularLazyList_7(
-    onItemInvoke2Play: (SoundItemData) -> Unit,
-    onItemChosen: (SoundItemData) -> Unit = {},
-    soundItemDataList: List<SoundItemData>,
-    visibleNums: Int = 3,
-    centerShift: Dp = 50.dp // 中间项左移量
+fun rememberPainterCache(soundItemDataList: List<SoundItemData>): Map<String, Painter> {
+    return soundItemDataList.flatMap { item ->
+        listOf(
+            "file:///android_asset/images/${item.imgPath}",
+            "file:///android_asset/images/${item.imgPath}".replace(".png", "_.png")
+        )
+    }.distinct().associateWith { path ->
+        rememberAsyncImagePainter(path)
+    }
+}
+
+
+@Composable
+fun InfiniteCircularLazyList_5_lt_logged(
+    onSoundInvoke2Play: (SoundItemData) -> Unit,
+    onSoundChosen: (SoundItemData) -> Unit = {},
+    soundItemDataList_: List<SoundItemData>,
+    visibleNums: Int = 4,
+    chosenUI: @Composable (Int) -> Unit,
 ) {
+    val painterCache = rememberPainterCache(soundItemDataList_)
     val scope = rememberCoroutineScope()
     val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
-    val len = soundItemDataList.size
-    // 当前中心项在数据列表中的下标
-    var centerItemIndex by remember { mutableStateOf(0) }
-
-    // 手势状态
-    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
-    val direction = dragOffset.value.compareTo(0f)
-
-    // 取出带两端 buffer 的可见项
-    fun getVisibleItems(): List<SoundItemData> =
-        List(visibleNums + 2) { i ->
-            val idx = (centerItemIndex + i - visibleNums / 2 - 1 + len) % len
-            soundItemDataList[idx]
-        }
-
-    LaunchedEffect(soundItemDataList) {
-        if (soundItemDataList.isNotEmpty()) {
-            onItemChosen(soundItemDataList.last())
-        }
-    }
-    val visibleItems = getVisibleItems()
-
-    // 计算 UI 上槽位数量与中心槽位索引
-    val totalSlots = visibleNums + 2
-    val centerSlot = if (visibleNums % 2 == 0) visibleNums / 2 else totalSlots / 2
-
-    // 尺寸与透明度定义
-    val bigSize = DpSize(342.pxToDp(), 456.pxToDp())
-    val smallSize = DpSize(258.pxToDp(), 344.pxToDp())
-    val slotDpSizes = List(totalSlots) { if (it == centerSlot) bigSize else smallSize }
-    val slotAlphas = List(totalSlots) { i ->
-        when (i) {
-            centerSlot -> 1f
-            centerSlot - 1, centerSlot + 1 -> 0.75f
-            else -> 0.5f
-        }
+    var startIndex by remember { mutableStateOf(0) }
+//    val painterMap by remember(soundItemDataList_) {
+//        soundItemDataList_.flatMap { item ->
+//            val main = "file:///android_asset/images/${item.imgPath}"
+//            val ref  = main.replace(".png","_.png")
+//            listOf(main to rememberAsyncImagePainter(main),
+//                ref  to rememberAsyncImagePainter(ref))
+//        }.toMap()
+//    }
+    // —— 1️⃣ 每次重组打印 ——————————————————————————
+    SideEffect {
+        Log.d("InfiniteListRecompose", "startIndex=$startIndex  offset=${"%.1f".format(dragOffset.value)}")
     }
 
-    // 计算每个槽的基础 Bounds
-    val boundsList = with(LocalDensity.current) {
-        val spacing = 120f
-        val centers = mutableListOf<Float>()
-        var currentX = -slotDpSizes.first().width.toPx() / 2 - spacing
-        for (i in 0 until totalSlots) {
-            centers += currentX + slotDpSizes[i].width.toPx() / 2
-            val half = slotDpSizes[i].width.toPx() / 2
-            currentX += half + spacing + if (i + 1 < totalSlots) slotDpSizes[i + 1].width.toPx() / 2 else half
-        }
-        val shiftPx = centerShift.toPx()
-        List(totalSlots) { i ->
-            val baseX = centers[i] - slotDpSizes[i].width.toPx() / 2
-            val x = if (i == centerSlot) baseX - shiftPx else baseX
-            Bounds(x = x, size = slotDpSizes[i], alpha = slotAlphas[i])
-        }
+    // —— 2️⃣ 打印 dragOffset 的实时变化 —————————————————————
+    LaunchedEffect(dragOffset) {
+        snapshotFlow { dragOffset.value }
+            .collect { offset ->
+                Log.d("DragOffset", "value=${"%.1f".format(offset)}")
+            }
     }
 
-    // 根据拖动方向插值
-    val lastIdx = totalSlots - 1
-    val transitions = if (direction >= 0) {
-        (0..lastIdx).map { i ->
-            if (i == lastIdx) lerpSlotV(boundsList[i], boundsList[i], 1f)
-            else lerpSlotV(boundsList[i], boundsList[i + 1], t)
-        }
-    } else {
-        (lastIdx downTo 0).map { i ->
-            if (i == 0) lerpSlotV(boundsList[i], boundsList[i], 1f)
-            else lerpSlotV(boundsList[i], boundsList[i - 1], -t)
-        }.reversed()
-    }
+    // —— 3️⃣ onDragEnd 前后打印详细状态 —————————————————————
+    val len = soundItemDataList_.size
+    val getVisibleItems = { List(visibleNums + 2) { i ->
+        soundItemDataList_[(startIndex + i - 1 + len) % len]
+    } }
 
     Box(
-        modifier = Modifier
+        Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold)) }
+                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
+                        }
                     },
                     onDragEnd = {
                         scope.launch {
+                            Log.d("DragEnd", "BEFORE  startIndex=$startIndex  offset=${dragOffset.value}")
                             when {
                                 dragOffset.value > threshold * 0.5f -> {
-                                    dragOffset.animateTo(threshold, tween(200)); delay(100)
-                                    centerItemIndex = (centerItemIndex - 1 + len) % len
+                                    dragOffset.animateTo(threshold, tween(200))
+                                    Log.d("DragEnd", "AFTER animateTo(threshold)")
+                                    startIndex = (startIndex - 1 + len) % len
+                                    Log.d("DragEnd", "UPDATED startIndex=$startIndex")
                                 }
                                 dragOffset.value < -threshold * 0.5f -> {
-                                    dragOffset.animateTo(-threshold, tween(200)); delay(100)
-                                    centerItemIndex = (centerItemIndex + 1) % len
+                                    dragOffset.animateTo(-threshold, tween(200))
+                                    Log.d("DragEnd", "AFTER animateTo(-threshold)")
+                                    startIndex = (startIndex + 1) % len
+                                    Log.d("DragEnd", "UPDATED startIndex=$startIndex")
                                 }
                             }
-                            dragOffset.animateTo(0f)
-//                            dragOffset.snapTo(0f)
+                            dragOffset.snapTo(0f)
+                            Log.d("DragEnd", "AFTER animateTo(0)  final startIndex=$startIndex  offset=${dragOffset.value}")
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
                         }
                     }
                 )
@@ -570,61 +469,120 @@ fun InfiniteCircularLazyList_7(
             .clip(RectangleShape),
         contentAlignment = Alignment.CenterStart
     ) {
-        transitions.forEachIndexed { slotIdx, state ->
-            if (state.alpha > 0f) {
-                val item = visibleItems[slotIdx]
-                val painter = rememberAsyncImagePainter(
-                    if (item.imgId != -1) File(item.imgPath) else "file:///android_asset/images/${item.imgPath}"
-                )
-                Box(
-                    modifier = Modifier
-                        .size(state.size)
-                        .graphicsLayer { translationX = state.x; alpha = state.alpha }
-                        .clickable {
-                            onItemInvoke2Play(item)
-                            if (slotIdx == centerSlot) {
-                                onItemChosen(item)
-                            } else {
-                                // 非中心，移动到中心后不触发 onItemChosen
-                                val steps = slotIdx - centerSlot
-                                scope.launch {
-                                    repeat(abs(steps)) {
-                                        if (steps > 0) {
-                                            dragOffset.animateTo(-threshold, tween(200)); delay(100)
-                                            centerItemIndex = (centerItemIndex + 1) % len
-                                        } else {
-                                            dragOffset.animateTo(threshold, tween(200)); delay(100)
-                                            centerItemIndex = (centerItemIndex - 1 + len) % len
-                                        }
+        val visibleItems = getVisibleItems()
 
-                                        dragOffset.animateTo(0f)
-//                                        dragOffset.snapTo(0f)
-                                    }
+        // 计算 boundsList + transitions (与原逻辑一致)…
+        val baseSizes = getBaseSize()
+        val sizes = getLoopedSizes(baseSizes, visibleNums)
+        val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
+        val direction = dragOffset.value.compareTo(0f)
+        val boundsList = with(LocalDensity.current) {
+            val spacing = 120f
+            val centers = mutableListOf<Float>()
+            var currentCenter = -200f
+
+            for (i in sizes.indices) {
+                centers += currentCenter
+                val half = sizes[i].width.toPx() / 2
+                if (i < sizes.lastIndex) {
+                    val nextHalf = sizes[i + 1].width.toPx() / 2
+                    currentCenter += half + spacing + nextHalf
+                }
+            }
+
+            List(sizes.size) { i ->
+                Bounds(
+                    x = centers[i] - sizes[i].width.toPx() / 2,
+                    size = sizes[i],
+                    alpha = when (i) {
+                        0, sizes.size - 1 -> 0f
+                        1 -> 1f
+                        2 -> 0.75f
+                        else -> 0.4f
+                    }
+                )
+            }
+        }
+        val transitions = if (direction >= 0) {
+            sizes.indices.map { i -> if (i==sizes.lastIndex) boundsList[i] else lerpSlotV(boundsList[i], boundsList[i+1], t) }
+        } else {
+            (sizes.lastIndex downTo 0).map { i -> if (i==0) boundsList[i] else lerpSlotV(boundsList[i], boundsList[i-1], -t) }.reversed()
+        }
+
+        // —— 4️⃣ 每一帧绘制前打印 slot 状态 ———————————————
+        transitions.forEachIndexed { i, state ->
+            Log.d("SlotState", "item#$i  x=${"%.1f".format(state.x)}  alpha=${"%.2f".format(state.alpha)}")
+            val item = visibleItems[i]
+            val imageHeightPx = with(LocalDensity.current) { state.size.height.toPx() }
+
+            // painter 用法同原来
+            val pathMain = "file:///android_asset/images/${item.imgPath}"
+            val pathRef  = pathMain.replace(".png","_.png")
+//            val painter   = rememberAsyncImagePainter(pathMain)
+//            val painter_  = rememberAsyncImagePainter(pathRef)
+            val painter = painterCache[pathMain]!!
+            val painter_ = painterCache[pathRef]!!
+
+            Box(
+                Modifier
+                    .size(state.size)
+                    .graphicsLayer { translationX = state.x }
+                    .clickable {
+                        if (i == 1) {
+                            onSoundChosen(soundItemDataList_[startIndex])
+                        } else {
+                            Log.d("$i 并非最左边")
+                        }
+                        scope.launch {
+                            // 调用选中回调
+                            // 计算点击项在 visibleItems 中的位置与活跃项（索引 1）的差值（步数差）
+                            val steps = i - 1
+                            if (steps > 0) {
+                                // 点击项在右侧，向左滑动 steps 次
+                                repeat(steps) {
+                                    dragOffset.animateTo(-threshold, tween(300))
+//                                    delay(30)
+                                    startIndex = (startIndex + 1) % len
+                                    dragOffset.snapTo(0f)
+                                }
+                            } else if (steps < 0) {
+                                // 点击项在左侧，向右滑动 abs(steps) 次
+                                repeat(-steps) {
+                                    dragOffset.animateTo(threshold, tween(300))
+//                                    delay(30)
+                                    startIndex = (startIndex - 1 + len) % len
+                                    dragOffset.snapTo(0f)
                                 }
                             }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                    Text(
-                        text = item.soundName,
-                        style = TextStyle(fontSize = 24.getSP(), color = Color.White),
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
-                    )
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
+                        }
+                    },
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Image(painter = painter, contentDescription = null,
+                    modifier = Modifier.fillMaxSize().graphicsLayer { alpha = state.alpha },
+                    contentScale = ContentScale.Crop)
+                if( state.alpha!=0f){
+                    chosenUI(item.id)
                 }
+                Image(painter = painter_, contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(if ( state.alpha==0f) 0f else 1f)
+                        .graphicsLayer { translationY = imageHeightPx * 1.05f },
+                    contentScale = ContentScale.Crop)
+                Text(item.soundName,
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp, 0.dp, 0.dp, 26.dp)
+                        .alpha(if ( state.alpha==0f) 0f else 1f),
+                    fontSize = 24.sp,
+                    color = Color.White
+                )
             }
         }
     }
 }
-
-
 
 fun getLoopedItems(data: List<SoundItemData>, visibleCount: Int): List<SoundItemData> {
     return List(visibleCount ) { i ->
@@ -709,7 +667,12 @@ fun InfiniteCircularLazyList_5(
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
                         scope.launch {
-                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
+                            dragOffset.snapTo(
+                                (dragOffset.value + delta).coerceIn(
+                                    -threshold,
+                                    threshold
+                                )
+                            )
                         }
                     },
                     onDragEnd = {
@@ -720,6 +683,7 @@ fun InfiniteCircularLazyList_5(
                                     delay(100)
                                     startIndex = (startIndex - 1 + len) % len
                                 }
+
                                 dragOffset.value < -threshold * 0.5f -> {
                                     dragOffset.animateTo(-threshold, tween(200))
                                     delay(100)
@@ -764,7 +728,10 @@ fun InfiniteCircularLazyList_5(
                             scope.launch {
                                 repeat(abs(steps)) {
                                     val forward = steps > 0
-                                    dragOffset.animateTo(if (forward) -threshold else threshold, tween(300))
+                                    dragOffset.animateTo(
+                                        if (forward) -threshold else threshold,
+                                        tween(300)
+                                    )
                                     startIndex = (startIndex + if (forward) 1 else -1 + len) % len
                                     dragOffset.snapTo(0f)
                                 }

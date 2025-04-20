@@ -481,7 +481,7 @@ fun SoundListV1_(viewModel: MajorViewModel
             )
             Log.d("no sounds")
         }else{
-             InfiniteCircularLazyList_5_lt(
+             InfiniteCircularLazyList_5_lt_logged (
                 onSoundInvoke2Play = onSoundInvoke2Play,
                 soundItemDataList_ =  soundItems ,
                 onSoundChosen = onSoundChosen,
