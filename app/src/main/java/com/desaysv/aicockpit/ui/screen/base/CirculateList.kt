@@ -405,28 +405,8 @@ fun InfiniteCircularLazyList_5_lt_logged(
     val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
     var startIndex by remember { mutableStateOf(0) }
-//    val painterMap by remember(soundItemDataList_) {
-//        soundItemDataList_.flatMap { item ->
-//            val main = "file:///android_asset/images/${item.imgPath}"
-//            val ref  = main.replace(".png","_.png")
-//            listOf(main to rememberAsyncImagePainter(main),
-//                ref  to rememberAsyncImagePainter(ref))
-//        }.toMap()
-//    }
-    // —— 1️⃣ 每次重组打印 ——————————————————————————
-    SideEffect {
-        Log.d("InfiniteListRecompose", "startIndex=$startIndex  offset=${"%.1f".format(dragOffset.value)}")
-    }
 
-    // —— 2️⃣ 打印 dragOffset 的实时变化 —————————————————————
-    LaunchedEffect(dragOffset) {
-        snapshotFlow { dragOffset.value }
-            .collect { offset ->
-                Log.d("DragOffset", "value=${"%.1f".format(offset)}")
-            }
-    }
 
-    // —— 3️⃣ onDragEnd 前后打印详细状态 —————————————————————
     val len = soundItemDataList_.size
     val getVisibleItems = { List(visibleNums + 2) { i ->
         soundItemDataList_[(startIndex + i - 1 + len) % len]
@@ -448,19 +428,14 @@ fun InfiniteCircularLazyList_5_lt_logged(
                             when {
                                 dragOffset.value > threshold * 0.5f -> {
                                     dragOffset.animateTo(threshold, tween(200))
-                                    Log.d("DragEnd", "AFTER animateTo(threshold)")
                                     startIndex = (startIndex - 1 + len) % len
-                                    Log.d("DragEnd", "UPDATED startIndex=$startIndex")
                                 }
                                 dragOffset.value < -threshold * 0.5f -> {
                                     dragOffset.animateTo(-threshold, tween(200))
-                                    Log.d("DragEnd", "AFTER animateTo(-threshold)")
                                     startIndex = (startIndex + 1) % len
-                                    Log.d("DragEnd", "UPDATED startIndex=$startIndex")
                                 }
                             }
                             dragOffset.snapTo(0f)
-                            Log.d("DragEnd", "AFTER animateTo(0)  final startIndex=$startIndex  offset=${dragOffset.value}")
                             onSoundInvoke2Play(soundItemDataList_[startIndex])
                         }
                     }
@@ -471,7 +446,6 @@ fun InfiniteCircularLazyList_5_lt_logged(
     ) {
         val visibleItems = getVisibleItems()
 
-        // 计算 boundsList + transitions (与原逻辑一致)…
         val baseSizes = getBaseSize()
         val sizes = getLoopedSizes(baseSizes, visibleNums)
         val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
@@ -509,7 +483,6 @@ fun InfiniteCircularLazyList_5_lt_logged(
             (sizes.lastIndex downTo 0).map { i -> if (i==0) boundsList[i] else lerpSlotV(boundsList[i], boundsList[i-1], -t) }.reversed()
         }
 
-        // —— 4️⃣ 每一帧绘制前打印 slot 状态 ———————————————
         transitions.forEachIndexed { i, state ->
             Log.d("SlotState", "item#$i  x=${"%.1f".format(state.x)}  alpha=${"%.2f".format(state.alpha)}")
             val item = visibleItems[i]
