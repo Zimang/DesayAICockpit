@@ -35,10 +35,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.desaysv.aicockpit.MyApplication
 import com.desaysv.aicockpit.data.ElectricityItemData
 import com.desaysv.aicockpit.data.ThemeItemData
+import com.desaysv.aicockpit.data.loader.AiSoundLoader
 import com.desaysv.aicockpit.ui.screen.CustomScreen
 import com.desaysv.aicockpit.ui.screen.InspiratonScreenV3
 import com.desaysv.aicockpit.ui.screen.SaveScreen
 import com.desaysv.aicockpit.ui.screen.ScreenTag
+import com.desaysv.aicockpit.ui.screen.base.RememberPreloadedCoil
 import com.desaysv.aicockpit.utils.Log
 import com.desaysv.aicockpit.utils.ResourceManager
 import com.desaysv.aicockpit.utils.SoundPlayerController
@@ -104,6 +106,8 @@ fun MainNavigation() {
 
     var toastSaveAndAppliedMsg by remember { mutableStateOf<String?>(null) }
     var toastAppliedSuccessMsg by remember { mutableStateOf<String?>(null) }
+
+    RememberPreloadedCoil(context, AiSoundLoader.allSounds)
 
 
     Box(modifier = Modifier

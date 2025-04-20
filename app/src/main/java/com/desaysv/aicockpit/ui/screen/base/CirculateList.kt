@@ -1,5 +1,6 @@
 package com.desaysv.aicockpit.ui.screen.base
 
+import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -36,6 +37,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import coil.compose.rememberAsyncImagePainter
+import coil.imageLoader
+import coil.request.ImageRequest
+import coil.size.Size
 import com.desaysv.aicockpit.data.SoundItemData
 import com.desaysv.aicockpit.ui.screen.getSP
 import com.desaysv.aicockpit.utils.Log
@@ -94,7 +98,7 @@ fun MultiSlotImageDemo() {
         List(slotCount) { i ->
             Bounds(
                 x = centers[i] - sizes[i].width.toPx() / 2,
-                dpSize = sizes[i],
+                size = sizes[i],
                 alpha = if (i == 0 || i == 5) 0f else 1f
             )
         }
@@ -194,7 +198,7 @@ fun MultiSlotImageDemo() {
 
 
 data class Slot(val x: Float, val scale: Float, val alpha: Float)
-data class Bounds(val x: Float, val dpSize: DpSize, val alpha: Float)
+data class Bounds(val x: Float, val size: DpSize, val alpha: Float)
 
 data class SlotVisual(
     val x: Float,
@@ -202,12 +206,12 @@ data class SlotVisual(
     val alpha: Float
 )
 
-fun lerpSlotV(from: Bounds, to: Bounds, t: Float): SlotVisual {
-    return SlotVisual(
+fun lerpSlotV(from: Bounds, to: Bounds, t: Float): Bounds {
+    return Bounds(
         x = lerp(from.x, to.x, t),
         size = DpSize(
-            lerp(from.dpSize.width, to.dpSize.width, t),
-            lerp(from.dpSize.height, to.dpSize.height, t)
+            lerp(from.size.width, to.size.width, t),
+            lerp(from.size.height, to.size.height, t)
         ),
         alpha = lerp(from.alpha, to.alpha, t)
     )
@@ -222,9 +226,30 @@ fun lerpSlot(from: Slot, to: Slot, t: Float): Slot {
 fun lerp(a: Dp, b: Dp, t: Float): Dp = a + (b - a) * t
 
 
+@Composable
+fun RememberPreloadedCoil(context: Context, items: List<SoundItemData>) {
+    val imageLoader = context.imageLoader
+    LaunchedEffect(items) {
+        items.forEach { item ->
+            val paths = listOf(
+                "file:///android_asset/images/${item.imgPath}",
+                // reflection variant:
+                "file:///android_asset/images/${item.imgPath.replace(".png","_.png")}"
+            )
+            paths.forEach { path ->
+                imageLoader.enqueue(
+                    ImageRequest.Builder(context)
+                        .data(path)
+                        .size(Size.ORIGINAL)     // ensure full resolution
+                        .build()
+                )
+            }
+        }
+    }
+}
 
 @Composable
-fun InfiniteCircularLazyList_5(
+fun InfiniteCircularLazyList_5_lt(
     onSoundInvoke2Play: (SoundItemData) -> Unit,
     onSoundChosen: (SoundItemData) -> Unit={},
     soundItemDataList_: List<SoundItemData>,
@@ -275,7 +300,7 @@ fun InfiniteCircularLazyList_5(
         List(sizes.size) { i ->
             Bounds(
                 x = centers[i] - sizes[i].width.toPx() / 2,
-                dpSize = sizes[i],
+                size = sizes[i],
                 alpha = when (i) {
                     0, sizes.size - 1 -> 0f
                     1 -> 1f
@@ -409,14 +434,6 @@ fun InfiniteCircularLazyList_5(
                     contentScale = ContentScale.Crop
                 )
                 chosenUI(item.id)
-//                    // 选中
-//                    Image(
-//                        painter =  rememberAsyncImagePainter("file:///android_asset/images/xz.png"),
-//                        contentDescription = null,
-//                        modifier = imageModifier,
-//                        contentScale = ContentScale.Crop
-//                    )
-
                 // 倒影
                 Image(
                     painter = painter_,
@@ -505,7 +522,7 @@ fun InfiniteCircularLazyList_7(
         List(totalSlots) { i ->
             val baseX = centers[i] - slotDpSizes[i].width.toPx() / 2
             val x = if (i == centerSlot) baseX - shiftPx else baseX
-            Bounds(x = x, dpSize = slotDpSizes[i], alpha = slotAlphas[i])
+            Bounds(x = x, size = slotDpSizes[i], alpha = slotAlphas[i])
         }
     }
 
@@ -529,7 +546,8 @@ fun InfiniteCircularLazyList_7(
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, delta ->
-                        scope.launch { dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold)) }
+                        scope.launch {
+                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold)) }
                     },
                     onDragEnd = {
                         scope.launch {
@@ -543,7 +561,8 @@ fun InfiniteCircularLazyList_7(
                                     centerItemIndex = (centerItemIndex + 1) % len
                                 }
                             }
-                            dragOffset.snapTo(0f)
+                            dragOffset.animateTo(0f)
+//                            dragOffset.snapTo(0f)
                         }
                     }
                 )
@@ -577,7 +596,9 @@ fun InfiniteCircularLazyList_7(
                                             dragOffset.animateTo(threshold, tween(200)); delay(100)
                                             centerItemIndex = (centerItemIndex - 1 + len) % len
                                         }
-                                        dragOffset.snapTo(0f)
+
+                                        dragOffset.animateTo(0f)
+//                                        dragOffset.snapTo(0f)
                                     }
                                 }
                             }
@@ -627,4 +648,160 @@ fun getLoopedSizes(dpSizes: List<DpSize>, visibleCount: Int): List<DpSize> {
 fun computeVisibleNum(dataSize: Int, maxVisible: Int = 4): Int {
     Log.d("数据集大小 $dataSize 可见项参数 $maxVisible")
     return if (dataSize >= maxVisible) maxVisible else dataSize
+}
+
+private val spacing = 120f
+
+private val fixedBoundsList = listOf(
+    Bounds(x = -342f - spacing - 258f / 2f,  size = DpSize(168.dp, 168.dp), alpha = 0f),
+    Bounds(x = -342f - spacing / 2f,         size = DpSize(258.dp, 258.dp), alpha = 1f),
+    Bounds(x = -342f / 2f,                   size = DpSize(342.dp, 342.dp), alpha = 0.75f),
+    Bounds(x = 342f + spacing / 2f,          size = DpSize(258.dp, 258.dp), alpha = 0.4f),
+    Bounds(x = 342f + spacing + 258f,        size = DpSize(168.dp, 168.dp), alpha = 0f),
+    Bounds(x = 0f,                           size = DpSize(0.dp, 0.dp),     alpha = 0f), // 第6项备用位
+)
+
+@Composable
+fun InfiniteCircularLazyList_5(
+    onSoundInvoke2Play: (SoundItemData) -> Unit,
+    onSoundChosen: (SoundItemData) -> Unit = {},
+    soundItemDataList_: List<SoundItemData>,
+    chosenUI: @Composable (Int) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val dragOffset = remember { Animatable(0f) }
+    val threshold = 300f
+    var startIndex by remember { mutableStateOf(0) }
+    val len = soundItemDataList_.size
+
+    val t = (dragOffset.value / threshold).coerceIn(-1f, 1f)
+    val direction = dragOffset.value.compareTo(0f)
+
+    val visibleItems by remember(startIndex, soundItemDataList_) {
+        mutableStateOf(List(6) { i ->
+            val index = (startIndex + i - 1 + len) % len
+            soundItemDataList_[index]
+        })
+    }
+
+    LaunchedEffect(soundItemDataList_) {
+        if (soundItemDataList_.isNotEmpty()) {
+            onSoundChosen(soundItemDataList_[startIndex])
+        }
+    }
+
+    val transitions = if (direction >= 0) {
+        fixedBoundsList.indices.map { i ->
+            if (i == fixedBoundsList.lastIndex) fixedBoundsList[i]
+            else lerpSlotV(fixedBoundsList[i], fixedBoundsList[i + 1], t)
+        }
+    } else {
+        (fixedBoundsList.lastIndex downTo 0).map { i ->
+            if (i == 0) fixedBoundsList[i]
+            else lerpSlotV(fixedBoundsList[i], fixedBoundsList[i - 1], -t)
+        }.reversed()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, delta ->
+                        scope.launch {
+                            dragOffset.snapTo((dragOffset.value + delta).coerceIn(-threshold, threshold))
+                        }
+                    },
+                    onDragEnd = {
+                        scope.launch {
+                            when {
+                                dragOffset.value > threshold * 0.5f -> {
+                                    dragOffset.animateTo(threshold, tween(200))
+                                    delay(100)
+                                    startIndex = (startIndex - 1 + len) % len
+                                }
+                                dragOffset.value < -threshold * 0.5f -> {
+                                    dragOffset.animateTo(-threshold, tween(200))
+                                    delay(100)
+                                    startIndex = (startIndex + 1) % len
+                                }
+                            }
+                            dragOffset.snapTo(0f)
+                            onSoundInvoke2Play(soundItemDataList_[startIndex])
+                        }
+                    }
+                )
+            }
+            .clip(RectangleShape),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        transitions.forEachIndexed { i, state ->
+            val item = visibleItems[i]
+
+            val painter = if (item.imgId != -1) {
+                rememberAsyncImagePainter(File(item.imgPath))
+            } else {
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath}")
+            }
+
+            val painter_ = if (item.imgId != -1) {
+                rememberAsyncImagePainter(File(item.imgPath + "_"))
+            } else {
+                rememberAsyncImagePainter("file:///android_asset/images/${item.imgPath.replace(".png", "_.png")}")
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(state.size)
+                    .graphicsLayer {
+                        translationX = state.x
+                    }
+                    .clickable {
+                        if (i == 1) {
+                            onSoundChosen(soundItemDataList_[startIndex])
+                        } else {
+                            val steps = i - 1
+                            scope.launch {
+                                repeat(abs(steps)) {
+                                    val forward = steps > 0
+                                    dragOffset.animateTo(if (forward) -threshold else threshold, tween(300))
+                                    startIndex = (startIndex + if (forward) 1 else -1 + len) % len
+                                    dragOffset.snapTo(0f)
+                                }
+                                onSoundInvoke2Play(soundItemDataList_[startIndex])
+                            }
+                        }
+                    },
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { alpha = state.alpha },
+                    contentScale = ContentScale.Crop
+                )
+                chosenUI(item.id)
+                Image(
+                    painter = painter_,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = state.size.height.value * 1.05f
+                        }
+                        .pointerInput(Unit) {}, // 禁止事件穿透
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+                    text = item.soundName,
+                    style = TextStyle(fontSize = 24.getSP(), color = Color.White),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 24.72f.pxToDp(), bottom = 26.05f.pxToDp())
+                )
+            }
+        }
+    }
 }

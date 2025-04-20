@@ -10,7 +10,8 @@ import kotlin.math.roundToInt
 @Composable
 fun Int.pxToDp(): Dp {
     val density = LocalDensity.current
-    return with(density) { this@pxToDp.toDp() }
+    return with(density) {
+        this@pxToDp.toDp() }
 }
 @Composable
 fun Int.pxToSp(): TextUnit {

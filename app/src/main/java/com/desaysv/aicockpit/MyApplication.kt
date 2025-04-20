@@ -57,7 +57,7 @@ class MyApplication : Application() {
             themeRepository.ensureThemeExists()
             //确保至少存在一个默认“电”
             elesRepository.ensureEleExists()
-
+//
             //更新主题到Launcher或者接收Launcher的主题
             val tname=requestApplyingTheme(this@MyApplication)
             if(tname.isEmpty()){
