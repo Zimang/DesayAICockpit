@@ -491,8 +491,6 @@ fun InfiniteCircularLazyList_5_lt_logged(
             // painter 用法同原来
             val pathMain = "file:///android_asset/images/${item.imgPath}"
             val pathRef  = pathMain.replace(".png","_.png")
-//            val painter   = rememberAsyncImagePainter(pathMain)
-//            val painter_  = rememberAsyncImagePainter(pathRef)
             val painter = painterCache[pathMain]!!
             val painter_ = painterCache[pathRef]!!
 
@@ -507,22 +505,16 @@ fun InfiniteCircularLazyList_5_lt_logged(
                             Log.d("$i 并非最左边")
                         }
                         scope.launch {
-                            // 调用选中回调
-                            // 计算点击项在 visibleItems 中的位置与活跃项（索引 1）的差值（步数差）
                             val steps = i - 1
                             if (steps > 0) {
-                                // 点击项在右侧，向左滑动 steps 次
                                 repeat(steps) {
                                     dragOffset.animateTo(-threshold, tween(300))
-//                                    delay(30)
                                     startIndex = (startIndex + 1) % len
                                     dragOffset.snapTo(0f)
                                 }
                             } else if (steps < 0) {
-                                // 点击项在左侧，向右滑动 abs(steps) 次
                                 repeat(-steps) {
                                     dragOffset.animateTo(threshold, tween(300))
-//                                    delay(30)
                                     startIndex = (startIndex - 1 + len) % len
                                     dragOffset.snapTo(0f)
                                 }

@@ -458,12 +458,11 @@ fun ElectricityList_(
 
 
 @Composable
-fun SoundListV1_(viewModel: MajorViewModel
+fun SoundListV1_(soundItems:  List<SoundItemData>
                  , onSoundInvoke2Play: (SoundItemData) -> Unit={},
                  onSoundChosen: (SoundItemData) -> Unit={},
                  chosenUI:@Composable (Int)->Unit
                  ) {
-    val soundItems by viewModel.sounds.collectAsState(initial = emptyList())
 
     Box(
         Modifier
@@ -804,6 +803,7 @@ fun CustomScreen(
     chosenUI: @Composable (Int) -> Unit,
     onExit: () -> Unit={}){
 
+    val soundItems by majorViewModel.sounds.collectAsState(initial = emptyList())
 
 //    var toastMsg by remember { mutableStateOf<String?>(null) }
     var tag by remember { mutableStateOf(SoundLightElectricityTag.SOUND) }
@@ -833,7 +833,7 @@ fun CustomScreen(
                 }
                 when(tag){
                     SoundLightElectricityTag.SOUND->
-                        SoundListV1_(majorViewModel,onSoundInvoke2Play,onSoundChosen,chosenUI)
+                        SoundListV1_(soundItems,onSoundInvoke2Play,onSoundChosen,chosenUI)
 
                     SoundLightElectricityTag.LIGHT ->
                         LightPart(
