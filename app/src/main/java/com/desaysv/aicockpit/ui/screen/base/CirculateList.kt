@@ -358,39 +358,61 @@ fun InfiniteCircularLazyList_5_lt(
         }
     }
 }
-//
+
 //@Composable
-//fun rememberPainterCache(soundItemDataList: List<SoundItemData>): Map<String, AsyncImagePainter> {
-//    val painterCache = remember { mutableStateMapOf<String, AsyncImagePainter>() }
-//
-//    soundItemDataList.forEach { item ->
-//        val mainPath = "file:///android_asset/images/${item.imgPath}"
-//        val refPath = mainPath.replace(".png", "_.png")
-//
-//        if (mainPath !in painterCache) {
-//            painterCache[mainPath] = rememberAsyncImagePainter(mainPath)
-//        }
-//
-//        if (refPath !in painterCache) {
-//            painterCache[refPath] = rememberAsyncImagePainter(refPath)
-//        }
+//fun rememberPainterCache(soundItemDataList: List<SoundItemData>): Map<String, Painter> {
+//    return soundItemDataList.flatMap { item ->
+//        listOf(
+//            "file:///android_asset/images/${item.imgPath}",
+//            "file:///android_asset/images/${item.imgPath}".replace(".png", "_.png")
+//        )
+//    }.distinct().associateWith { path ->
+//        rememberAsyncImagePainter(path)
 //    }
-//
-//    return painterCache
 //}
 
 @Composable
-fun rememberPainterCache(soundItemDataList: List<SoundItemData>): Map<String, Painter> {
-    return soundItemDataList.flatMap { item ->
-        listOf(
-            "file:///android_asset/images/${item.imgPath}",
-            "file:///android_asset/images/${item.imgPath}".replace(".png", "_.png")
-        )
-    }.distinct().associateWith { path ->
-        rememberAsyncImagePainter(path)
+fun rememberPainterCacheWithDrawReady(
+    soundItemDataList: List<SoundItemData>
+): Pair<Map<String, Painter>, Boolean> {
+    val paths = remember(soundItemDataList) {
+        soundItemDataList.flatMap { item ->
+            listOf(
+                "file:///android_asset/images/${item.imgPath}",
+                "file:///android_asset/images/${item.imgPath}".replace(".png", "_.png")
+            )
+        }.distinct()
     }
-}
 
+    val painterMap = remember(paths) {
+        paths.associateWith { path ->
+            mutableStateOf<AsyncImagePainter?>(null)
+        }
+    }
+
+    paths.forEach { path ->
+        val painter = rememberAsyncImagePainter(path)
+        painterMap[path]?.value = painter
+    }
+
+    var allReadyToDraw by remember { mutableStateOf(false) }
+
+    LaunchedEffect(painterMap.map { it.value.value?.state }) {
+        val allSuccess = painterMap.values.all {
+            it.value?.state is AsyncImagePainter.State.Success
+        }
+
+        if (allSuccess) {
+            // 等待 1 帧保证 Compose 已布局并准备绘制
+            delay(16) // 一帧时长，避免出现瞬间绘制不一致
+            allReadyToDraw = true
+        } else {
+            allReadyToDraw = false
+        }
+    }
+
+    return painterMap.mapValues { it.value.value!! } to allReadyToDraw
+}
 
 @Composable
 fun InfiniteCircularLazyList_5_lt_logged(
@@ -400,7 +422,8 @@ fun InfiniteCircularLazyList_5_lt_logged(
     visibleNums: Int = 4,
     chosenUI: @Composable (Int) -> Unit,
 ) {
-    val painterCache = rememberPainterCache(soundItemDataList_)
+//    val painterCache = rememberPainterCache(soundItemDataList_)
+    val (painterCache, allReadyToDraw) = rememberPainterCacheWithDrawReady(soundItemDataList_)
     val scope = rememberCoroutineScope()
     val dragOffset = remember { Animatable(0f) }
     val threshold = 300f
@@ -412,6 +435,7 @@ fun InfiniteCircularLazyList_5_lt_logged(
         soundItemDataList_[(startIndex + i - 1 + len) % len]
     } }
 
+    if(allReadyToDraw){
     Box(
         Modifier
             .fillMaxSize()
